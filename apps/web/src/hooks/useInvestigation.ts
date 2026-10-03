@@ -13,7 +13,7 @@ export function useInvestigation() {
     setSelectedCoords({ lat, lng });
     setError(null);
     setInvestigation(null);
-    setIsDossierOpen(false);
+    setIsDossierOpen(true);
     setStage("checking_cache");
 
     // Simulate stage updates for clear UX feedback while awaiting backend response
