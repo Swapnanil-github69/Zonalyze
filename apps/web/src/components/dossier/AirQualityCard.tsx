@@ -1,6 +1,6 @@
 import React from "react";
 import { Wind, Activity } from "lucide-react";
-import { EnvironmentData } from "../../types/investigation.js";
+import { EnvironmentData } from "../../types/investigation";
 
 interface AirQualityCardProps {
   environment: EnvironmentData;

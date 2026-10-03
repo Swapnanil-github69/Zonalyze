@@ -1,6 +1,6 @@
 import React from "react";
 import { Radar, Loader2, Database, CloudRain, Cpu, Sparkles } from "lucide-react";
-import { AuditStage } from "../../types/investigation.js";
+import { AuditStage } from "../../types/investigation";
 
 interface RadarScannerProps {
   stage: AuditStage;

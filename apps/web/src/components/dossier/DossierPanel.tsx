@@ -1,10 +1,10 @@
 import React from "react";
-import { InvestigationResult } from "../../types/investigation.js";
-import { DossierHeader } from "./DossierHeader.js";
-import { AirQualityCard } from "./AirQualityCard.js";
-import { InfrastructureCard } from "./InfrastructureCard.js";
-import { NoiseProfileCard } from "./NoiseProfileCard.js";
-import { ForensicReportCard } from "./ForensicReportCard.js";
+import { InvestigationResult } from "../../types/investigation";
+import { DossierHeader } from "./DossierHeader";
+import { AirQualityCard } from "./AirQualityCard";
+import { InfrastructureCard } from "./InfrastructureCard";
+import { NoiseProfileCard } from "./NoiseProfileCard";
+import { ForensicReportCard } from "./ForensicReportCard";
 
 interface DossierPanelProps {
   investigation: InvestigationResult | null;

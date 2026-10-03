@@ -1,6 +1,6 @@
 import React from "react";
 import { Volume2, VolumeX, AlertTriangle, ShieldCheck } from "lucide-react";
-import { NoiseProfileData } from "../../types/investigation.js";
+import { NoiseProfileData } from "../../types/investigation";
 
 interface NoiseProfileCardProps {
   noiseProfile: NoiseProfileData;

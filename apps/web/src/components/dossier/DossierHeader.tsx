@@ -1,6 +1,6 @@
 import React from "react";
 import { Zap, MapPin, X, Clock } from "lucide-react";
-import { InvestigationResult } from "../../types/investigation.js";
+import { InvestigationResult } from "../../types/investigation";
 
 interface DossierHeaderProps {
   investigation: InvestigationResult;

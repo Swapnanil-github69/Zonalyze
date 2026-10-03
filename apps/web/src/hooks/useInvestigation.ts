@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import { InvestigationResult, AuditStage } from "../types/investigation.js";
-import { investigateCoordinates } from "../api/client.js";
+import { InvestigationResult, AuditStage } from "../types/investigation";
+import { investigateCoordinates } from "../api/client";
 
 export function useInvestigation() {
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);

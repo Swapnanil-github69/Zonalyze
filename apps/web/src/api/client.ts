@@ -1,5 +1,5 @@
 import axios from "axios";
-import { InvestigationResult } from "../types/investigation.js";
+import { InvestigationResult } from "../types/investigation";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 

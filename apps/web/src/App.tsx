@@ -1,9 +1,8 @@
-import React from "react";
-import { MapContainer } from "./components/map/MapContainer.js";
-import { SearchBar } from "./components/map/SearchBar.js";
-import { RadarScanner } from "./components/common/RadarScanner.js";
-import { DossierPanel } from "./components/dossier/DossierPanel.js";
-import { useInvestigation } from "./hooks/useInvestigation.js";
+import { MapContainer } from "./components/map/MapContainer";
+import { SearchBar } from "./components/map/SearchBar";
+import { RadarScanner } from "./components/common/RadarScanner";
+import { DossierPanel } from "./components/dossier/DossierPanel";
+import { useInvestigation } from "./hooks/useInvestigation";
 import { FileText, ShieldAlert } from "lucide-react";
 
 export function App() {

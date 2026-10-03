@@ -1,6 +1,6 @@
 import React from "react";
 import { Building2, HeartPulse, Train, Trees, Pill } from "lucide-react";
-import { InfrastructureData } from "../../types/investigation.js";
+import { InfrastructureData } from "../../types/investigation";
 
 interface InfrastructureCardProps {
   infrastructure: InfrastructureData;

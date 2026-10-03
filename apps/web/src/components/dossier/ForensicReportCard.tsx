@@ -1,6 +1,6 @@
 import React from "react";
 import { Sparkles, CheckCircle2, ClipboardList } from "lucide-react";
-import { AiReportData } from "../../types/investigation.js";
+import { AiReportData } from "../../types/investigation";
 
 interface ForensicReportCardProps {
   aiReport: AiReportData;
