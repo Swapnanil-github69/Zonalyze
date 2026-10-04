@@ -31,8 +31,12 @@ export class GeminiService {
       hospitals: number;
       pharmacies: number;
       railway_stations: number;
+      metro_stations?: number;
       parks: number;
       nearest_hospital_dist_m: number | null;
+      nearest_railway_dist_m?: number | null;
+      nearest_metro_dist_m?: number | null;
+      nearest_arterial_dist_m?: number | null;
     };
     noiseProfile: {
       estimated_bracket: string;
@@ -51,13 +55,12 @@ export class GeminiService {
     try {
       const systemInstruction = `
 You are a licensed environmental and infrastructure risk forensic auditor. 
-You inspect verified telemetry data for a coordinate. 
+You inspect verified telemetry data for a coordinate and deliver an authoritative location audit debrief.
 RULES:
 1. NEVER invent facts, distances, or air quality indices.
-2. NEVER generate subjective livability scores (e.g., "78/100").
-3. Report only verifiable empirical observations based directly on the provided JSON data.
-4. Formulate targeted, practical physical site-inspection targets for an investigator visiting the property (e.g. checking facade soundproofing, HVAC intake filtration, storm runoff drainage, sidewalk continuity).
-5. Always output strictly valid JSON adhering to the specified schema.
+2. Produce sharp, concise insights in brief summarizing transit, healthcare, environment, and acoustics.
+3. Formulate targeted, practical physical site-inspection targets for an investigator visiting the property (e.g. checking facade soundproofing, HVAC intake filtration, storm runoff drainage, sidewalk continuity).
+4. Always output strictly valid JSON adhering to the specified schema.
 `;
 
       const prompt = `
@@ -66,7 +69,7 @@ ${JSON.stringify(verifiedTelemetry, null, 2)}
 `;
 
       const response = await client.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-flash-latest",
         contents: prompt,
         config: {
           systemInstruction,
@@ -76,7 +79,29 @@ ${JSON.stringify(verifiedTelemetry, null, 2)}
             properties: {
               summary: {
                 type: Type.STRING,
-                description: "Executive 1-2 sentence forensic summary of environmental and transit reality.",
+                description: "Executive 2-3 sentence forensic overview synthesizing environmental and transit reality.",
+              },
+              insights_in_brief: {
+                type: Type.OBJECT,
+                properties: {
+                  transit: {
+                    type: Type.STRING,
+                    description: "Concise 1-sentence insight on metro/railway accessibility and distances.",
+                  },
+                  healthcare: {
+                    type: Type.STRING,
+                    description: "Concise 1-sentence insight on emergency hospital proximity and medical cluster.",
+                  },
+                  environment: {
+                    type: Type.STRING,
+                    description: "Concise 1-sentence insight on AQI, PM2.5 particulates, and atmospheric health.",
+                  },
+                  acoustic: {
+                    type: Type.STRING,
+                    description: "Concise 1-sentence insight on noise bracket, highway/road proximity, and sound profile.",
+                  },
+                },
+                required: ["transit", "healthcare", "environment", "acoustic"],
               },
               empirical_observations: {
                 type: Type.ARRAY,
@@ -89,7 +114,7 @@ ${JSON.stringify(verifiedTelemetry, null, 2)}
                 description: "3 to 4 actionable physical verification items for an investigator on site.",
               },
             },
-            required: ["summary", "empirical_observations", "site_inspection_targets"],
+            required: ["summary", "insights_in_brief", "empirical_observations", "site_inspection_targets"],
           },
         },
       });
@@ -122,10 +147,26 @@ ${JSON.stringify(verifiedTelemetry, null, 2)}
       );
     }
 
+    // Transit analysis
+    const metroDist = telemetry.infrastructure.nearest_metro_dist_m;
+    const railDist = telemetry.infrastructure.nearest_railway_dist_m;
+    const metroCount = telemetry.infrastructure.metro_stations ?? 0;
+    if (metroDist !== null && metroDist !== undefined) {
+      observations.push(
+        `Direct rapid transit access detected with nearest metro station at ${metroDist}m (${metroCount} stations within operational radius).`
+      );
+      inspections.push("Audit pedestrian sidewalk continuity and crosswalk safety along route to the nearest metro station.");
+    } else if (railDist !== null && railDist !== undefined) {
+      observations.push(`Rail transit node identified at ${railDist}m distance.`);
+      inspections.push("Inspect pedestrian connectivity to nearest rail platform.");
+    } else {
+      observations.push("No passenger rail or metro station identified within immediate 800m corridor.");
+    }
+
     // Infrastructure analysis
     if (telemetry.infrastructure.nearest_hospital_dist_m !== null) {
       observations.push(
-        `Nearest medical emergency facility detected at ${telemetry.infrastructure.nearest_hospital_dist_m}m.`
+        `Nearest medical emergency facility detected at ${telemetry.infrastructure.nearest_hospital_dist_m}m with ${telemetry.infrastructure.hospitals} hospitals in the surrounding district.`
       );
     } else {
       observations.push("No emergency hospital facility identified within standard 3000m radius.");
@@ -143,8 +184,30 @@ ${JSON.stringify(verifiedTelemetry, null, 2)}
       inspections.push("Verify localized neighborhood noise sources such as HVAC units or secondary access lanes.");
     }
 
+    const transitBrief = metroDist
+      ? `Metro station located within ${metroDist}m (${metroCount} stations in radius).`
+      : railDist
+      ? `Rail connection detected at ${railDist}m.`
+      : "Feeder road connectivity; rapid transit beyond immediate perimeter.";
+
+    const healthcareBrief = telemetry.infrastructure.nearest_hospital_dist_m
+      ? `Hospital facility accessible at ${telemetry.infrastructure.nearest_hospital_dist_m}m (${telemetry.infrastructure.hospitals} in cluster).`
+      : "Emergency medical infrastructure outside immediate radius.";
+
+    const envBrief = `AQI ${telemetry.environment.aqi} (PM2.5: ${telemetry.environment.pm2_5} µg/m³).`;
+
+    const noiseBrief = `${telemetry.noiseProfile.estimated_bracket} exposure${
+      telemetry.noiseProfile.distance_meters ? ` (${telemetry.noiseProfile.distance_meters}m from ${telemetry.noiseProfile.nearest_source_type})` : ""
+    }.`;
+
     return {
-      summary: `Location audit for ${telemetry.address.split(",")[0] || "coordinate"} indicates ${telemetry.noiseProfile.estimated_bracket.toLowerCase()} acoustic exposure with current PM2.5 at ${telemetry.environment.pm2_5} µg/m³.`,
+      summary: `Location audit for ${telemetry.address.split(",")[0] || "coordinate"} reveals ${telemetry.noiseProfile.estimated_bracket.toLowerCase()} acoustic exposure with current PM2.5 at ${telemetry.environment.pm2_5} µg/m³. Nearest healthcare facility is situated at ${telemetry.infrastructure.nearest_hospital_dist_m ?? "N/A"}m with rapid transit access ${metroDist ? `at ${metroDist}m` : "nearby"}.`,
+      insights_in_brief: {
+        transit: transitBrief,
+        healthcare: healthcareBrief,
+        environment: envBrief,
+        acoustic: noiseBrief,
+      },
       empirical_observations: observations,
       site_inspection_targets: inspections,
     };

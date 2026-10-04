@@ -8,6 +8,11 @@ try {
   dns.setServers(["8.8.8.8", "1.1.1.1"]);
 } catch (e) {}
 
+// Fix for Windows / Node.js querySrv ECONNREFUSED with MongoDB Atlas
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (e) {}
+
 /**
  * Contributor 2: Database Engineer
  * Handles connection lifecycle to MongoDB Atlas with auto-retry and index validation.
