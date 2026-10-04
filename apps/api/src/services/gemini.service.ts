@@ -5,12 +5,9 @@ import { calculateHaversineMeters } from "../utils/geoUtils.js";
 import { NominatimService } from "./nominatim.service.js";
 
 const CANDIDATE_MODELS = [
-  "gemini-3.5-flash",
-  "gemini-3.7-flash",
-  "gemini-flash-lite-latest",
-  "gemini-3.5-flash-lite",
-  "gemini-3.1-flash-lite",
-  "gemini-flash-latest",
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
 ];
 
 /**
@@ -143,7 +140,18 @@ INSTRUCTIONS:
           return parsed;
         }
       } catch (error: any) {
-        console.warn(`⚠️ Model ${model} debrief failed (${error.status || error.message?.substring(0, 60)}), trying next candidate...`);
+        console.warn(`⚠️ Model ${model} debrief failed (${error.status || error.message?.substring(0, 60)}), evaluating failover...`);
+        // If quota exceeded or forbidden, trying other models with the same API key will fail; break immediately
+        if (
+          error.status === 429 ||
+          error.status === 403 ||
+          error.message?.includes("429") ||
+          error.message?.includes("quota") ||
+          error.message?.includes("ResourceExhausted")
+        ) {
+          console.warn("⚡ [GEMINI FAST-FAIL] Quota/rate-limit reached, switching instantly to deterministic synthesis engine.");
+          break;
+        }
       }
     }
 

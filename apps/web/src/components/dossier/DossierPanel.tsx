@@ -5,6 +5,7 @@ import { LivabilityGauge } from "./LivabilityGauge";
 import { AirQualityCard } from "./AirQualityCard";
 import { InfrastructureCard } from "./InfrastructureCard";
 import { NoiseProfileCard } from "./NoiseProfileCard";
+import { AiChatWidget } from "./AiChatWidget";
 import { ForensicReportCard } from "./ForensicReportCard";
 import { DossierSkeleton } from "./DossierSkeleton";
 import { calculateLivabilityScore } from "../../utils/livabilityMetrics";
@@ -78,6 +79,9 @@ export const DossierPanel: React.FC<DossierPanelProps> = ({
               environment={investigation.environment}
               coordinates={investigation.location.coordinates}
             />
+
+            {/* AI Assistant / Gemini Chatbox */}
+            <AiChatWidget investigation={investigation} />
 
             {/* 4. Acoustic Noise Profile Card */}
             <NoiseProfileCard noiseProfile={investigation.noiseProfile} />

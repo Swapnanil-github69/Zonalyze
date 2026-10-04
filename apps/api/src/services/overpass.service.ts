@@ -8,72 +8,64 @@ import { OverpassResponse, OverpassElement } from "../types/index.js";
  */
 export class OverpassService {
   private static readonly ENDPOINTS = [
-    "https://overpass-api.de/api/interpreter",
-    "https://lz4.overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
+    "https://lz4.overpass-api.de/api/interpreter",
+    "https://overpass-api.de/api/interpreter",
   ];
 
   public static async queryInfrastructure(
     lat: number,
     lon: number
   ): Promise<OverpassElement[]> {
-    // High-efficiency Overpass QL query:
-    // - Scopes acoustic proxy corridors (highways & rail tracks) to 800m (acoustics attenuate to ambient past 400m)
-    // - Captures hospitals, healthcare facilities, metro/subway stations, rail stations, pharmacies, and parks
-    // - Avoids heavy relation recursion to guarantee sub-10s response and prevent 504 Gateway Timeouts
     const query = `
-      [out:json][timeout:10];
+      [out:json][timeout:5];
       (
         node["amenity"="hospital"](around:3000, ${lat}, ${lon});
         way["amenity"="hospital"](around:3000, ${lat}, ${lon});
         node["healthcare"="hospital"](around:3000, ${lat}, ${lon});
-        way["healthcare"="hospital"](around:3000, ${lat}, ${lon});
-        node["building"="hospital"](around:3000, ${lat}, ${lon});
-        way["building"="hospital"](around:3000, ${lat}, ${lon});
         node["amenity"="pharmacy"](around:1500, ${lat}, ${lon});
         node["railway"="station"](around:3000, ${lat}, ${lon});
-        node["railway"="halt"](around:3000, ${lat}, ${lon});
         way["railway"="station"](around:3000, ${lat}, ${lon});
         node["station"="subway"](around:3000, ${lat}, ${lon});
-        way["station"="subway"](around:3000, ${lat}, ${lon});
-        node["station"="light_rail"](around:3000, ${lat}, ${lon});
-        way["station"="light_rail"](around:3000, ${lat}, ${lon});
         way["railway"="rail"](around:800, ${lat}, ${lon});
-        way["railway"="subway"](around:800, ${lat}, ${lon});
         way["highway"="motorway"](around:800, ${lat}, ${lon});
         way["highway"="trunk"](around:800, ${lat}, ${lon});
         way["highway"="primary"](around:800, ${lat}, ${lon});
         node["leisure"="park"](around:2000, ${lat}, ${lon});
         way["leisure"="park"](around:2000, ${lat}, ${lon});
       );
-      out center 150;
+      out center 120;
     `;
 
-    for (const endpoint of this.ENDPOINTS) {
-      try {
-        const response = await axios.post<OverpassResponse>(
-          endpoint,
-          `data=${encodeURIComponent(query)}`,
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              "User-Agent": config.nominatimUserAgent || "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
-              Accept: "application/json",
-            },
-            timeout: 10000,
-          }
-        );
-
-        if (response.data && Array.isArray(response.data.elements) && response.data.elements.length > 0) {
-          return response.data.elements;
+    // Race fast mirrors concurrently with a 3500ms timeout
+    const fetchFromEndpoint = async (endpoint: string): Promise<OverpassElement[]> => {
+      const response = await axios.post<OverpassResponse>(
+        endpoint,
+        `data=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": config.nominatimUserAgent || "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
+            Accept: "application/json",
+          },
+          timeout: 3500,
         }
-      } catch (error) {
-        console.warn(`⚠️ Overpass endpoint (${endpoint}) failed:`, (error as Error).message);
-      }
-    }
+      );
 
-    console.warn("⚠️ All Overpass API endpoints busy or failed, activating Nominatim search fallback...");
-    return await this.fallbackWithNominatim(lat, lon);
+      if (response.data && Array.isArray(response.data.elements) && response.data.elements.length > 0) {
+        return response.data.elements;
+      }
+      throw new Error("No elements in response");
+    };
+
+    try {
+      // Whichever mirror responds first wins
+      const elements = await Promise.any(this.ENDPOINTS.map((ep) => fetchFromEndpoint(ep)));
+      return elements;
+    } catch {
+      console.warn("⚠️ Overpass mirrors busy/timed out within 3.5s, activating fast Nominatim fallback...");
+      return await this.fallbackWithNominatim(lat, lon);
+    }
   }
 
   /**
@@ -94,9 +86,9 @@ export class OverpassService {
       };
 
       const [hospRes, stationRes, parkRes] = await Promise.allSettled([
-        axios.get(`https://nominatim.openstreetmap.org/search?q=hospital&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 6000 }),
-        axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 6000 }),
-        axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 6000 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=hospital&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 2500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 2500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 2500 }),
       ]);
 
       const elements: OverpassElement[] = [];
