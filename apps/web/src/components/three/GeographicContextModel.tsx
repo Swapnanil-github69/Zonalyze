@@ -87,7 +87,7 @@ export const GeographicContextModel: React.FC<GeographicContextModelProps> = ({
     const waterPoints = waterCurve.getPoints(50);
     const waterShape = new THREE.Shape();
     waterShape.moveTo(-90, -52);
-    waterPoints.forEach((p) => waterShape.lineTo(p.x, p.z));
+    waterPoints.forEach((p: THREE.Vector3) => waterShape.lineTo(p.x, p.z));
     waterShape.lineTo(90, 72);
     waterShape.lineTo(90, 52);
     for (let i = waterPoints.length - 1; i >= 0; i--) {
