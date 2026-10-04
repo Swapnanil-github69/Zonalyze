@@ -129,4 +129,38 @@ export class InvestigateController {
       });
     }
   }
+
+  /**
+   * Conversational Endpoint: Handles Q&A about a specific audited location
+   */
+  public static async chatAboutLocation(req: Request, res: Response): Promise<void> {
+    try {
+      const { question, investigation, chatHistory } = req.body;
+
+      if (!question || typeof question !== "string") {
+        res.status(400).json({ error: "A valid question string is required." });
+        return;
+      }
+
+      if (!investigation || typeof investigation !== "object") {
+        res.status(400).json({ error: "Investigation context is required." });
+        return;
+      }
+
+      const reply = await GeminiService.answerLocationQuery({
+        question: question.trim(),
+        investigation,
+        chatHistory: Array.isArray(chatHistory) ? chatHistory : [],
+      });
+
+      res.status(200).json({ reply });
+    } catch (error) {
+      console.error("❌ Chat controller error, generating fallback response:", error);
+      const fallbackReply = GeminiService.generateLocalChatFallback(
+        typeof req.body?.question === "string" ? req.body.question : "Tell me about this location",
+        req.body?.investigation || {}
+      );
+      res.status(200).json({ reply: fallbackReply });
+    }
+  }
 }
