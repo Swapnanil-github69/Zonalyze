@@ -12,6 +12,11 @@ export default {
           950: "#090d16",
         },
       },
+      fontFamily: {
+        instrument: ["'Instrument Serif'", "serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["'JetBrains Mono'", "monospace"],
+      },
     },
   },
   plugins: [],

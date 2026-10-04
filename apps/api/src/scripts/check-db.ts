@@ -19,13 +19,26 @@ async function main() {
     console.log(`✅ Connected successfully to database: "${db.databaseName}"`);
     const collections = await db.listCollections().toArray();
     console.log(`\nFound ${collections.length} collection(s):`);
-    collections.forEach((c) => console.log(`  - ${c.name}`));
+    if (collections.length === 0) {
+      console.log("  (No collections yet. MongoDB creates collections on the first insert or via createCollection())");
+    } else {
+      collections.forEach((c) => console.log(`  - ${c.name}`));
+    }
 
-    const hasInvestigations = collections.some((c) => c.name === "investigations");
-    console.log(`\nIs "investigations" collection present? ${hasInvestigations ? "YES ✅" : "NO ❌"}`);
+    let hasInvestigations = collections.some((c) => c.name === "investigations");
+
+    if (!hasInvestigations) {
+      console.log("\n⚡ Initializing 'investigations' collection & indexes in database...");
+      const { Investigation } = await import("../models/Investigation.js");
+      await Investigation.createCollection();
+      await Investigation.syncIndexes();
+      hasInvestigations = true;
+      console.log("✅ 'investigations' collection successfully created in MongoDB!");
+    }
 
     if (hasInvestigations) {
       const count = await db.collection("investigations").countDocuments();
+      console.log(`\nIs "investigations" collection present? YES ✅`);
       console.log(`Total documents in "investigations": ${count}`);
       const indexes = await db.collection("investigations").indexes();
       console.log("Registered indexes on 'investigations':", indexes.map((i) => i.name));

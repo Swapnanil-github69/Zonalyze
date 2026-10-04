@@ -1,14 +1,14 @@
 import dotenv from "dotenv";
 import path from "path";
-
-dotenv.config({ path: path.resolve(process.cwd(), "../../.env") });
+// Load from root .env and apps/api/.env
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 dotenv.config();
 
-const mongoUri =
-  process.env.MONGODB_URI && process.env.MONGODB_URI.trim().length > 0
-    ? process.env.MONGODB_URI.trim()
-    : "mongodb://localhost:27017/zonalyze";
+const mongoUri = process.env.MONGODB_URI && process.env.MONGODB_URI.trim().length > 0
+  ? process.env.MONGODB_URI.trim()
+  : "mongodb://localhost:27017/zonalyze";
 
 export const config = {
   port: process.env.PORT ? parseInt(process.env.PORT, 10) : 5000,

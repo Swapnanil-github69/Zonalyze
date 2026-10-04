@@ -7,11 +7,18 @@
   color-scheme: dark;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  user-select: none;
+  overflow-x: hidden;
+}
+
+.font-instrument {
+  font-family: 'Instrument Serif', serif;
 }
 
 /* Glassmorphism helpers */
