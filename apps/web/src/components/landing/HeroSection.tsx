@@ -1,68 +1,93 @@
 import React from "react";
 import { ArrowRight, Compass } from "lucide-react";
-import { CinematicBackground } from "./CinematicBackground";
 
 interface HeroSectionProps {
   onStartInvestigation: () => void;
-  onExploreCapabilities: () => void;
+  onExploreCapabilities?: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onStartInvestigation,
-  onExploreCapabilities,
 }) => {
+  const scrollToHowItWorks = () => {
+    const el = document.getElementById("how-it-works");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <section id="home" className="relative min-h-screen w-full flex items-center justify-center scroll-mt-24">
-      <CinematicBackground className="min-h-screen flex items-center justify-center py-24 lg:py-32">
-        <div className="max-w-[1280px] mx-auto px-6 sm:px-8 w-full text-center flex flex-col items-center justify-center space-y-8 sm:space-y-10">
-          {/* Main Headline & Supporting Heading */}
-          <div className="space-y-4 max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-800">
-            <h1 className="font-serif text-[54px] sm:text-[72px] lg:text-[88px] font-normal text-[#F1EFE8] leading-[0.98] tracking-[-2px]">
-              Investigate Any <br />
-              <em className="italic font-normal">Location.</em>
-            </h1>
-            <p className="font-serif italic text-2xl sm:text-[30px] lg:text-[34px] text-[#F1EFE8]/85 tracking-tight font-normal pt-1">
-              See Beyond the Map.
-            </p>
+    <section id="hero" className="relative w-full pt-32 pb-16 sm:pt-40 sm:pb-24 overflow-hidden bg-[#fefffc]">
+      <div className="max-w-[1200px] mx-auto px-6 sm:px-8 space-y-12 sm:space-y-16">
+        
+        {/* Editorial Text Block */}
+        <div className="max-w-3xl text-left space-y-6">
+          {/* Eyebrow */}
+          <div className="inline-flex items-center space-x-2 text-xs font-mono tracking-[0.2em] uppercase text-[#646464]">
+            <Compass className="w-3.5 h-3.5 text-[#282834]" />
+            <span>A FIELD GUIDE TO PLACE</span>
           </div>
 
-          {/* Description Paragraph (approx 670px width) */}
-          <p className="text-base sm:text-lg text-[rgba(241,239,232,0.75)] leading-relaxed max-w-[670px] text-center font-sans font-normal animate-in fade-in slide-in-from-bottom-5 duration-800 delay-200">
-            Explore environmental conditions, nearby infrastructure, noise exposure, and geographic
-            context through one unified intelligence platform.
+          {/* Headline */}
+          <h1
+            style={{
+              fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
+              lineHeight: 1.1,
+              letterSpacing: "-0.02em",
+            }}
+            className="text-4xl sm:text-5xl lg:text-[54px] font-normal text-[#2c2c2c]"
+          >
+            Every place holds more than its coordinates.
+          </h1>
+
+          {/* Supporting Copy */}
+          <p className="text-base sm:text-lg text-[#444141] leading-relaxed font-sans max-w-2xl">
+            ZONALYZE brings environmental observations, nearby infrastructure, and location context together — so you can explore what the evidence says, what it may suggest, and what remains unknown.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 animate-in fade-in slide-in-from-bottom-6 duration-800 delay-300">
-            {/* Primary Large Pill CTA */}
+          {/* Actions: Outlined Signal Blue Primary CTA & Secondary Link */}
+          <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
               onClick={onStartInvestigation}
-              className="group inline-flex items-center justify-center space-x-3 px-14 py-5 rounded-full text-[15px] font-medium text-white bg-[#000000] hover:bg-[#111111] border border-white/20 shadow-2xl hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 cursor-pointer"
+              className="inline-flex items-center space-x-2 px-6 py-3 rounded-lg text-sm font-medium text-[#171717] border border-[#41a1cf] hover:bg-[#41a1cf]/10 hover:text-[#0081c0] transition-all duration-200 cursor-pointer font-sans"
             >
-              <span>Start Investigation</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition duration-200" />
+              <span>Investigate a Location</span>
+              <ArrowRight className="w-4 h-4 text-[#41a1cf]" />
             </button>
 
-            {/* Secondary CTA */}
             <button
-              onClick={onExploreCapabilities}
-              className="inline-flex items-center justify-center space-x-2 px-8 py-5 rounded-full text-[15px] font-medium text-white/90 hover:text-white bg-white/5 hover:bg-white/10 border border-white/20 transition-all duration-200 backdrop-blur-sm cursor-pointer"
+              onClick={scrollToHowItWorks}
+              className="inline-flex items-center space-x-1.5 px-4 py-3 text-sm font-medium text-[#646464] hover:text-[#171717] transition-colors cursor-pointer font-sans"
             >
-              <Compass className="w-4 h-4 text-white/80" />
-              <span>Explore Capabilities</span>
+              <span>How it works</span>
+              <span className="text-[#b4b8b4]">↓</span>
             </button>
-          </div>
-
-          {/* Subtle Vertical Scroll Indicator */}
-          <div
-            onClick={onExploreCapabilities}
-            className="pt-6 flex flex-col items-center space-y-2 cursor-pointer text-white/50 hover:text-white/80 transition duration-200"
-          >
-            <span className="text-[10px] font-mono uppercase tracking-widest">Scroll</span>
-            <div className="w-[1px] h-6 bg-white/30" />
           </div>
         </div>
-      </CinematicBackground>
+
+        {/* Atmospheric Painted Geography Illustration */}
+        <div className="relative w-full rounded-2xl overflow-hidden border border-[#dee2de] bg-[#ffffff] shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+          <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden">
+            <img
+              src="/field_guide_landscape.jpg"
+              alt="Hand-painted geographic river valley landscape with topographical contour lines"
+              className="w-full h-full object-cover object-center filter contrast-[1.02] brightness-[0.98]"
+            />
+            {/* Subtle paper grain and soft hairline vignette */}
+            <div className="absolute inset-0 pointer-events-none border border-black/[0.04] rounded-2xl" />
+          </div>
+
+          {/* Quiet Field Note Caption */}
+          <div className="px-6 py-3.5 bg-[#ffffff] border-t border-[#dee2de] flex flex-wrap items-center justify-between gap-3 text-xs text-[#646464] font-sans">
+            <div className="flex items-center space-x-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#41a1cf]" />
+              <span>Figure 1.0 — Spatial and topographical elevation study</span>
+            </div>
+            <div className="font-mono text-[11px] text-[#646464]">
+              LAT 22.5726° N, LON 88.3639° E • WGS 84 DATUM
+            </div>
+          </div>
+        </div>
+
+      </div>
     </section>
   );
 };
