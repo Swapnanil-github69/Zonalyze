@@ -1,12 +1,28 @@
 import React, { useState } from "react";
-import { Sparkles, CheckCircle2, ClipboardList, Check, Bot, Train, HeartPulse, Wind, Volume2 } from "lucide-react";
-import { AiReportData } from "../../types/investigation";
+import {
+  Sparkles,
+  CheckCircle2,
+  ClipboardList,
+  Check,
+  Bot,
+  Train,
+  HeartPulse,
+  Wind,
+  Volume2,
+} from "lucide-react";
+import { AiReportData, InvestigationResult } from "../../types/investigation";
+import { AudioDebriefPlayer } from "./AudioDebriefPlayer";
+import { AiChatWidget } from "./AiChatWidget";
 
 interface ForensicReportCardProps {
   aiReport: AiReportData;
+  investigation?: InvestigationResult;
 }
 
-export const ForensicReportCard: React.FC<ForensicReportCardProps> = ({ aiReport }) => {
+export const ForensicReportCard: React.FC<ForensicReportCardProps> = ({
+  aiReport,
+  investigation,
+}) => {
   const { summary, insights_in_brief, empirical_observations, site_inspection_targets } = aiReport;
   const [completedTargets, setCompletedTargets] = useState<Record<number, boolean>>({});
 
@@ -16,6 +32,8 @@ export const ForensicReportCard: React.FC<ForensicReportCardProps> = ({ aiReport
       [index]: !prev[index],
     }));
   };
+
+  const locationName = investigation?.address || "Selected Coordinate";
 
   return (
     <div className="glass-panel p-4 rounded-2xl border border-indigo-500/30 space-y-4 shadow-xl">
@@ -37,6 +55,9 @@ export const ForensicReportCard: React.FC<ForensicReportCardProps> = ({ aiReport
           Zero-Hallucination
         </span>
       </div>
+
+      {/* Voice Audio Debrief Player */}
+      <AudioDebriefPlayer aiReport={aiReport} locationName={locationName} />
 
       {/* Executive Insights in Brief Grid */}
       <div className="space-y-2">
@@ -177,6 +198,13 @@ export const ForensicReportCard: React.FC<ForensicReportCardProps> = ({ aiReport
           })}
         </div>
       </div>
+
+      {/* Interactive Chat & Voice Box */}
+      {investigation && (
+        <div className="pt-2">
+          <AiChatWidget investigation={investigation} />
+        </div>
+      )}
     </div>
   );
 };

@@ -7,7 +7,9 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "check:db": "tsx src/scripts/check-db.ts"
+    "check:db": "tsx src/scripts/check-db.ts",
+    "seed": "tsx src/scripts/seed-sample.ts",
+    "test:sync": "tsx src/scripts/test-sync.ts"
   },
   "dependencies": {
     "@google/genai": "^2.27.0",

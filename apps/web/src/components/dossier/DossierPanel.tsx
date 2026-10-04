@@ -90,7 +90,10 @@ export const DossierPanel: React.FC<DossierPanelProps> = ({
             />
 
             {/* 6. AI Forensic Debrief & Inspection Targets */}
-            <ForensicReportCard aiReport={investigation.aiReport} />
+            <ForensicReportCard
+              aiReport={investigation.aiReport}
+              investigation={investigation}
+            />
           </div>
         </>
       ) : null}
