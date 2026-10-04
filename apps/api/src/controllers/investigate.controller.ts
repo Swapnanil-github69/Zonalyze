@@ -70,31 +70,57 @@ export class InvestigateController {
         noiseProfile,
       });
 
-      // 6. Persistence to MongoDB Atlas
-      const newInvestigation = await CacheService.saveInvestigation({
-        location: {
-          type: "Point",
-          coordinates: [longitude, latitude],
-        },
-        address,
-        environment: airQuality,
-        infrastructure: {
-          hospitals: infrastructure.hospitals,
-          pharmacies: infrastructure.pharmacies,
-          railway_stations: infrastructure.railway_stations,
-          parks: infrastructure.parks,
-          nearest_hospital_dist_m: infrastructure.nearest_hospital_dist_m,
-        },
-        noiseProfile,
-        aiReport,
-      });
+      // 6. Persistence to MongoDB Atlas (only cache if external ingestion was successful)
+      let savedDoc: any = null;
+      if (overpassElements.length > 0) {
+        savedDoc = await CacheService.saveInvestigation({
+          location: {
+            type: "Point",
+            coordinates: [longitude, latitude],
+          },
+          address,
+          environment: airQuality,
+          infrastructure: {
+            hospitals: infrastructure.hospitals,
+            pharmacies: infrastructure.pharmacies,
+            railway_stations: infrastructure.railway_stations,
+            metro_stations: infrastructure.metro_stations ?? 0,
+            parks: infrastructure.parks,
+            nearest_hospital_dist_m: infrastructure.nearest_hospital_dist_m,
+            nearest_railway_dist_m: infrastructure.nearest_railway_dist_m,
+            nearest_metro_dist_m: infrastructure.nearest_metro_dist_m ?? null,
+            nearest_arterial_dist_m: infrastructure.nearest_arterial_dist_m,
+          },
+          noiseProfile,
+          aiReport,
+        });
+        console.log(`✅ [AUDIT COMPLETE] Saved investigation to cache: ${savedDoc._id}`);
+      } else {
+        console.warn(`⚠️ [AUDIT WARNING] Zero elements detected; skipping cache persistence to avoid poisoning.`);
+      }
 
-      console.log(`✅ [AUDIT COMPLETE] Saved investigation: ${newInvestigation._id}`);
-
-      res.status(200).json({
-        ...newInvestigation.toObject(),
-        cached: false,
-      });
+      res.status(200).json(
+        savedDoc
+          ? { ...savedDoc.toObject(), cached: false }
+          : {
+              location: {
+                type: "Point",
+                coordinates: [longitude, latitude],
+              },
+              address,
+              environment: airQuality,
+              infrastructure: {
+                ...infrastructure,
+                metro_stations: infrastructure.metro_stations ?? 0,
+                nearest_metro_dist_m: infrastructure.nearest_metro_dist_m ?? null,
+              },
+              noiseProfile,
+              aiReport,
+              createdAt: new Date().toISOString(),
+              _id: "live-audit",
+              cached: false,
+            }
+      );
     } catch (error) {
       console.error("❌ Investigation pipeline error:", error);
       res.status(500).json({

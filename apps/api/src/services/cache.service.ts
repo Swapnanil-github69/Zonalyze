@@ -33,7 +33,7 @@ export class CacheService {
     }
   }
 
-  public static async saveInvestigation(data: Partial<IInvestigation>): Promise<IInvestigation> {
+  public static async saveInvestigation(data: Partial<IInvestigation> | Record<string, any>): Promise<IInvestigation> {
     const investigation = new Investigation(data);
     return await investigation.save();
   }

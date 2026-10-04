@@ -1,5 +1,17 @@
+import dns from "dns";
 import mongoose from "mongoose";
 import { config } from "./env.js";
+import { Investigation } from "../models/Investigation.js";
+
+// Fix for Windows / Node.js querySrv ECONNREFUSED with MongoDB Atlas
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (e) {}
+
+// Fix for Windows / Node.js querySrv ECONNREFUSED with MongoDB Atlas
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (e) {}
 
 /**
  * Contributor 2: Database Engineer
@@ -15,6 +27,11 @@ export async function connectDB(): Promise<void> {
     console.log("Connecting to MongoDB Atlas...");
     await mongoose.connect(config.mongoUri);
     console.log("✅ MongoDB connection established successfully.");
+
+    // Ensure collection and 2dsphere / TTL indexes exist in the database
+    await Investigation.createCollection();
+    await Investigation.syncIndexes();
+    console.log("✅ 'investigations' collection and indexes verified in MongoDB Atlas.");
   } catch (error) {
     console.error("❌ MongoDB connection error:", error);
     // In dev mode, do not crash immediately so other endpoints/mock modes can function

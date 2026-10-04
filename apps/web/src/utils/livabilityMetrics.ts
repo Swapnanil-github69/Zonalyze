@@ -101,9 +101,15 @@ export function buildDetailedFacilities(
   const airportDistM = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
 
   // Determine transit metrics
-  const railStations = infra.railway_stations || 1;
-  const nearestRail = infra.nearest_railway_dist_m || 750;
-  const nearestMetro = Math.max(280, Math.round(nearestRail * 0.7));
+  const metroStations =
+    infra.metro_stations ??
+    (infra.railway_stations > 0 ? Math.max(1, Math.round(infra.railway_stations * 0.7)) : 0);
+  const railStations = infra.railway_stations ?? 0;
+
+  const nearestMetro =
+    infra.nearest_metro_dist_m ??
+    (infra.nearest_railway_dist_m ? Math.round(infra.nearest_railway_dist_m * 0.8) : null);
+  const nearestRail = infra.nearest_railway_dist_m ?? null;
 
   // Calculate nearby hotels with star ratings and reviews
   const queryArea = encodeURIComponent(address.split(",")[0] || "Kolkata");
@@ -134,7 +140,7 @@ export function buildDetailedFacilities(
   return {
     transit: {
       metro: {
-        count: Math.max(1, Math.round(railStations * 1.5)),
+        count: metroStations,
         nearest_dist_m: nearestMetro,
       },
       rail: {
