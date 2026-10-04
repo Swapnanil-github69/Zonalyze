@@ -38,26 +38,26 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
   };
 
   return (
-    <div className="glass-panel p-4 rounded-2xl border border-slate-700/60 space-y-4">
+    <div className="ios-dark-glass-card p-5 space-y-4 font-sans">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Building2 className="w-4 h-4 text-emerald-400" />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+          <Building2 className="w-4 h-4 text-[#2dd4bf]" />
+          <h3 className="text-xs font-bold text-slate-200 uppercase tracking-widest font-mono">
             Nearest Facilities & Proximity Grid
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+        <span className="text-[10px] font-mono text-[#2dd4bf] bg-[#152e32] px-2.5 py-0.5 rounded-full border border-[#2dd4bf]/30">
           3,000m Radius Envelope
         </span>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
+      <div className="flex items-center space-x-1 bg-[#121c27] p-1 rounded-xl border border-slate-700/50 text-xs font-sans">
         <button
           onClick={() => setActiveTab("all")}
           className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "all" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            activeTab === "all" ? "bg-[#1f3244] text-[#2dd4bf] border border-[#2dd4bf]/30 shadow-sm" : "text-slate-400 hover:text-white"
           }`}
         >
           All
@@ -65,7 +65,7 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
         <button
           onClick={() => setActiveTab("transit")}
           className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "transit" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            activeTab === "transit" ? "bg-[#1f3244] text-[#2dd4bf] border border-[#2dd4bf]/30 shadow-sm" : "text-slate-400 hover:text-white"
           }`}
         >
           Transit
@@ -73,7 +73,7 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
         <button
           onClick={() => setActiveTab("essentials")}
           className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "essentials" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            activeTab === "essentials" ? "bg-[#1f3244] text-[#2dd4bf] border border-[#2dd4bf]/30 shadow-sm" : "text-slate-400 hover:text-white"
           }`}
         >
           Essentials
@@ -81,7 +81,7 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
         <button
           onClick={() => setActiveTab("hotels")}
           className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "hotels" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            activeTab === "hotels" ? "bg-[#1f3244] text-[#2dd4bf] border border-[#2dd4bf]/30 shadow-sm" : "text-slate-400 hover:text-white"
           }`}
         >
           Hotels
@@ -91,87 +91,87 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
       {/* 1. Transit Category Grid */}
       {(activeTab === "all" || activeTab === "transit") && (
         <div className="space-y-2">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between font-mono">
             <span>Transit & Mobility Corridor</span>
-            <span className="text-[10px] text-cyan-400 font-mono">Closest Access</span>
+            <span className="text-[10px] text-[#2dd4bf]">Closest Access</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {/* Metro */}
-            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div className="bg-[#1e2a38]/80 border border-slate-700/40 rounded-2xl p-2.5 flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium">Metro</span>
-                <Train className="w-3.5 h-3.5 text-blue-400" />
+                <span className="text-xs text-slate-200 font-medium">Metro</span>
+                <Train className="w-3.5 h-3.5 text-[#2dd4bf]" />
               </div>
               <div className="mt-2">
                 <div className="text-sm font-bold text-white font-mono">
                   {formatDistance(detailed.transit.metro.nearest_dist_m)}
                 </div>
-                <div className="text-[10px] text-slate-400">
+                <div className="text-[10px] text-slate-400 font-sans">
                   {detailed.transit.metro.count} stations within radius
                 </div>
               </div>
             </div>
 
             {/* Railway */}
-            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div className="bg-[#1e2a38]/80 border border-slate-700/40 rounded-2xl p-2.5 flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium">Rail Station</span>
-                <Train className="w-3.5 h-3.5 text-sky-400" />
+                <span className="text-xs text-slate-200 font-medium">Rail Station</span>
+                <Train className="w-3.5 h-3.5 text-[#38bdf8]" />
               </div>
               <div className="mt-2">
                 <div className="text-sm font-bold text-white font-mono">
                   {formatDistance(detailed.transit.rail.nearest_dist_m)}
                 </div>
-                <div className="text-[10px] text-slate-400">
+                <div className="text-[10px] text-slate-400 font-sans">
                   {detailed.transit.rail.count} line nodes
                 </div>
               </div>
             </div>
 
             {/* Bus Stand */}
-            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div className="bg-[#1e2a38]/80 border border-slate-700/40 rounded-2xl p-2.5 flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium">Bus Stop</span>
-                <Bus className="w-3.5 h-3.5 text-indigo-400" />
+                <span className="text-xs text-slate-200 font-medium">Bus Stop</span>
+                <Bus className="w-3.5 h-3.5 text-[#60a5fa]" />
               </div>
               <div className="mt-2">
                 <div className="text-sm font-bold text-white font-mono">
                   {formatDistance(detailed.transit.bus.nearest_dist_m)}
                 </div>
-                <div className="text-[10px] text-slate-400">
+                <div className="text-[10px] text-slate-400 font-sans">
                   {detailed.transit.bus.count} active routes
                 </div>
               </div>
             </div>
 
-            {/* Auto / Toto Stand */}
-            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+            {/* Auto Stand */}
+            <div className="bg-[#1e2a38]/80 border border-slate-700/40 rounded-2xl p-2.5 flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium">Auto / Toto Stand</span>
+                <span className="text-xs text-slate-200 font-medium">Auto / Toto Stand</span>
                 <Car className="w-3.5 h-3.5 text-amber-400" />
               </div>
               <div className="mt-2">
                 <div className="text-sm font-bold text-white font-mono">
                   {formatDistance(detailed.transit.autoToto.nearest_dist_m)}
                 </div>
-                <div className="text-[10px] text-slate-400">
+                <div className="text-[10px] text-slate-400 font-sans">
                   {detailed.transit.autoToto.count} feeder stands
                 </div>
               </div>
             </div>
 
             {/* Airport */}
-            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between col-span-2 sm:col-span-1">
+            <div className="bg-[#1e2a38]/80 border border-slate-700/40 rounded-2xl p-2.5 flex flex-col justify-between col-span-2 sm:col-span-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium">Airport</span>
-                <Plane className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="text-xs text-slate-200 font-medium">Airport</span>
+                <Plane className="w-3.5 h-3.5 text-[#2dd4bf]" />
               </div>
               <div className="mt-2">
                 <div className="text-sm font-bold text-white font-mono">
                   {formatDistance(detailed.transit.airport.nearest_dist_m)}
                 </div>
-                <div className="text-[10px] text-slate-400">CCU International Terminal</div>
+                <div className="text-[10px] text-slate-400 font-sans">CCU Terminal</div>
               </div>
             </div>
           </div>
@@ -181,44 +181,44 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
       {/* 2. Essentials Category Grid */}
       {(activeTab === "all" || activeTab === "essentials") && (
         <div className="space-y-2">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between font-mono">
             <span>Health & Urban Essentials</span>
-            <span className="text-[10px] text-emerald-400 font-mono">Density & Access</span>
+            <span className="text-[10px] text-[#2dd4bf]">Density & Access</span>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
             {/* Hospitals */}
-            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 text-center">
+            <div className="bg-[#1e2a38]/80 border border-slate-700/40 rounded-2xl p-2.5 text-center">
               <HeartPulse className="w-4 h-4 text-rose-400 mx-auto mb-1" />
               <div className="text-base font-bold text-white font-mono">
                 {detailed.essentials.hospitals.count}
               </div>
-              <div className="text-[10px] text-slate-400">Hospitals</div>
-              <div className="text-[9px] text-rose-400 font-mono mt-0.5">
+              <div className="text-[10px] text-slate-400 font-sans">Hospitals</div>
+              <div className="text-[9px] text-[#2dd4bf] font-mono mt-0.5">
                 {formatDistance(detailed.essentials.hospitals.nearest_dist_m)}
               </div>
             </div>
 
-            {/* Convenience Stores / Pharmacies */}
-            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 text-center">
+            {/* Pharmacies */}
+            <div className="bg-[#1e2a38]/80 border border-slate-700/40 rounded-2xl p-2.5 text-center">
               <Pill className="w-4 h-4 text-amber-400 mx-auto mb-1" />
               <div className="text-base font-bold text-white font-mono">
                 {detailed.essentials.convenienceStores.count}
               </div>
-              <div className="text-[10px] text-slate-400">Stores / Pharm</div>
+              <div className="text-[10px] text-slate-400 font-sans">Stores / Pharm</div>
               <div className="text-[9px] text-amber-400 font-mono mt-0.5">
                 {formatDistance(detailed.essentials.convenienceStores.nearest_dist_m)}
               </div>
             </div>
 
             {/* Parks */}
-            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 text-center">
-              <Trees className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
+            <div className="bg-[#1e2a38]/80 border border-slate-700/40 rounded-2xl p-2.5 text-center">
+              <Trees className="w-4 h-4 text-[#34d399] mx-auto mb-1" />
               <div className="text-base font-bold text-white font-mono">
                 {detailed.essentials.parks.count}
               </div>
-              <div className="text-[10px] text-slate-400">Parks & Green</div>
-              <div className="text-[9px] text-emerald-400 font-mono mt-0.5">
+              <div className="text-[10px] text-slate-400 font-sans">Parks & Green</div>
+              <div className="text-[9px] text-[#34d399] font-mono mt-0.5">
                 {formatDistance(detailed.essentials.parks.nearest_dist_m)}
               </div>
             </div>
@@ -229,23 +229,23 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
       {/* 3. Hotels Section */}
       {(activeTab === "all" || activeTab === "hotels") && (
         <div className="space-y-2">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between font-mono">
             <span className="flex items-center">
               <Hotel className="w-3.5 h-3.5 text-amber-400 mr-1.5" />
               Nearby Accommodations
             </span>
-            <span className="text-[10px] text-amber-400 font-mono">Verified Reviews</span>
+            <span className="text-[10px] text-amber-400">Verified Reviews</span>
           </div>
 
           <div className="space-y-1.5">
             {detailed.hotels.map((hotel) => (
               <div
                 key={hotel.id}
-                className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between hover:border-slate-700 transition"
+                className="bg-[#1e2a38]/80 border border-slate-700/40 rounded-2xl p-2.5 flex items-center justify-between"
               >
                 <div className="space-y-0.5">
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs font-semibold text-slate-200">{hotel.name}</span>
+                    <span className="text-xs font-semibold text-slate-200 font-sans">{hotel.name}</span>
                     <span className="inline-flex items-center text-[10px] font-bold text-amber-300 bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-500/30">
                       <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400 mr-0.5" />
                       {hotel.stars.toFixed(1)}
@@ -260,9 +260,9 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
                   href={hotel.reviewsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-1 text-[11px] font-medium text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-2.5 py-1 rounded-lg border border-blue-500/30 transition shrink-0 ml-2"
+                  className="inline-flex items-center space-x-1 text-[11px] font-medium text-[#2dd4bf] hover:text-white bg-[#152e32] hover:bg-[#1a3d43] px-2.5 py-1 rounded-lg border border-[#2dd4bf]/30 transition shrink-0 ml-2 font-sans"
                 >
-                  <span>View Reviews on Google Maps</span>
+                  <span>Google Maps</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>

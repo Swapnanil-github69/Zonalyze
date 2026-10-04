@@ -32,6 +32,140 @@ body {
   font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace;
 }
 
+/* Authentic Modern iPhone iOS Shiny Dark Translucent Glassmorphism System */
+.ios-dark-glass-drawer {
+  background: linear-gradient(
+    160deg,
+    rgba(18, 30, 44, 0.78) 0%,
+    rgba(10, 18, 28, 0.85) 60%,
+    rgba(6, 12, 20, 0.92) 100%
+  ) !important;
+  backdrop-filter: blur(48px) saturate(220%) !important;
+  -webkit-backdrop-filter: blur(48px) saturate(220%) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: -12px 0 60px rgba(0, 0, 0, 0.7), inset 1.5px 0 1px rgba(255, 255, 255, 0.35) !important;
+}
+
+.ios-dark-glass-header {
+  background: linear-gradient(
+    180deg,
+    rgba(32, 50, 72, 0.75) 0%,
+    rgba(18, 30, 44, 0.82) 100%
+  ) !important;
+  backdrop-filter: blur(44px) saturate(210%) !important;
+  -webkit-backdrop-filter: blur(44px) saturate(210%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.35), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Shiny High-Gloss Specular Liquid Glass Card System */
+.ios-dark-glass-card {
+  position: relative !important;
+  background: linear-gradient(
+    135deg,
+    rgba(38, 58, 82, 0.7) 0%,
+    rgba(20, 32, 46, 0.8) 50%,
+    rgba(12, 20, 30, 0.88) 100%
+  ) !important;
+  backdrop-filter: blur(36px) saturate(220%) !important;
+  -webkit-backdrop-filter: blur(36px) saturate(220%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.38) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.5),
+    0 16px 45px rgba(0, 0, 0, 0.65),
+    0 0 25px rgba(56, 189, 248, 0.12) !important;
+  border-radius: 1.5rem !important;
+  overflow: hidden !important;
+  transition: all 350ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Diagonal Specular Sheen Reflection Streak across glass card surface */
+.ios-dark-glass-card::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 50% !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    rgba(255, 255, 255, 0.0) 100%
+  ) !important;
+  pointer-events: none !important;
+  border-radius: 1.5rem 1.5rem 0 0 !important;
+}
+
+.ios-dark-glass-card:hover {
+  border-top-color: rgba(255, 255, 255, 0.6) !important;
+  border-left-color: rgba(255, 255, 255, 0.38) !important;
+  box-shadow: 
+    inset 0 2px 2px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.5),
+    0 24px 60px rgba(0, 0, 0, 0.75),
+    0 0 35px rgba(56, 189, 248, 0.22) !important;
+  transform: translateY(-1px) !important;
+}
+
+.ios-dark-glass-subcard {
+  position: relative !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.09) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  ) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.28) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.32),
+    0 6px 20px rgba(0, 0, 0, 0.4) !important;
+  border-radius: 1.25rem !important;
+  overflow: hidden !important;
+}
+
+.ios-dark-glass-subcard::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 40% !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.0) 100%
+  ) !important;
+  pointer-events: none !important;
+}
+
+.ios-dark-glass-pill {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35),
+              0 3px 10px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Glossy Progress Bar Track */
+.ios-glass-track {
+  background: rgba(0, 0, 0, 0.4) !important;
+  box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.7), inset 0 -0.5px 0.5px rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
 /* Atmospheric editorial glow */
 .atmospheric-glow-teal {
   background: radial-gradient(circle, rgba(20, 38, 41, 0.55) 0%, rgba(11, 23, 25, 0) 70%);
@@ -56,7 +190,7 @@ body {
 
 /* Subtle topographic grid */
 .topographic-grid {
-  background-image: 
+  background-image:
     linear-gradient(to right, rgba(220, 235, 230, 0.03) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(220, 235, 230, 0.03) 1px, transparent 1px);
   background-size: 56px 56px;
@@ -100,6 +234,7 @@ body {
 }
 
 .reveal-line-init.revealed {
+  opacity: 1;
   transform: scaleX(1);
 }
 
@@ -165,6 +300,7 @@ body {
 .maplibregl-popup-anchor-top .maplibregl-popup-tip {
   border-bottom-color: #111D20 !important;
 }
+
 .maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
   border-top-color: #111D20 !important;
 }

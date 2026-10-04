@@ -4,7 +4,7 @@ import { SearchBar } from "../components/map/SearchBar";
 import { RadarScanner } from "../components/common/RadarScanner";
 import { DossierPanel } from "../components/dossier/DossierPanel";
 import { useInvestigation } from "../hooks/useInvestigation";
-import { FileText, ShieldAlert, Sparkles, ArrowLeft } from "lucide-react";
+import { FileText, ShieldAlert, Sparkles, ArrowLeft, Activity } from "lucide-react";
 
 interface InvestigationMapPageProps {
   onBackToHome: () => void;
@@ -57,21 +57,35 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
       />
 
       {/* Brand Watermark Overlay */}
-      <div className="absolute top-6 right-6 z-20 pointer-events-none hidden md:flex items-center space-x-2.5 glass-panel px-3.5 py-2 rounded-2xl border border-slate-700/60 shadow-xl backdrop-blur-md">
-        <div className="relative flex items-center justify-center">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping absolute" />
-          <div className="w-2 h-2 rounded-full bg-emerald-400 relative" />
+      <div className="absolute top-6 right-6 z-20 pointer-events-none hidden md:flex items-center space-x-3 bg-slate-900/80 backdrop-blur-xl px-4 py-2 rounded-2xl border border-slate-700/80 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+        {/* Precision Sensor Telemetry Beacon */}
+        <div className="relative flex items-center justify-center w-6 h-6 rounded-full bg-slate-950/90 border border-emerald-500/30 shadow-inner shrink-0">
+          {/* Ambient Glow */}
+          <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-[3px] animate-pulse" />
+          {/* Concentric Radar Ring Pulse */}
+          <div className="absolute w-4 h-4 rounded-full border border-emerald-400/40 animate-ping" />
+          {/* Micro Lens LED Core */}
+          <div className="relative w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-400 to-teal-300 shadow-[0_0_10px_rgba(52,211,153,0.8)] border border-emerald-200/50">
+            <div className="absolute top-0.5 left-0.5 w-0.5 h-0.5 rounded-full bg-white/90" />
+          </div>
         </div>
+
         <div className="flex flex-col">
-          <div className="flex items-center space-x-1.5">
-            <span className="text-xs font-black tracking-wider text-white uppercase font-mono">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-300 font-mono">
               ZONALYZE
             </span>
-            <span className="text-[10px] text-emerald-400 bg-emerald-950/80 px-1.5 py-0.2 rounded border border-emerald-800/40 font-mono">
+            <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono font-medium shadow-[0_0_12px_rgba(16,185,129,0.15)] flex items-center gap-1">
+              <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
               v1.0
             </span>
           </div>
-          <span className="text-[9px] text-slate-400 font-mono">Civic Intelligence Engine</span>
+          <div className="flex items-center space-x-1 mt-0.5">
+            <Activity className="w-2.5 h-2.5 text-emerald-400/80" />
+            <span className="text-[9px] text-slate-400 font-mono tracking-wider uppercase font-semibold">
+              Civic Intelligence Engine
+            </span>
+          </div>
         </div>
       </div>
 

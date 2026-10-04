@@ -27,8 +27,8 @@ export const NoiseProfileCard: React.FC<NoiseProfileCardProps> = ({ noiseProfile
         };
       default:
         return {
-          badge: "bg-emerald-500/15 border-emerald-500/30 text-emerald-300",
-          icon: <VolumeX className="w-4 h-4 text-emerald-400" />,
+          badge: "bg-[#152e32] border-[#2dd4bf]/30 text-[#2dd4bf]",
+          icon: <VolumeX className="w-4 h-4 text-[#2dd4bf]" />,
           desc: "Low ambient footprint; well-attenuated from arterial noise",
           estDba: "< 48 dBA",
         };
@@ -37,7 +37,6 @@ export const NoiseProfileCard: React.FC<NoiseProfileCardProps> = ({ noiseProfile
 
   const style = getBracketStyles(estimated_bracket);
 
-  // Format culprit description
   const culpritLabel = (() => {
     if (nearest_source_type === "railway") return "Railway & Metro Track";
     if (nearest_source_type === "arterial_road") return "Major Highway / Arterial Roadway";
@@ -45,17 +44,17 @@ export const NoiseProfileCard: React.FC<NoiseProfileCardProps> = ({ noiseProfile
   })();
 
   return (
-    <div className="glass-panel p-4 rounded-2xl border border-slate-700/60 space-y-3">
+    <div className="ios-dark-glass-card p-5 space-y-4 font-sans">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Volume2 className="w-4 h-4 text-indigo-400" />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-            Acoustic & Noise Exposure Profile
+          <Volume2 className="w-4 h-4 text-[#38bdf8]" />
+          <h3 className="text-xs font-bold text-slate-200 uppercase tracking-widest font-mono">
+            Acoustic & Noise Profile
           </h3>
         </div>
         <span
-          className={`text-xs font-bold px-2.5 py-0.5 rounded-full border flex items-center space-x-1.5 ${style.badge}`}
+          className={`text-xs font-bold px-3 py-0.5 rounded-full border flex items-center space-x-1.5 ${style.badge}`}
         >
           {style.icon}
           <span>{estimated_bracket} Exposure</span>
@@ -63,7 +62,7 @@ export const NoiseProfileCard: React.FC<NoiseProfileCardProps> = ({ noiseProfile
       </div>
 
       {/* Culprit & Proximity Box */}
-      <div className="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+      <div className="ios-dark-glass-subcard p-3.5 space-y-2.5 font-sans">
         <div className="flex justify-between items-center text-xs">
           <span className="text-slate-400">Nearest Culprit Source:</span>
           <span className="text-slate-200 font-semibold">{culpritLabel}</span>
@@ -71,8 +70,8 @@ export const NoiseProfileCard: React.FC<NoiseProfileCardProps> = ({ noiseProfile
 
         {distance_meters !== null && (
           <div className="flex justify-between items-center text-xs">
-            <span className="text-slate-400">Distance to Nearest Culprit:</span>
-            <span className="font-mono text-cyan-300 font-bold bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">
+            <span className="text-slate-400">Proximity Distance:</span>
+            <span className="font-mono text-white font-bold bg-[#152736] px-2.5 py-0.5 rounded border border-slate-700/60">
               {distance_meters}m to {culpritLabel.split("/")[0].trim()}
             </span>
           </div>
@@ -80,24 +79,45 @@ export const NoiseProfileCard: React.FC<NoiseProfileCardProps> = ({ noiseProfile
 
         <div className="flex justify-between items-center text-xs">
           <span className="text-slate-400">Estimated Geometric Sound Level:</span>
-          <span className="font-mono text-slate-200">{style.estDba}</span>
+          <span className="font-mono text-slate-200 font-bold">{style.estDba}</span>
         </div>
 
         <div className="pt-2 border-t border-slate-800 flex items-start space-x-2 text-[11px] text-slate-400">
-          <ShieldCheck className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
+          <ShieldCheck className="w-3.5 h-3.5 text-[#2dd4bf] shrink-0 mt-0.5" />
           <span>{confidence}</span>
         </div>
       </div>
 
-      {/* Line-of-sight disclaimer text */}
-      <div className="p-2.5 rounded-xl bg-slate-900/50 border border-slate-800/80 text-[10px] text-slate-400 leading-relaxed flex items-start space-x-2">
-        <HelpCircle className="w-3.5 h-3.5 text-amber-400/80 shrink-0 mt-0.5" />
+      {/* Noise Spectrum Frequency Bar Chart */}
+      <div className="ios-dark-glass-subcard p-3.5 space-y-2">
+        <div className="text-[11px] font-semibold text-slate-300 font-mono flex items-center justify-between">
+          <span>Acoustic Frequency Spectrum</span>
+          <span className="text-[#2dd4bf] text-[10px]">Live Spectrum</span>
+        </div>
+        <div className="h-16 w-full flex items-end justify-between pt-2 gap-1.5">
+          <div className="flex-1 bg-[#2dd4bf]/70 rounded-t-sm h-12" />
+          <div className="flex-1 bg-[#38bdf8]/80 rounded-t-sm h-16" />
+          <div className="flex-1 bg-[#34d399]/70 rounded-t-sm h-8" />
+          <div className="flex-1 bg-[#60a5fa]/80 rounded-t-sm h-10" />
+          <div className="flex-1 bg-[#818cf8]/70 rounded-t-sm h-14" />
+        </div>
+        <div className="flex justify-between text-[9px] font-mono text-slate-400 pt-1">
+          <span>Traffic</span>
+          <span>Transit</span>
+          <span>Commercial</span>
+          <span>Residential</span>
+          <span>Industrial</span>
+        </div>
+      </div>
+
+      {/* Disclaimer */}
+      <div className="p-3 rounded-xl bg-[#141f2b]/60 border border-slate-800/80 text-[10px] text-slate-400 leading-relaxed flex items-start space-x-2 font-sans">
+        <HelpCircle className="w-3.5 h-3.5 text-[#2dd4bf] shrink-0 mt-0.5" />
         <div>
-          <span className="font-semibold text-slate-300">Line-of-Sight Disclaimer: </span>
+          <span className="font-semibold text-slate-300">Line-of-Sight Propagation: </span>
           Acoustic attenuation proxy assumes unobstructed line-of-sight propagation (
           <span className="font-mono text-slate-300">L = L₀ - 20·log₁₀(d/d₀)</span>). Micro-urban
-          surface barriers, tree canopy buffers, architectural shielding, and double-glazed facades
-          typically provide an additional 6 to 14 dBA of dampening.
+          barriers and tree canopy buffers provide an extra 6 to 14 dBA of dampening.
         </div>
       </div>
     </div>

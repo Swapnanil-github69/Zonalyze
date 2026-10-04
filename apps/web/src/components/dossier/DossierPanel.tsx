@@ -32,16 +32,16 @@ export const DossierPanel: React.FC<DossierPanelProps> = ({
   // Compute livability score if investigation available
   const livabilityScore = investigation
     ? investigation.livabilityScore ||
-      calculateLivabilityScore(
-        investigation.environment,
-        investigation.infrastructure,
-        investigation.noiseProfile
-      )
+    calculateLivabilityScore(
+      investigation.environment,
+      investigation.infrastructure,
+      investigation.noiseProfile
+    )
     : null;
 
   return (
     <aside
-      className="fixed top-0 right-0 h-full w-full sm:w-[480px] z-30 flex flex-col glass-panel-elevated border-l border-slate-700/60 shadow-2xl transition-all duration-300 ease-out"
+      className="fixed top-0 right-0 h-full w-full sm:w-[480px] z-30 flex flex-col ios-dark-glass-drawer shadow-2xl transition-all duration-300 ease-out"
       aria-label="Location Audit Dossier"
     >
       {isLoading ? (
