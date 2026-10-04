@@ -1,13 +1,11 @@
 import React from "react";
 import { Navigation } from "../components/landing/Navigation";
 import { HeroSection } from "../components/landing/HeroSection";
-import { StorySection } from "../components/landing/StorySection";
-import { IntelligenceDimensions } from "../components/landing/IntelligenceDimensions";
-import { GeographicModel } from "../components/landing/GeographicModel";
-import { HowItWorks } from "../components/landing/HowItWorks";
-import { EvidenceSection } from "../components/landing/EvidenceSection";
-import { FinalCTA } from "../components/landing/FinalCTA";
-import { Footer } from "../components/landing/Footer";
+import { IntelligenceLayersSection } from "../components/landing/IntelligenceLayersSection";
+import { HowItWorksSection } from "../components/landing/HowItWorksSection";
+import { InvestigationPreviewSection } from "../components/landing/InvestigationPreviewSection";
+import { FinalCTASection } from "../components/landing/FinalCTASection";
+import { CinematicFooter } from "../components/landing/CinematicFooter";
 
 interface LandingPageProps {
   onNavigateToInvestigation: () => void;
@@ -15,49 +13,42 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToInvestigation }) => {
   const scrollToExplore = () => {
-    const el = document.getElementById("explore");
+    const el = document.getElementById("layers");
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#0B1D2A] text-[#F4F7F8] selection:bg-[#123747] selection:text-white overflow-x-hidden font-sans">
-      {/* 01. Navigation */}
+    <div className="relative min-h-screen w-full bg-[#0B1719] text-[#F1F0E9] selection:bg-[#B6C6A3] selection:text-[#0B1719] overflow-x-hidden font-sans">
+      {/* 01. Fixed Minimal Dark Editorial Navigation */}
       <Navigation onStartInvestigation={onNavigateToInvestigation} />
 
-      {/* Main Editorial Flow */}
+      {/* Main Editorial Experience */}
       <main>
-        {/* 01. Hero: Existing cinematic mountain background with dark teal overlay */}
+        {/* EXISTING HOMEPAGE HERO SECTION — 100% PRESERVED & UNMODIFIED */}
         <HeroSection
           onStartInvestigation={onNavigateToInvestigation}
           onExploreCapabilities={scrollToExplore}
         />
 
-        {/* 02. Explore: Warm editorial surface with geographic intelligence visualization */}
-        <IntelligenceDimensions onExplore={onNavigateToInvestigation} />
+        {/* Intelligence Capabilities: "Understand What Surrounds You." */}
+        <IntelligenceLayersSection />
 
-        {/* 03. About Zonalyze: Natural architectural surface with 3D context model */}
-        <StorySection onExplore={onNavigateToInvestigation} />
+        {/* Investigation Pipeline: "From a Point on the Map to a Deeper Understanding." */}
+        <HowItWorksSection />
 
-        {/* 04. Technology / Spatial Engine: Architectural 3D model */}
-        <GeographicModel onStartExploring={onNavigateToInvestigation} />
+        {/* Location Investigation Workspace: "Your Window Into Any Location." */}
+        <InvestigationPreviewSection onLaunchInvestigation={onNavigateToInvestigation} />
 
-        {/* 05. How It Works: Light neutral architectural background */}
-        <HowItWorks />
-
-        {/* 06. Evidence & Transparency: Solid dark surfaces */}
-        <EvidenceSection />
-
-        {/* 07. Final Call To Action: Cinematic dark landscape */}
-        <FinalCTA onInvestigateLocation={onNavigateToInvestigation} />
+        {/* Final CTA: "Every Coordinate Has a Story Waiting to Be Understood." */}
+        <FinalCTASection onStartInvestigation={onNavigateToInvestigation} />
       </main>
 
-      {/* 08. Footer: Multi-column professional footer */}
-      <Footer onStartInvestigation={onNavigateToInvestigation} />
+      {/* FOOTER matching Reference Screenshot */}
+      <CinematicFooter />
     </div>
   );
 };
 
 export default LandingPage;
-
