@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, CheckCircle2, ClipboardList, Check, Bot } from "lucide-react";
+import { Sparkles, CheckCircle2, ClipboardList, Check, Bot, Train, HeartPulse, Wind, Volume2 } from "lucide-react";
 import { AiReportData } from "../../types/investigation";
 
 interface ForensicReportCardProps {
@@ -7,7 +7,7 @@ interface ForensicReportCardProps {
 }
 
 export const ForensicReportCard: React.FC<ForensicReportCardProps> = ({ aiReport }) => {
-  const { summary, empirical_observations, site_inspection_targets } = aiReport;
+  const { summary, insights_in_brief, empirical_observations, site_inspection_targets } = aiReport;
   const [completedTargets, setCompletedTargets] = useState<Record<number, boolean>>({});
 
   const toggleTarget = (index: number) => {
@@ -38,9 +38,79 @@ export const ForensicReportCard: React.FC<ForensicReportCardProps> = ({ aiReport
         </span>
       </div>
 
-      {/* Summary Box */}
-      <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200 leading-relaxed font-medium">
-        {summary}
+      {/* Executive Insights in Brief Grid */}
+      <div className="space-y-2">
+        <div className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider flex items-center justify-between">
+          <span className="flex items-center">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400 mr-1.5" />
+            Insights in Brief
+          </span>
+          <span className="text-[9px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/30">
+            Quick Takeaways
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {/* Transit Brief */}
+          <div className="bg-slate-900/90 p-2.5 rounded-xl border border-blue-500/25 flex flex-col justify-between space-y-1">
+            <div className="flex items-center space-x-1.5">
+              <Train className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300">
+                Transit & Commute
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 leading-snug">
+              {insights_in_brief?.transit || "Direct access to regional multi-modal transit network."}
+            </p>
+          </div>
+
+          {/* Healthcare Brief */}
+          <div className="bg-slate-900/90 p-2.5 rounded-xl border border-rose-500/25 flex flex-col justify-between space-y-1">
+            <div className="flex items-center space-x-1.5">
+              <HeartPulse className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-300">
+                Healthcare Ready
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 leading-snug">
+              {insights_in_brief?.healthcare || "Emergency healthcare services accessible within radial envelope."}
+            </p>
+          </div>
+
+          {/* Environmental Brief */}
+          <div className="bg-slate-900/90 p-2.5 rounded-xl border border-emerald-500/25 flex flex-col justify-between space-y-1">
+            <div className="flex items-center space-x-1.5">
+              <Wind className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                Air & Atmosphere
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 leading-snug">
+              {insights_in_brief?.environment || "Continuous atmospheric and fine particulate telemetry monitoring."}
+            </p>
+          </div>
+
+          {/* Acoustic Brief */}
+          <div className="bg-slate-900/90 p-2.5 rounded-xl border border-amber-500/25 flex flex-col justify-between space-y-1">
+            <div className="flex items-center space-x-1.5">
+              <Volume2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300">
+                Acoustic Zone
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 leading-snug">
+              {insights_in_brief?.acoustic || "Decibel exposure mapped against nearest traffic corridors."}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Forensic Narrative Overview Box */}
+      <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200 leading-relaxed font-medium space-y-1">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">
+          Executive Forensic Overview
+        </div>
+        <div>{summary}</div>
       </div>
 
       {/* Empirical Observations */}

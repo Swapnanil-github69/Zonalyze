@@ -21,8 +21,12 @@ export interface IInvestigation extends Document {
     hospitals: number;
     pharmacies: number;
     railway_stations: number;
+    metro_stations?: number;
     parks: number;
     nearest_hospital_dist_m: number | null;
+    nearest_railway_dist_m: number | null;
+    nearest_metro_dist_m?: number | null;
+    nearest_arterial_dist_m: number | null;
   };
   noiseProfile: {
     estimated_bracket: "Elevated" | "Moderate" | "Low / Ambient";
@@ -32,6 +36,12 @@ export interface IInvestigation extends Document {
   };
   aiReport: {
     summary: string;
+    insights_in_brief?: {
+      transit: string;
+      healthcare: string;
+      environment: string;
+      acoustic: string;
+    };
     empirical_observations: string[];
     site_inspection_targets: string[];
   };
@@ -54,8 +64,12 @@ const InvestigationSchema = new Schema<IInvestigation>({
     hospitals: { type: Number, default: 0 },
     pharmacies: { type: Number, default: 0 },
     railway_stations: { type: Number, default: 0 },
+    metro_stations: { type: Number, default: 0 },
     parks: { type: Number, default: 0 },
-    nearest_hospital_dist_m: { type: Number, default: null }
+    nearest_hospital_dist_m: { type: Number, default: null },
+    nearest_railway_dist_m: { type: Number, default: null },
+    nearest_metro_dist_m: { type: Number, default: null },
+    nearest_arterial_dist_m: { type: Number, default: null }
   },
   noiseProfile: {
     estimated_bracket: { 
@@ -73,6 +87,12 @@ const InvestigationSchema = new Schema<IInvestigation>({
   },
   aiReport: {
     summary: { type: String, required: true },
+    insights_in_brief: {
+      transit: { type: String },
+      healthcare: { type: String },
+      environment: { type: String },
+      acoustic: { type: String }
+    },
     empirical_observations: { type: [String], default: [] },
     site_inspection_targets: { type: [String], default: [] }
   },

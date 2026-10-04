@@ -1,5 +1,5 @@
 import { OverpassElement, InfrastructureMetrics, NoiseAnalysis } from "../types/index.js";
-import { calculateHaversineDistance } from "../utils/haversine.js";
+import { calculateHaversineMeters } from "../utils/geoUtils.js";
 import { estimateNoiseProfile } from "../utils/noiseModel.js";
 
 /**
@@ -19,10 +19,12 @@ export class HeuristicService {
     let hospitals = 0;
     let pharmacies = 0;
     let railway_stations = 0;
+    let metro_stations = 0;
     let parks = 0;
 
     let nearestHospitalDist: number | null = null;
     let nearestRailwayDist: number | null = null;
+    let nearestMetroDist: number | null = null;
     let nearestArterialDist: number | null = null;
 
     for (const el of elements) {
@@ -30,17 +32,39 @@ export class HeuristicService {
       const lon = el.lon ?? el.center?.lon;
       if (!lat || !lon) continue;
 
-      const dist = calculateHaversineDistance(originLat, originLon, lat, lon);
+      const dist = calculateHaversineMeters(originLat, originLon, lat, lon);
       const tags = el.tags || {};
 
-      if (tags.amenity === "hospital") {
+      if (
+        tags.amenity === "hospital" ||
+        tags.healthcare === "hospital" ||
+        tags.building === "hospital"
+      ) {
         hospitals++;
         if (nearestHospitalDist === null || dist < nearestHospitalDist) {
           nearestHospitalDist = dist;
         }
       } else if (tags.amenity === "pharmacy") {
         pharmacies++;
-      } else if (tags.railway === "station" || tags.railway === "halt") {
+      } else if (
+        tags.station === "subway" ||
+        tags.station === "light_rail" ||
+        tags.subway === "yes" ||
+        (tags.railway === "station" && (tags.subway === "yes" || tags.station === "subway"))
+      ) {
+        metro_stations++;
+        railway_stations++;
+        if (nearestMetroDist === null || dist < nearestMetroDist) {
+          nearestMetroDist = dist;
+        }
+        if (nearestRailwayDist === null || dist < nearestRailwayDist) {
+          nearestRailwayDist = dist;
+        }
+      } else if (
+        tags.railway === "station" ||
+        tags.railway === "halt" ||
+        tags.public_transport === "station"
+      ) {
         railway_stations++;
         if (nearestRailwayDist === null || dist < nearestRailwayDist) {
           nearestRailwayDist = dist;
@@ -68,9 +92,11 @@ export class HeuristicService {
         hospitals,
         pharmacies,
         railway_stations,
+        metro_stations,
         parks,
         nearest_hospital_dist_m: nearestHospitalDist,
         nearest_railway_dist_m: nearestRailwayDist,
+        nearest_metro_dist_m: nearestMetroDist,
         nearest_arterial_dist_m: nearestArterialDist,
       },
       noiseProfile,

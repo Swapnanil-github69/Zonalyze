@@ -39,9 +39,11 @@ export interface InfrastructureMetrics {
   hospitals: number;
   pharmacies: number;
   railway_stations: number;
+  metro_stations?: number;
   parks: number;
   nearest_hospital_dist_m: number | null;
   nearest_railway_dist_m: number | null;
+  nearest_metro_dist_m?: number | null;
   nearest_arterial_dist_m: number | null;
 }
 
@@ -54,6 +56,12 @@ export interface NoiseAnalysis {
 
 export interface AiDebrief {
   summary: string;
+  insights_in_brief?: {
+    transit: string;
+    healthcare: string;
+    environment: string;
+    acoustic: string;
+  };
   empirical_observations: string[];
   site_inspection_targets: string[];
 }
