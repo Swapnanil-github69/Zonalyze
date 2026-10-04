@@ -104,7 +104,7 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
   const [selectedLang, setSelectedLang] = useState<LanguageOption>(SUPPORTED_LANGUAGES[0]);
   const [showLangMenu, setShowLangMenu] = useState<boolean>(false);
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const conversationRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
 
   // Initialize Speech Recognition for active language
@@ -180,9 +180,10 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
     };
   }, []);
 
-  // Scroll to bottom on new messages
+  // Keep message scrolling inside the conversation instead of moving the dossier.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const conversation = conversationRef.current;
+    conversation?.scrollTo({ top: conversation.scrollHeight, behavior: "smooth" });
   }, [messages, isLoading]);
 
   const speakText = (text: string, messageId: string) => {
@@ -426,7 +427,10 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
           </div>
 
           {/* Conversation Thread */}
-          <div className="h-60 overflow-y-auto pr-1 space-y-2.5 rounded-xl bg-slate-900/50 p-2.5 border border-slate-800/60 custom-scrollbar">
+          <div
+            ref={conversationRef}
+            className="h-60 overflow-y-auto pr-1 space-y-2.5 rounded-xl bg-slate-900/50 p-2.5 border border-slate-800/60 custom-scrollbar"
+          >
             {messages.map((msg) => {
               const isAssistant = msg.role === "assistant";
               const isSpeaking = speakingMessageId === msg.id;
@@ -508,7 +512,6 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                 <span className="font-mono">Analyzing location & synthesizing response...</span>
               </div>
             )}
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Voice Input Indicator */}

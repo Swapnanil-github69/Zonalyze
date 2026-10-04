@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { InvestigationResult, AuditStage } from "../../types/investigation";
 import { DossierHeader } from "./DossierHeader";
 import { LivabilityGauge } from "./LivabilityGauge";
@@ -28,6 +28,22 @@ export const DossierPanel: React.FC<DossierPanelProps> = ({
   selectedCoords,
   onClose,
 }) => {
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const environmentRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen || isLoading || !investigation) return;
+
+    const content = contentRef.current;
+    const environment = environmentRef.current;
+    if (!content || !environment) return;
+
+    content.scrollTo({
+      top: content.scrollTop + environment.getBoundingClientRect().top - content.getBoundingClientRect().top,
+      behavior: "smooth",
+    });
+  }, [investigation, isLoading, isOpen]);
+
   if (!isOpen) return null;
 
   // Compute livability score if investigation available
@@ -70,15 +86,17 @@ export const DossierPanel: React.FC<DossierPanelProps> = ({
           <DossierHeader investigation={investigation} onClose={onClose} />
 
           {/* Scrollable Dossier Content */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div ref={contentRef} className="flex-1 overflow-y-auto p-5 space-y-4">
             {/* 2. Livability Score Ring/Gauge */}
             {livabilityScore && <LivabilityGauge livability={livabilityScore} />}
 
             {/* 3. Environment Telemetry Card */}
-            <AirQualityCard
-              environment={investigation.environment}
-              coordinates={investigation.location.coordinates}
-            />
+            <div ref={environmentRef}>
+              <AirQualityCard
+                environment={investigation.environment}
+                coordinates={investigation.location.coordinates}
+              />
+            </div>
 
             {/* AI Assistant / Gemini Chatbox */}
             <AiChatWidget investigation={investigation} />
