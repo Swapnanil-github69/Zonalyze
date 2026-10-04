@@ -239,10 +239,12 @@ INSTRUCTIONS:
     question,
     investigation,
     chatHistory = [],
+    preferredLanguage = "Auto",
   }: {
     question: string;
     investigation: any;
     chatHistory?: Array<{ role: "user" | "model"; text: string }>;
+    preferredLanguage?: string;
   }): Promise<string> {
     const address = investigation.address || "Target location";
     const coords = investigation.location?.coordinates || [];
@@ -336,6 +338,15 @@ RULES:
 - Integrate verified telemetry for air quality, acoustics, and immediate transit distances.
 - Integrate your broad geographic, civic, and urban knowledge of this specific city, district, and neighborhood for open-ended queries.
 - NEVER claim that you can only answer pre-set questions or that an inquiry is forbidden because it is outside the telemetry. Be a versatile, friendly, and expert location intelligence agent.
+
+LANGUAGE & MULTILINGUAL OUTPUT:
+- Preferred Target Language: "${preferredLanguage}"
+- If Target Language is "Hindi" (or question is written in Hindi / Devanagari script): Output your entire response in authentic, fluent Hindi (हिन्दी).
+- If Target Language is "Bengali" (or question is written in Bengali script): Output your entire response in authentic, fluent Bengali (বাংলা).
+- If Target Language is "Spanish": Output your entire response in authentic, fluent Spanish (Español).
+- If Target Language is "French": Output your entire response in authentic, fluent French (Français).
+- If Target Language is "German": Output your entire response in authentic, fluent German (Deutsch).
+- If Target Language is "Auto" or "English": Respond in the language used in the question (defaulting to English).
 `;
 
     const contents = [

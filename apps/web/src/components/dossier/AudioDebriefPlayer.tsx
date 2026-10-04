@@ -1,11 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Volume2, VolumeX, Play, Pause, Square } from "lucide-react";
 import { AiReportData } from "../../types/investigation";
+import { naturalVoicePlayer, SupportedSpeechLang } from "../../utils/naturalSpeech";
 
 interface AudioDebriefPlayerProps {
   aiReport: AiReportData;
   locationName: string;
 }
+
+const DEBRIEF_LANGUAGES: { code: SupportedSpeechLang; label: string; name: string }[] = [
+  { code: "en", label: "EN", name: "English" },
+  { code: "hi", label: "हिन्दी", name: "Hindi" },
+  { code: "bn", label: "বাংলা", name: "Bangla" },
+];
 
 export const AudioDebriefPlayer: React.FC<AudioDebriefPlayerProps> = ({
   aiReport,
@@ -13,125 +20,132 @@ export const AudioDebriefPlayer: React.FC<AudioDebriefPlayerProps> = ({
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
-  const [playbackRate, setPlaybackRate] = useState<number>(1.0);
-  const [isSupported, setIsSupported] = useState<boolean>(true);
+  const [selectedLang, setSelectedLang] = useState<SupportedSpeechLang>("en");
 
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-
+  // Cleanup on unmount
   useEffect(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      setIsSupported(false);
-    }
-
     return () => {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
+      naturalVoicePlayer.stop();
     };
   }, []);
 
   // Stop audio whenever location changes
   useEffect(() => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      setIsPlaying(false);
-      setIsPaused(false);
-    }
+    naturalVoicePlayer.stop();
+    setIsPlaying(false);
+    setIsPaused(false);
   }, [locationName]);
 
-  const assembleSpeechText = (): string => {
+  const assembleSpeechText = (lang: SupportedSpeechLang): string => {
     const parts: string[] = [];
-    parts.push(`Zonalyze forensic debrief for ${locationName}.`);
 
-    if (aiReport.insights_in_brief) {
-      const { transit, healthcare, environment, acoustic } = aiReport.insights_in_brief;
-      if (transit) parts.push(`Transit insights: ${transit}`);
-      if (healthcare) parts.push(`Healthcare readiness: ${healthcare}`);
-      if (environment) parts.push(`Atmospheric health: ${environment}`);
-      if (acoustic) parts.push(`Acoustic environment: ${acoustic}`);
-    }
-
-    if (aiReport.summary) {
-      parts.push(`Executive overview: ${aiReport.summary}`);
+    if (lang === "hi") {
+      parts.push(`${locationName} के लिए ज़ोनलाइज़ फोरेंसिक रिपोर्ट।`);
+      if (aiReport.insights_in_brief) {
+        const { transit, healthcare, environment, acoustic } = aiReport.insights_in_brief;
+        if (transit) parts.push(`यातायात: ${transit}।`);
+        if (healthcare) parts.push(`स्वास्थ्य सुविधाएं: ${healthcare}।`);
+        if (environment) parts.push(`पर्यावरण एवं वायु: ${environment}।`);
+        if (acoustic) parts.push(`ध्वनि स्तर: ${acoustic}।`);
+      }
+      if (aiReport.summary) {
+        parts.push(`सारांश: ${aiReport.summary}।`);
+      }
+    } else if (lang === "bn") {
+      parts.push(`${locationName} এর জন্য জোনলাইজ ফরেনসিক রিপোর্ট।`);
+      if (aiReport.insights_in_brief) {
+        const { transit, healthcare, environment, acoustic } = aiReport.insights_in_brief;
+        if (transit) parts.push(`যাতায়াত ব্যবস্থা: ${transit}।`);
+        if (healthcare) parts.push(`স্বাস্থ্যসেবা: ${healthcare}।`);
+        if (environment) parts.push(`বায়ু ও পরিবেশ: ${environment}।`);
+        if (acoustic) parts.push(`শব্দ মাত্রা: ${acoustic}।`);
+      }
+      if (aiReport.summary) {
+        parts.push(`সংক্ষিপ্ত বিবরণ: ${aiReport.summary}।`);
+      }
+    } else {
+      parts.push(`Zonalyze forensic debrief for ${locationName}.`);
+      if (aiReport.insights_in_brief) {
+        const { transit, healthcare, environment, acoustic } = aiReport.insights_in_brief;
+        if (transit) parts.push(`Transit insights: ${transit}.`);
+        if (healthcare) parts.push(`Healthcare readiness: ${healthcare}.`);
+        if (environment) parts.push(`Atmospheric health: ${environment}.`);
+        if (acoustic) parts.push(`Acoustic environment: ${acoustic}.`);
+      }
+      if (aiReport.summary) {
+        parts.push(`Executive overview: ${aiReport.summary}.`);
+      }
     }
 
     return parts.join(" ");
   };
 
   const handlePlay = () => {
-    if (!isSupported) return;
-
     if (isPaused) {
-      window.speechSynthesis.resume();
+      naturalVoicePlayer.resume();
       setIsPaused(false);
       setIsPlaying(true);
       return;
     }
 
-    window.speechSynthesis.cancel();
+    naturalVoicePlayer.stop();
 
-    const text = assembleSpeechText();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utteranceRef.current = utterance;
+    const text = assembleSpeechText(selectedLang);
+    naturalVoicePlayer.play(text, selectedLang, "debrief-audio", {
+      onStart: () => {
+        setIsPlaying(true);
+        setIsPaused(false);
+      },
+      onEnd: () => {
+        setIsPlaying(false);
+        setIsPaused(false);
+      },
+      onError: (err) => {
+        console.warn("Debrief audio error:", err);
+        setIsPlaying(false);
+        setIsPaused(false);
+      },
+    });
 
-    utterance.rate = playbackRate;
-    utterance.pitch = 1.0;
-
-    // Pick a natural-sounding English voice if available
-    const voices = window.speechSynthesis.getVoices();
-    const naturalVoice = voices.find(
-      (v) =>
-        (v.name.includes("Natural") ||
-          v.name.includes("Google") ||
-          v.name.includes("Samantha") ||
-          v.name.includes("Daniel") ||
-          v.name.includes("Premium")) &&
-        v.lang.startsWith("en")
-    );
-    if (naturalVoice) {
-      utterance.voice = naturalVoice;
-    }
-
-    utterance.onend = () => {
-      setIsPlaying(false);
-      setIsPaused(false);
-    };
-
-    utterance.onerror = (e) => {
-      console.warn("SpeechSynthesis error:", e);
-      setIsPlaying(false);
-      setIsPaused(false);
-    };
-
-    window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
     setIsPaused(false);
   };
 
   const handlePause = () => {
-    if (!isSupported || !isPlaying) return;
-    window.speechSynthesis.pause();
+    naturalVoicePlayer.pause();
     setIsPaused(true);
     setIsPlaying(false);
   };
 
   const handleStop = () => {
-    if (!isSupported) return;
-    window.speechSynthesis.cancel();
+    naturalVoicePlayer.stop();
     setIsPlaying(false);
     setIsPaused(false);
   };
 
-  const toggleRate = () => {
-    const nextRate = playbackRate === 1.0 ? 1.25 : playbackRate === 1.25 ? 1.5 : 1.0;
-    setPlaybackRate(nextRate);
-    if (isPlaying && utteranceRef.current) {
-      handleStop();
-      setTimeout(handlePlay, 100);
+  const changeLanguage = (lang: SupportedSpeechLang) => {
+    if (lang === selectedLang) return;
+    const wasActive = isPlaying;
+    handleStop();
+    setSelectedLang(lang);
+    if (wasActive) {
+      setTimeout(() => {
+        const text = assembleSpeechText(lang);
+        naturalVoicePlayer.play(text, lang, "debrief-audio", {
+          onStart: () => setIsPlaying(true),
+          onEnd: () => {
+            setIsPlaying(false);
+            setIsPaused(false);
+          },
+          onError: () => {
+            setIsPlaying(false);
+            setIsPaused(false);
+          },
+        });
+        setIsPlaying(true);
+      }, 150);
     }
   };
-
-  if (!isSupported) return null;
 
   return (
     <div className="p-3 rounded-2xl bg-gradient-to-r from-indigo-950/70 via-slate-900/90 to-blue-950/70 border border-indigo-500/40 shadow-lg flex items-center justify-between space-x-3 backdrop-blur-md">
@@ -149,20 +163,26 @@ export const AudioDebriefPlayer: React.FC<AudioDebriefPlayerProps> = ({
             <span className="text-xs font-bold text-white font-mono tracking-wide truncate">
               Voice Audio Debrief
             </span>
-            <span className="text-[9px] font-mono text-indigo-300 bg-indigo-500/20 px-1.5 py-0.2 rounded border border-indigo-500/30">
-              AI Voice
+            <span className="text-[9px] font-mono text-cyan-300 bg-cyan-500/20 px-1.5 py-0.2 rounded border border-cyan-500/30">
+              Natural Voice
             </span>
           </div>
           <div className="text-[10px] text-slate-400 truncate flex items-center space-x-1">
             {isPlaying ? (
               <span className="text-emerald-400 font-medium flex items-center">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-1 inline-block" />
-                Reading Overview aloud...
+                Reading in{" "}
+                {selectedLang === "hi"
+                  ? "हिन्दी (Hindi)"
+                  : selectedLang === "bn"
+                  ? "বাংলা (Bangla)"
+                  : "English"}
+                ...
               </span>
             ) : isPaused ? (
               <span className="text-amber-400">Audio playback paused</span>
             ) : (
-              <span>Listen to location audit insights</span>
+              <span>Listen to location audit insights in native voice</span>
             )}
           </div>
         </div>
@@ -171,23 +191,48 @@ export const AudioDebriefPlayer: React.FC<AudioDebriefPlayerProps> = ({
       {/* Center: Waveform Bars (Active when playing) */}
       {isPlaying && (
         <div className="hidden sm:flex items-center space-x-1 h-5 px-2">
-          <div className="w-1 bg-cyan-400 rounded-full animate-bounce h-3" style={{ animationDelay: "0ms" }} />
-          <div className="w-1 bg-blue-400 rounded-full animate-bounce h-5" style={{ animationDelay: "150ms" }} />
-          <div className="w-1 bg-indigo-400 rounded-full animate-bounce h-4" style={{ animationDelay: "300ms" }} />
-          <div className="w-1 bg-purple-400 rounded-full animate-bounce h-5" style={{ animationDelay: "100ms" }} />
-          <div className="w-1 bg-emerald-400 rounded-full animate-bounce h-2" style={{ animationDelay: "250ms" }} />
+          <div
+            className="w-1 bg-cyan-400 rounded-full animate-bounce h-3"
+            style={{ animationDelay: "0ms" }}
+          />
+          <div
+            className="w-1 bg-blue-400 rounded-full animate-bounce h-5"
+            style={{ animationDelay: "150ms" }}
+          />
+          <div
+            className="w-1 bg-indigo-400 rounded-full animate-bounce h-4"
+            style={{ animationDelay: "300ms" }}
+          />
+          <div
+            className="w-1 bg-purple-400 rounded-full animate-bounce h-5"
+            style={{ animationDelay: "100ms" }}
+          />
+          <div
+            className="w-1 bg-emerald-400 rounded-full animate-bounce h-2"
+            style={{ animationDelay: "250ms" }}
+          />
         </div>
       )}
 
-      {/* Right: Controls */}
-      <div className="flex items-center space-x-1.5 shrink-0">
-        <button
-          onClick={toggleRate}
-          className="text-[10px] font-mono text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 px-2 py-1 rounded-lg border border-slate-700 transition"
-          title="Change playback speed"
-        >
-          {playbackRate}x
-        </button>
+      {/* Right: Language switch & Controls */}
+      <div className="flex items-center space-x-2 shrink-0">
+        {/* 3-Language Toggle: EN | HI | BN */}
+        <div className="flex items-center bg-slate-900/80 p-0.5 rounded-xl border border-slate-800">
+          {DEBRIEF_LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => changeLanguage(lang.code)}
+              className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-medium transition ${
+                selectedLang === lang.code
+                  ? "bg-indigo-600 text-white shadow-sm font-bold"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+              title={`Switch audio to ${lang.name}`}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
 
         {!isPlaying ? (
           <button

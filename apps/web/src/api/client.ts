@@ -132,13 +132,15 @@ export async function investigateCoordinates(
 export async function askLocationAi(
   question: string,
   investigation: InvestigationResult,
-  chatHistory: Array<{ role: "user" | "model"; text: string }> = []
+  chatHistory: Array<{ role: "user" | "model"; text: string }> = [],
+  preferredLanguage: string = "Auto"
 ): Promise<string> {
   try {
     const response = await apiClient.post<{ reply: string }>("/investigate/chat", {
       question,
       investigation,
       chatHistory,
+      preferredLanguage,
     });
     return response.data.reply;
   } catch (err: any) {

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import axios from "axios";
 import { CacheService } from "../services/cache.service.js";
 import { NominatimService } from "../services/nominatim.service.js";
 import { OpenMeteoService } from "../services/openMeteo.service.js";
@@ -135,7 +136,7 @@ export class InvestigateController {
    */
   public static async chatAboutLocation(req: Request, res: Response): Promise<void> {
     try {
-      const { question, investigation, chatHistory } = req.body;
+      const { question, investigation, chatHistory, preferredLanguage } = req.body;
 
       if (!question || typeof question !== "string") {
         res.status(400).json({ error: "A valid question string is required." });
@@ -151,6 +152,7 @@ export class InvestigateController {
         question: question.trim(),
         investigation,
         chatHistory: Array.isArray(chatHistory) ? chatHistory : [],
+        preferredLanguage: typeof preferredLanguage === "string" ? preferredLanguage : "Auto",
       });
 
       res.status(200).json({ reply });
@@ -161,6 +163,57 @@ export class InvestigateController {
         req.body?.investigation || {}
       );
       res.status(200).json({ reply: fallbackReply });
+    }
+  }
+
+  /**
+   * High-Fidelity Neural Text-to-Speech Endpoint
+   * Returns human-sounding audio stream for English, Hindi, and Bangla
+   */
+  public static async textToSpeech(req: Request, res: Response): Promise<void> {
+    try {
+      const text = typeof req.query.text === "string" ? req.query.text.trim() : "";
+      const rawLang = typeof req.query.lang === "string" ? req.query.lang.toLowerCase() : "en";
+
+      if (!text) {
+        res.status(400).json({ error: "Text query parameter is required." });
+        return;
+      }
+
+      // Map language code: "hi" (Hindi), "bn" (Bangla), "en" (English)
+      let langCode = "en";
+      if (rawLang.startsWith("hi")) {
+        langCode = "hi";
+      } else if (rawLang.startsWith("bn")) {
+        langCode = "bn";
+      } else {
+        langCode = "en";
+      }
+
+      // Keep chunk under max single TTS query limit (~150 chars)
+      const safeText = text.slice(0, 150);
+
+      const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(
+        safeText
+      )}&tl=${langCode}&client=tw-ob`;
+
+      const audioResponse = await axios.get(ttsUrl, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Referer: "https://translate.google.com/",
+        },
+        responseType: "arraybuffer",
+        timeout: 7000,
+      });
+
+      res.setHeader("Content-Type", "audio/mpeg");
+      res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.send(Buffer.from(audioResponse.data));
+    } catch (error: any) {
+      console.warn("⚠️ TTS generation error:", error.message);
+      res.status(502).json({ error: "TTS generation unavailable" });
     }
   }
 }
