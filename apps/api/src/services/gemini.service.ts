@@ -4,11 +4,19 @@ import { AiDebrief } from "../types/index.js";
 import { calculateHaversineMeters } from "../utils/geoUtils.js";
 import { NominatimService } from "./nominatim.service.js";
 
+const CANDIDATE_MODELS = [
+  "gemini-3.5-flash",
+  "gemini-3.7-flash",
+  "gemini-flash-lite-latest",
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-flash-latest",
+];
+
 /**
  * Contributor 1: Backend Lead
- * Google Gemini Forensic Debrief Synthesis:
- * Strictly inspects verified JSON telemetry and outputs structured forensic observations and site inspection targets.
- * NEVER hallucinates data or calculates subjective vanity scores.
+ * Google Gemini Forensic Debrief Synthesis & Intelligent Location Assistant:
+ * Uses multi-model failover to guarantee high availability across rate limits.
  */
 export class GeminiService {
   private static ai: GoogleGenAI | null = null;
@@ -54,8 +62,7 @@ export class GeminiService {
       return this.generateDeterministicFallback(verifiedTelemetry);
     }
 
-    try {
-      const prompt = `
+    const prompt = `
 You are the Zonalyze Civic & Environmental Risk AI Forensic Engine.
 Analyze the following VERIFIED telemetry data for an urban location audit:
 
@@ -76,70 +83,71 @@ INSTRUCTIONS:
 3. "empirical_observations": Generate 3 to 4 rigorous, verifiable statements strictly based on the telemetry numbers.
 4. "site_inspection_targets": Generate 3 to 4 physical, actionable checklist targets for a prospective buyer/tenant/investigator inspecting this site in person.
 5. STRICT CONSTRAINTS:
-   - NEVER invent amenities, school ratings, or imaginary grocery stores.
-   - Ground every observation in the provided metrics.
+   - Ground observations in the provided metrics.
 `;
 
-      const response = await client.models.generateContent({
-        model: "gemini-flash-latest",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              summary: {
-                type: Type.STRING,
-                description: "Executive 2-3 sentence forensic synthesis of the location's livability metrics.",
-              },
-              insights_in_brief: {
-                type: Type.OBJECT,
-                properties: {
-                  transit: {
-                    type: Type.STRING,
-                    description: "Concise 1-sentence insight on rapid transit/rail proximity.",
-                  },
-                  healthcare: {
-                    type: Type.STRING,
-                    description: "Concise 1-sentence insight on hospital count and emergency access distance.",
-                  },
-                  environment: {
-                    type: Type.STRING,
-                    description: "Concise 1-sentence insight on air quality index and PM2.5 exposure.",
-                  },
-                  acoustic: {
-                    type: Type.STRING,
-                    description: "Concise 1-sentence insight on noise bracket, highway/road proximity, and sound profile.",
-                  },
+    for (const model of CANDIDATE_MODELS) {
+      try {
+        const response = await client.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                summary: {
+                  type: Type.STRING,
+                  description: "Executive 2-3 sentence forensic synthesis of the location's livability metrics.",
                 },
-                required: ["transit", "healthcare", "environment", "acoustic"],
+                insights_in_brief: {
+                  type: Type.OBJECT,
+                  properties: {
+                    transit: {
+                      type: Type.STRING,
+                      description: "Concise 1-sentence insight on rapid transit/rail proximity.",
+                    },
+                    healthcare: {
+                      type: Type.STRING,
+                      description: "Concise 1-sentence insight on hospital count and emergency access distance.",
+                    },
+                    environment: {
+                      type: Type.STRING,
+                      description: "Concise 1-sentence insight on air quality index and PM2.5 exposure.",
+                    },
+                    acoustic: {
+                      type: Type.STRING,
+                      description: "Concise 1-sentence insight on noise bracket, highway/road proximity, and sound profile.",
+                    },
+                  },
+                  required: ["transit", "healthcare", "environment", "acoustic"],
+                },
+                empirical_observations: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: "3 to 4 direct, verifiable facts derived strictly from the telemetry.",
+                },
+                site_inspection_targets: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: "3 to 4 actionable physical verification items for an investigator on site.",
+                },
               },
-              empirical_observations: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-                description: "3 to 4 direct, verifiable facts derived strictly from the telemetry.",
-              },
-              site_inspection_targets: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-                description: "3 to 4 actionable physical verification items for an investigator on site.",
-              },
+              required: ["summary", "insights_in_brief", "empirical_observations", "site_inspection_targets"],
             },
-            required: ["summary", "insights_in_brief", "empirical_observations", "site_inspection_targets"],
           },
-        },
-      });
+        });
 
-      if (response.text) {
-        const parsed = JSON.parse(response.text) as AiDebrief;
-        return parsed;
+        if (response.text) {
+          const parsed = JSON.parse(response.text) as AiDebrief;
+          return parsed;
+        }
+      } catch (error: any) {
+        console.warn(`⚠️ Model ${model} debrief failed (${error.status || error.message?.substring(0, 60)}), trying next candidate...`);
       }
-
-      return this.generateDeterministicFallback(verifiedTelemetry);
-    } catch (error) {
-      console.error("⚠️ Gemini synthesis failed, using deterministic debrief:", (error as Error).message);
-      return this.generateDeterministicFallback(verifiedTelemetry);
     }
+
+    return this.generateDeterministicFallback(verifiedTelemetry);
   }
 
   private static generateDeterministicFallback(telemetry: any): AiDebrief {
@@ -225,8 +233,7 @@ INSTRUCTIONS:
 
   /**
    * Conversational Assistant: Answers user questions about the audited location.
-   * Grounded in telemetry for local metrics, with intelligent geographic calculation
-   * for distance to landmarks, monuments, and external city destinations.
+   * Leverages multi-model failover to guarantee answers across rate limits.
    */
   public static async answerLocationQuery({
     question,
@@ -246,7 +253,7 @@ INSTRUCTIONS:
 
     // 1. Detect if the user is asking for distance to a destination or landmark
     const landmarkMatch = question.match(
-      /(?:distance(?:\s+is(?:\s+the\s+distance)?)?(?:\s+from\s+(?:here|this\s+location))?\s+to\s+|how\s+far\s+(?:is|to)\s+(?:the\s+)?|how\s+close\s+is\s+(?:the\s+)?|distance\s+between\s+(?:here|this\s+location)\s+and\s+|distance\s+to\s+|how\s+much\s+distance\s+to\s+|what\s+is\s+the\s+distance\s+to\s+|distance\s+from\s+here\s+to\s+)([^?.,!]+)/i
+      /(?:distance(?:\s+is(?:\s+the\s+distance)?)?(?:\s+from\s+(?:here|this\s+location))?\s+to\s+|how\s+far\s+(?:is|to)\s+(?:the\s+)?|how\s+close\s+is\s+(?:the\s+)?|distance\s+between\s+(?:here|this\s+location)\s+and\s+|distance\s+to\s+|how\s+much\s+distance\s+to\s+|what\s+is\s+the\s+distance\s+to\s+|distance\s+from\s+here\s+to\s+|nearest\s+|where\s+is\s+(?:the\s+)?)([^?.,!]+)/i
     );
 
     let supplementalGeoDistance = "";
@@ -298,11 +305,10 @@ SUPPLEMENTAL EXACT GEODETIC TELEMETRY:
       return this.generateLocalChatFallback(question, investigation, targetPlace, distInfo);
     }
 
-    try {
-      const originLat = coords[1] ?? "N/A";
-      const originLon = coords[0] ?? "N/A";
+    const originLat = coords[1] ?? "N/A";
+    const originLon = coords[0] ?? "N/A";
 
-      const systemInstruction = `
+    const systemInstruction = `
 You are Zonalyze's Advanced Location & Civic Intelligence Advisor.
 You are conversing with an investigator, prospective homebuyer, tenant, or citizen auditing this location:
 Address: ${address}
@@ -318,8 +324,8 @@ VERIFIED SENSOR & SATELLITE TELEMETRY (Immediate perimeter envelope):
 ${supplementalGeoDistance}
 
 USER QUERY FREEDOM & CAPABILITIES:
-The user is completely free to ask ANY question regarding this location, neighborhood, city, or property. You must answer any query informatively and naturally:
-1. DISTANCE & COMMUTE: Distances to ANY landmark, monument, airport, railway terminal, business district, or point of interest (e.g. Victoria Memorial, Howrah Bridge, city center, airport, tech parks). If supplemental geodetic telemetry is provided above, quote that exact distance. Otherwise, use your pre-trained geographic and spatial knowledge of this city and the coordinates [Latitude: ${originLat}, Longitude: ${originLon}] to calculate or estimate distance and driving/transit commute time.
+The user is completely free to ask ANY question regarding this location, neighborhood, city, or property:
+1. DISTANCE & COMMUTE: Distances to ANY commercial store, restaurant, brand outlet (e.g. KFC, McDonald's, Starbucks, grocery), landmark, monument, airport, railway terminal, business district, or point of interest. If supplemental geodetic telemetry is provided above, quote that exact distance. Otherwise, use your pre-trained geographic knowledge of this city/district and the coordinates [Latitude: ${originLat}, Longitude: ${originLon}] to estimate distance, nearest branch/outlet location, and commute or delivery time.
 2. SAFETY & COMMUNITY: Walkability at night, neighborhood security, traffic density, and street environment.
 3. CONVENIENCE & AMENITIES: Schools, colleges, supermarkets, grocery markets, healthcare access, and dining options.
 4. CIVIC & CLIMATE RESILIENCE: Air quality, noise exposure, monsoon drainage/waterlogging tendencies, and infrastructure quality.
@@ -332,33 +338,37 @@ RULES:
 - NEVER claim that you can only answer pre-set questions or that an inquiry is forbidden because it is outside the telemetry. Be a versatile, friendly, and expert location intelligence agent.
 `;
 
-      const contents = [
-        ...chatHistory.slice(-6).map((msg) => ({
-          role: msg.role === "user" ? ("user" as const) : ("model" as const),
-          parts: [{ text: msg.text }],
-        })),
-        {
-          role: "user" as const,
-          parts: [{ text: question }],
-        },
-      ];
+    const contents = [
+      ...chatHistory.slice(-6).map((msg) => ({
+        role: msg.role === "user" ? ("user" as const) : ("model" as const),
+        parts: [{ text: msg.text }],
+      })),
+      {
+        role: "user" as const,
+        parts: [{ text: question }],
+      },
+    ];
 
-      const response = await client.models.generateContent({
-        model: "gemini-flash-latest",
-        contents,
-        config: {
-          systemInstruction,
-        },
-      });
+    // Try candidate models in order of priority to ensure active quota and uptime
+    for (const model of CANDIDATE_MODELS) {
+      try {
+        const response = await client.models.generateContent({
+          model,
+          contents,
+          config: {
+            systemInstruction,
+          },
+        });
 
-      return (
-        response.text?.trim() ||
-        "I analyzed the location telemetry, but could not synthesize a specific answer. Please try asking in another way."
-      );
-    } catch (error: any) {
-      console.error("⚠️ Gemini chat query failed, using deterministic response:", error.message);
-      return this.generateLocalChatFallback(question, investigation, targetPlace, distInfo);
+        if (response.text?.trim()) {
+          return response.text.trim();
+        }
+      } catch (error: any) {
+        console.warn(`⚠️ Model ${model} chat failed (${error.status || error.message?.substring(0, 60)}), trying next candidate...`);
+      }
     }
+
+    return this.generateLocalChatFallback(question, investigation, targetPlace, distInfo);
   }
 
   public static generateLocalChatFallback(
@@ -379,56 +389,61 @@ RULES:
       return `${targetPlace} (${distInfo.name.split(",")[0]}) is located approximately ${distInfo.km} km (${distInfo.meters.toLocaleString()} meters, straight-line distance) from ${locName}. Driving or transit distance is estimated around ${distInfo.drivingKm} km.`;
     }
 
-    // 2. Safety & Security
+    // 2. Distance, proximity & landmark questions (BEFORE grocery/store so "KFC store" or "Apple store" doesn't hit grocery!)
+    if (q.includes("distance") || q.includes("how far") || q.includes("how close") || q.includes("nearest") || q.includes("where is")) {
+      return `For destinations relative to ${locName}, commercial and retail outlets (including ${targetPlace || "requested facilities"}) are typically clustered within neighborhood commercial hubs and main access roads approximately 500m to 2.5 km away, with local transit and delivery services actively covering this sector.`;
+    }
+
+    // 3. Safety & Security
     if (q.includes("safe") || q.includes("crime") || q.includes("night") || q.includes("security") || q.includes("women")) {
       return `${locName} features an urban residential profile with active transit and road connectivity. Street lighting along primary corridors and proximity to civic amenities generally support pedestrian movement, though verifying perimeter illumination and evening activity during an on-site visit is recommended.`;
     }
 
-    // 3. Schools & Education
+    // 4. Schools & Education
     if (q.includes("school") || q.includes("college") || q.includes("education") || q.includes("university") || q.includes("kid")) {
       return `${locName} is situated within an established urban district offering access to primary and secondary educational institutions within the municipal zone. Direct commute routes connect to renowned regional schools and higher education campuses across the sector.`;
     }
 
-    // 4. Shopping, Groceries & Daily Needs
+    // 5. Shopping, Groceries & Daily Needs
     if (q.includes("shop") || q.includes("store") || q.includes("market") || q.includes("grocery") || q.includes("mall") || q.includes("supermarket")) {
       return `Daily essentials, local markets, and grocery convenience stores are typically clustered within neighborhood commercial corridors surrounding ${locName}, with major retail hubs and shopping centers accessible via adjacent arterial routes.`;
     }
 
-    // 5. Water, Flooding & Monsoon
+    // 6. Water, Flooding & Monsoon
     if (q.includes("flood") || q.includes("water") || q.includes("drainage") || q.includes("rain") || q.includes("monsoon") || q.includes("waterlog")) {
       return `Civic drainage infrastructure in ${locName} serves regular surface runoff. During extreme monsoon downpours, low-lying street junctions may experience temporary water accumulation, so inspecting street grading and stormwater drains on-site is advised.`;
     }
 
-    // 6. Real Estate, Renting & Investment Advice
+    // 7. Real Estate, Renting & Investment Advice
     if (q.includes("buy") || q.includes("rent") || q.includes("invest") || q.includes("worth") || q.includes("pros") || q.includes("cons") || q.includes("recommend")) {
       const transitDist = infra.nearest_metro_dist_m ? `${infra.nearest_metro_dist_m}m` : (infra.nearest_railway_dist_m ? `${infra.nearest_railway_dist_m}m` : "nearby");
       return `From an urban audit perspective, ${locName} benefits from rapid transit access (${transitDist}) and ${infra.hospitals ?? 0} healthcare facilities in its operational cluster. Key factors to weigh are the current European AQI (${env.aqi ?? "N/A"}) and ${noise.estimated_bracket || "Moderate"} acoustic exposure.`;
     }
 
-    // 7. Acoustic Noise
+    // 8. Acoustic Noise
     if (q.includes("noise") || q.includes("quiet") || q.includes("sound") || q.includes("traffic") || q.includes("loud")) {
       const dist = noise.distance_meters ? ` approximately ${noise.distance_meters}m away` : "";
       return `Acoustic exposure is rated as ${noise.estimated_bracket || "Ambient"}${noise.nearest_source_type ? ` with nearest ${noise.nearest_source_type}${dist}` : ""}. Facade soundproofing is recommended if facing major thoroughfares.`;
     }
 
-    // 8. Healthcare
+    // 9. Healthcare
     if (q.includes("hospital") || q.includes("health") || q.includes("medical") || q.includes("doctor") || q.includes("emergency")) {
       const hospDist = infra.nearest_hospital_dist_m ? `${infra.nearest_hospital_dist_m}m` : "outside immediate 3000m radius";
       return `Emergency healthcare access is robust with the closest hospital located at ${hospDist}, alongside ${infra.hospitals || 0} medical facilities detected in the surrounding cluster.`;
     }
 
-    // 9. Public Transit
+    // 10. Public Transit
     if (q.includes("metro") || q.includes("train") || q.includes("transit") || q.includes("commute") || q.includes("rail") || q.includes("station") || q.includes("bus")) {
       const metroDist = infra.nearest_metro_dist_m ? `${infra.nearest_metro_dist_m}m` : (infra.nearest_railway_dist_m ? `${infra.nearest_railway_dist_m}m (rail)` : "beyond walking distance");
       return `Public transit connectivity features the nearest rapid transit/metro station at ${metroDist}, with ${infra.metro_stations || infra.railway_stations || 0} active stations serving this quadrant.`;
     }
 
-    // 10. Air Quality & Pollution
+    // 11. Air Quality & Pollution
     if (q.includes("air") || q.includes("pollution") || q.includes("aqi") || q.includes("smell") || q.includes("breath")) {
       return `The current European AQI is recorded at ${env.aqi ?? "N/A"} with PM2.5 particulate loading at ${env.pm2_5 ?? "N/A"} µg/m³. Indoor HEPA filtration is advised during peak rush hours.`;
     }
 
-    // 11. General Comprehensive Overview
+    // 12. General Comprehensive Overview
     return `Telemetry audit for ${locName} records an AQI of ${env.aqi ?? "N/A"}, nearest emergency hospital at ${infra.nearest_hospital_dist_m ?? "N/A"}m, nearest rapid transit at ${infra.nearest_metro_dist_m ?? infra.nearest_railway_dist_m ?? "N/A"}m, and an overall ${noise.estimated_bracket || "Moderate"} acoustic exposure bracket. Feel free to ask about safety, schools, commute, or nearby destinations.`;
   }
 }
