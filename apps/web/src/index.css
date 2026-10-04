@@ -4,7 +4,7 @@
 
 :root {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
@@ -15,13 +15,13 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background-color: #0B1719;
-  color: #F1F0E9;
+  background-color: #fefffc;
+  color: #171717;
 }
 
 .font-serif,
 .font-display {
-  font-family: 'DM Serif Display', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif;
+  font-family: 'Fraunces', 'Cormorant Garamond', 'DM Serif Display', 'Instrument Serif', Georgia, serif;
 }
 
 .font-sans {

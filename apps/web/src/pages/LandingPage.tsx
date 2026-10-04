@@ -1,9 +1,11 @@
 import React from "react";
 import { Navigation } from "../components/landing/Navigation";
 import { HeroSection } from "../components/landing/HeroSection";
-import { IntelligenceLayersSection } from "../components/landing/IntelligenceLayersSection";
-import { HowItWorksSection } from "../components/landing/HowItWorksSection";
+import { IntroEditorialSection } from "../components/landing/IntroEditorialSection";
+import { EvidenceCategoriesSection } from "../components/landing/EvidenceCategoriesSection";
 import { InvestigationPreviewSection } from "../components/landing/InvestigationPreviewSection";
+import { HowItWorksSection } from "../components/landing/HowItWorksSection";
+import { ResponsibleIntelligenceSection } from "../components/landing/ResponsibleIntelligenceSection";
 import { FinalCTASection } from "../components/landing/FinalCTASection";
 import { CinematicFooter } from "../components/landing/CinematicFooter";
 
@@ -12,40 +14,36 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToInvestigation }) => {
-  const scrollToExplore = () => {
-    const el = document.getElementById("layers");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
-    <div className="relative min-h-screen w-full bg-[#0B1719] text-[#F1F0E9] selection:bg-[#B6C6A3] selection:text-[#0B1719] overflow-x-hidden font-sans">
-      {/* 01. Fixed Minimal Dark Editorial Navigation */}
+    <div className="relative min-h-screen w-full bg-[#fefffc] text-[#171717] selection:bg-[#41a1cf]/20 selection:text-[#171717] overflow-x-hidden font-sans antialiased">
+      {/* 1. Floating navigation (pill) */}
       <Navigation onStartInvestigation={onNavigateToInvestigation} />
 
-      {/* Main Editorial Experience */}
+      {/* Main Editorial Flow */}
       <main>
-        {/* EXISTING HOMEPAGE HERO SECTION — 100% PRESERVED & UNMODIFIED */}
-        <HeroSection
-          onStartInvestigation={onNavigateToInvestigation}
-          onExploreCapabilities={scrollToExplore}
-        />
+        {/* 2. Illustrated hero */}
+        <HeroSection onStartInvestigation={onNavigateToInvestigation} />
 
-        {/* Intelligence Capabilities: "Understand What Surrounds You." */}
-        <IntelligenceLayersSection />
+        {/* 3. Short "what ZONALYZE investigates" introduction */}
+        <IntroEditorialSection />
 
-        {/* Investigation Pipeline: "From a Point on the Map to a Deeper Understanding." */}
-        <HowItWorksSection />
+        {/* 4. Four evidence categories */}
+        <EvidenceCategoriesSection />
 
-        {/* Location Investigation Workspace: "Your Window Into Any Location." */}
+        {/* 5. A small, clearly labeled investigation preview */}
         <InvestigationPreviewSection onLaunchInvestigation={onNavigateToInvestigation} />
 
-        {/* Final CTA: "Every Coordinate Has a Story Waiting to Be Understood." */}
+        {/* 6. How it works */}
+        <HowItWorksSection />
+
+        {/* 7. Evidence and responsible interpretation section */}
+        <ResponsibleIntelligenceSection />
+
+        {/* 8. Final invitation to investigate a location */}
         <FinalCTASection onStartInvestigation={onNavigateToInvestigation} />
       </main>
 
-      {/* FOOTER matching Reference Screenshot */}
+      {/* 9. Editorial footer */}
       <CinematicFooter />
     </div>
   );
