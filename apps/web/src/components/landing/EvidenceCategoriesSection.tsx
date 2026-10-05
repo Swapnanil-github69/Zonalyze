@@ -14,6 +14,8 @@ export const EvidenceCategoriesSection: React.FC = () => {
         "72-hour atmospheric telemetry and trend trajectories",
       ],
       sourceNote: "Source: Open-Meteo & verified environmental sensor arrays. Coverage, timestamp freshness, and resolution vary by coordinates.",
+      accent: "text-[#B6C6A3]",
+      bgAccent: "bg-[#B6C6A3]/10",
     },
     {
       id: "infrastructure",
@@ -26,6 +28,8 @@ export const EvidenceCategoriesSection: React.FC = () => {
         "Public recreational grounds, designated parks, and civic reserves",
       ],
       sourceNote: "Source: OpenStreetMap spatial database within a 3,000m radial catchment. Mapped completeness reflects registry records.",
+      accent: "text-[#D1C6A5]",
+      bgAccent: "bg-[#D1C6A5]/10",
     },
     {
       id: "environmental",
@@ -38,6 +42,8 @@ export const EvidenceCategoriesSection: React.FC = () => {
         "Hydrographic relations to regional river basins and coastline",
       ],
       sourceNote: "Source: Regional digital elevation models. Direct physical landform records are clearly distinguished from derived summaries.",
+      accent: "text-[#B6C6A3]",
+      bgAccent: "bg-[#B6C6A3]/10",
     },
     {
       id: "noise",
@@ -50,16 +56,19 @@ export const EvidenceCategoriesSection: React.FC = () => {
         "Categorical exposure classifications with explicit confidence bounds",
       ],
       sourceNote: "Methodology: Mathematical physical distance proxy. Expressly labeled as an estimate rather than direct in-situ decibel sound meters.",
+      accent: "text-[#D1C6A5]",
+      bgAccent: "bg-[#D1C6A5]/10",
     },
   ];
 
   return (
-    <section id="categories" className="relative w-full py-20 sm:py-28 bg-[#fefffc] border-b border-[#dee2de]">
+    <section id="categories" className="relative w-full py-20 sm:py-28 bg-[#0B1719] border-b border-[#192E31]">
       <div className="max-w-[1200px] mx-auto px-6 sm:px-8 space-y-12 sm:space-y-16 text-left">
         
         {/* Section Header */}
         <div className="max-w-2xl space-y-4">
-          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#646464]">
+          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#B6C6A3]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B6C6A3]" />
             <span>FOUR EVIDENCE CHANNELS</span>
           </div>
 
@@ -69,33 +78,33 @@ export const EvidenceCategoriesSection: React.FC = () => {
               lineHeight: 1.15,
               letterSpacing: "-0.02em",
             }}
-            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#2c2c2c]"
+            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#F1F0E9]"
           >
             The signals we examine.
           </h2>
 
-          <p className="text-base text-[#444141] font-sans leading-relaxed">
+          <p className="text-base text-[#B8C5C2] font-sans leading-relaxed">
             Each category represents a distinct layer of geographical and environmental evidence. We present retrieved source data alongside its known coverage bounds.
           </p>
         </div>
 
-        {/* Four Calm White Cards Grid */}
+        {/* Four Atmospheric Forest Charcoal Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           {categories.map((cat) => {
             const IconComponent = cat.icon;
             return (
               <div
                 key={cat.id}
-                className="p-6 sm:p-8 rounded-2xl bg-[#ffffff] border border-[#dee2de] shadow-[0_1px_6px_rgba(0,0,0,0.02)] hover:border-[#b4b8b4] transition-all flex flex-col justify-between space-y-6"
+                className="p-6 sm:p-8 rounded-[24px] bg-[#102124] border border-[#192E31] shadow-[0_4px_24px_rgba(0,0,0,0.35)] hover:border-[#B6C6A3]/40 transition-all duration-300 flex flex-col justify-between space-y-6"
               >
                 {/* Card Title & Icon */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono uppercase tracking-wider text-[#646464]">
+                    <span className="text-xs font-mono uppercase tracking-wider text-[#D1C6A5]">
                       {cat.subtitle}
                     </span>
-                    <div className="w-8 h-8 rounded-lg border border-[#dee2de] flex items-center justify-center text-[#282834]">
-                      <IconComponent className="w-4 h-4 text-[#282834]" />
+                    <div className="w-8 h-8 rounded-lg border border-[#192E31] bg-[#142629] flex items-center justify-center">
+                      <IconComponent className={`w-4 h-4 ${cat.accent}`} />
                     </div>
                   </div>
 
@@ -104,24 +113,24 @@ export const EvidenceCategoriesSection: React.FC = () => {
                       fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
                       lineHeight: 1.2,
                     }}
-                    className="text-2xl sm:text-[26px] font-normal text-[#171717]"
+                    className="text-2xl sm:text-[26px] font-normal text-[#F1F0E9]"
                   >
                     {cat.title}
                   </h3>
                 </div>
 
                 {/* Observations list */}
-                <ul className="space-y-2.5 text-sm text-[#444141] font-sans">
+                <ul className="space-y-2.5 text-sm text-[#B8C5C2] font-sans">
                   {cat.observations.map((obs, idx) => (
                     <li key={idx} className="flex items-start space-x-2.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#282834] mt-2 shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#B6C6A3] mt-2 shrink-0" />
                       <span className="leading-relaxed">{obs}</span>
                     </li>
                   ))}
                 </ul>
 
                 {/* Source & Transparency Note */}
-                <div className="pt-4 border-t border-[#dee2de] text-xs text-[#646464] font-sans leading-relaxed">
+                <div className="pt-4 border-t border-[#192E31] text-xs text-[#829492] font-sans leading-relaxed">
                   {cat.sourceNote}
                 </div>
               </div>
