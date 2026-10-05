@@ -203,7 +203,9 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
                       <>
                         <span className="text-cyan-400 font-bold">{activeRoute.formattedDistance}</span>
                         <span className="text-slate-500">•</span>
-                        <span className="text-emerald-400 font-medium">{activeRoute.formattedDuration}</span>
+                        <span className="text-emerald-400 font-medium">
+                          {activeRoute.modeLabel || travelMode.toUpperCase()}: {activeRoute.formattedDuration}
+                        </span>
                       </>
                     ) : routeNotice ? (
                       <span className="text-amber-300">{routeNotice}</span>

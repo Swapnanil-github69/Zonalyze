@@ -1,6 +1,7 @@
 import { OverpassElement, InfrastructureMetrics, NoiseAnalysis } from "../types/index.js";
 import { calculateHaversineMeters } from "../utils/geoUtils.js";
 import { estimateNoiseProfile } from "../utils/noiseModel.js";
+import { isMetroStation } from "./overpassService.js";
 
 /**
  * Contributor 1: Backend Lead
@@ -71,11 +72,7 @@ export class HeuristicService {
         });
       } else if (tags.amenity === "pharmacy") {
         pharmacies++;
-      } else if (
-        tags.station === "subway" ||
-        tags.subway === "yes" ||
-        tags.railway === "subway"
-      ) {
+      } else if (isMetroStation(tags)) {
         metro_stations++;
         if (nearestMetroDist === null || dist < nearestMetroDist) {
           nearestMetroDist = dist;

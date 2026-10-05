@@ -25,14 +25,16 @@ export class OverpassService {
         node["healthcare"~"hospital|clinic|centre|nursing_home"](around:3000, ${lat}, ${lon});
         way["healthcare"~"hospital|clinic|centre|nursing_home"](around:3000, ${lat}, ${lon});
         node["amenity"="pharmacy"](around:1500, ${lat}, ${lon});
+        node["railway"="station"](around:4000, ${lat}, ${lon});
+        way["railway"="station"](around:4000, ${lat}, ${lon});
         node["station"="subway"](around:4000, ${lat}, ${lon});
         way["station"="subway"](around:4000, ${lat}, ${lon});
+        node["railway"="subway_entrance"](around:4000, ${lat}, ${lon});
+        way["railway"="subway_entrance"](around:4000, ${lat}, ${lon});
         node["railway"="subway"](around:4000, ${lat}, ${lon});
         way["railway"="subway"](around:4000, ${lat}, ${lon});
         node["subway"="yes"](around:4000, ${lat}, ${lon});
         way["subway"="yes"](around:4000, ${lat}, ${lon});
-        node["railway"="station"]["station"!="subway"]["subway"!="yes"](around:4000, ${lat}, ${lon});
-        way["railway"="station"]["station"!="subway"]["subway"!="yes"](around:4000, ${lat}, ${lon});
         way["railway"="rail"](around:800, ${lat}, ${lon});
         way["highway"="motorway"](around:800, ${lat}, ${lon});
         way["highway"="trunk"](around:800, ${lat}, ${lon});

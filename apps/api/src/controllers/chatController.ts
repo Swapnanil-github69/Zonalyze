@@ -96,24 +96,39 @@ Audited Location Context:
 
 Guidelines:
 1. Direct answer in sentence 1.
-2. For unlisted landmarks/places (stadiums, monuments, parks), use your innate geographic knowledge relative to the coordinates to estimate distance and transit times.
-3. Do not regurgitate telemetry unless specifically asked.
+2. Contextual Geographic Reasoning: When the user asks about landmarks, stadiums, tourist places, restaurants, or spots not explicitly listed in the telemetry (e.g. Eden Gardens, Victoria Memorial, Princep Ghat, Eco Park), use your innate geographic knowledge relative to the current coordinates [${auditContext?.coordinates?.[1] ?? "N/A"}, ${auditContext?.coordinates?.[0] ?? "N/A"}] to estimate realistic straight-line/travel distances and routing times.
+3. NEVER dump raw telemetry or repeat sensor metrics unprompted. Only mention AQI, noise, or facilities if the user explicitly asks about them or if directly relevant to their specific question.
+4. Maintain a natural, helpful, witty, and conversational tone across multiple turns.
 `;
 
-  try {
-    const chat = ai.chats.create({
-      model: "gemini-3.5-flash-lite",
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      },
-      history: trimmedHistory,
-    });
+  const models = ["gemini-2.5-flash-lite", "gemini-3.5-flash-lite", "gemini-2.5-flash"];
+  let replyText = "";
+  let lastError: any = null;
 
-    const result = await chat.sendMessage({ message });
-    res.status(200).json({ success: true, reply: result.text ?? "" });
-  } catch (err: any) {
-    console.error("Chat error:", err);
+  for (const model of models) {
+    try {
+      const chat = ai.chats.create({
+        model,
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        },
+        history: trimmedHistory,
+      });
+
+      const result = await chat.sendMessage({ message });
+      replyText = result.text ?? "";
+      if (replyText) break;
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`Chat model ${model} failed, attempting next candidate...`, err?.message);
+    }
+  }
+
+  if (replyText) {
+    res.status(200).json({ success: true, reply: replyText });
+  } else {
+    console.error("All chat models exhausted or failed:", lastError);
     res.status(200).json({
       success: false,
       reply: `I've hit the temporary free-tier query limiter. Regarding ${auditContext?.address?.suburb || "this area"}, try using the map pins to measure walking routes.`,

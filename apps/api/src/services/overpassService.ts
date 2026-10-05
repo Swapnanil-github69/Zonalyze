@@ -67,6 +67,61 @@ export function createFallbackResult(confidence: string): OSMResult {
   };
 }
 
+export function isMetroStation(tags: Record<string, string>): boolean {
+  if (
+    tags.station === "subway" ||
+    tags.subway === "yes" ||
+    tags.railway === "subway" ||
+    tags.railway === "subway_entrance"
+  ) {
+    return true;
+  }
+
+  // Network, operator, or line explicitly mentions metro
+  if (
+    (typeof tags.network === "string" && /metro/i.test(tags.network)) ||
+    (typeof tags.operator === "string" && /metro/i.test(tags.operator)) ||
+    (typeof tags.line === "string" && /metro/i.test(tags.line))
+  ) {
+    return true;
+  }
+
+  // Station or entrance name explicitly contains 'metro'
+  const name = (tags.name || tags["name:en"] || "").trim();
+  if (/\bmetro\b/i.test(name)) {
+    return true;
+  }
+
+  // Underground stations in urban settings are subways/metros
+  if (tags.station === "underground") {
+    return true;
+  }
+
+  // Elevated stations: check if not standard heavy rail
+  if (tags.station === "elevated") {
+    const isHeavyRail =
+      (typeof tags.network === "string" && /^(ir|indian railways)$/i.test(tags.network.trim())) ||
+      (typeof tags.operator === "string" && /\brailway\b/i.test(tags.operator) && !/metro/i.test(tags.operator));
+    if (!isHeavyRail) {
+      return true;
+    }
+  }
+
+  // Explicit check for Kolkata Metro stations (elevated and underground)
+  if (
+    /^(sovabazar(\s+sutanuti)?|phoolbagan|esplanade|shyambazar|girish\s+park|mahatma\s+gandhi\s+road|m\.?g\.?\s+road|central|chandni\s+chowk|park\s+street|maidan|rabindra\s+sadan|netaji\s+bhavan|jatin\s+das\s+park|kalighat|rabindra\s+sarobar|mahanayak\s+uttam\s+kumar|tollygunge|netaji|masterda\s+surya\s+sen|gitanjali|kavi\s+nazrul|shahid\s+khudiram|kavi\s+subhash|city\s+centre|salt\s+lake\s+sector\s+v|salt\s+lake\s+stadium|karunamoyee|central\s+park|bengal\s+chemical|sealdah\s+metro|howrah\s+metro|dakshineswar\s+metro|baranagar\s+metro|noapara|dum\s+dum\s+metro|taratala|majherhat\s+metro|joka)/i.test(
+      name
+    )
+  ) {
+    // If not the circular/mainline heavy railway station (like "Sovabazar Ahiritola" or "Sealdah Railway Station")
+    if (!/ahiritola|\brailway\s+station\b/i.test(name)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export function getFacility(
   tags: Record<string, string>,
   distanceMeters: number,
@@ -151,10 +206,11 @@ export async function fetchOSMData(lat: number, lon: number): Promise<OSMResult>
 (
   nwr["amenity"~"hospital|clinic|nursing_home"](around:3000, ${lat},${lon});
   nwr["healthcare"~"hospital|clinic|centre|nursing_home"](around:3000, ${lat},${lon});
+  nwr["railway"="station"](around:4000, ${lat},${lon});
   nwr["station"="subway"](around:4000, ${lat},${lon});
+  nwr["railway"="subway_entrance"](around:4000, ${lat},${lon});
   nwr["railway"="subway"](around:4000, ${lat},${lon});
   nwr["subway"="yes"](around:4000, ${lat},${lon});
-  nwr["railway"="station"]["station"!="subway"]["subway"!="yes"](around:4000, ${lat},${lon});
   nwr["highway"="bus_stop"](around:1200, ${lat},${lon});
   nwr["amenity"="bus_station"](around:2000, ${lat},${lon});
   nwr["amenity"="taxi"](around:1000, ${lat},${lon});
@@ -213,15 +269,16 @@ export function parseElements(
     const tags = element.tags ?? {};
     const d = calculateHaversineMeters(centerLat, centerLon, elLat, elLon);
 
-    const isSubway =
-      tags.station === "subway" ||
-      tags.subway === "yes" ||
-      tags.railway === "subway";
+    const isMetro = isMetroStation(tags);
 
-    if (isSubway) {
+    if (isMetro) {
       const metroStation = getFacility(tags, d, "Metro Station", elLon, elLat);
       result.facilities.metro = updateNearest(result.facilities.metro, metroStation);
-    } else if (tags.railway === "station") {
+    } else if (
+      tags.railway === "station" ||
+      tags.railway === "halt" ||
+      tags.public_transport === "station"
+    ) {
       const trainStation = getFacility(tags, d, "Railway Station", elLon, elLat);
       result.facilities.railway = updateNearest(result.facilities.railway, trainStation);
     }
