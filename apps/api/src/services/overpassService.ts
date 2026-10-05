@@ -134,7 +134,7 @@ export async function fetchOSMData(lat: number, lon: number): Promise<OSMResult>
     throw new RangeError("Latitude and longitude must be valid geographic coordinates.");
   }
 
-  const query = `[out:json][timeout:25];
+  const query = `[out:json][timeout:7];
 (
   nwr["amenity"="hospital"](around:3000, ${lat},${lon});
   nwr["railway"="station"](around:4000, ${lat},${lon});
@@ -159,7 +159,7 @@ out center;`;
           "Content-Type": "application/x-www-form-urlencoded",
           Accept: "application/json",
         },
-        timeout: 30000,
+        timeout: 8000,
       }
     );
     elements = response.data?.elements ?? [];

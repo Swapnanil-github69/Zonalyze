@@ -1,5 +1,9 @@
 import axios from "axios";
-import { InvestigationResult } from "../types/investigation";
+import {
+  InvestigationResult,
+  LivabilityScoreData,
+} from "../types/investigation";
+import { calculateLivabilityScore } from "../utils/livabilityMetrics";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
@@ -8,8 +12,34 @@ export const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 35000,
+  timeout: 15000,
 });
+
+type ApiInvestigationResult = Omit<InvestigationResult, "livabilityScore"> & {
+  livabilityScore?: LivabilityScoreData | number;
+};
+
+function normalizeInvestigationResult(
+  report: ApiInvestigationResult
+): InvestigationResult {
+  const { livabilityScore, ...investigation } = report;
+  if (typeof livabilityScore !== "number") {
+    return { ...investigation, livabilityScore };
+  }
+
+  const calculated = calculateLivabilityScore(
+    investigation.environment,
+    investigation.infrastructure,
+    investigation.noiseProfile
+  );
+  return {
+    ...investigation,
+    livabilityScore: {
+      ...calculated,
+      score: livabilityScore,
+    },
+  };
+}
 
 /**
  * Fallback browser-side telemetry synthesizer when backend is not running.
@@ -22,45 +52,52 @@ async function fallbackClientInvestigation(
   console.info("⚡ [FALLBACK] Backend unreachable, fetching live telemetry client-side...");
 
   let address = `Coordinates: ${latitude.toFixed(5)}° N, ${longitude.toFixed(5)}° E`;
-  try {
-    const geoRes = await axios.get(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
-      { timeout: 6000 }
-    );
-    if (geoRes.data?.display_name) {
-      address = geoRes.data.display_name;
-    }
-  } catch (e) {
-    console.warn("Nominatim client fetch fallback skipped:", e);
-  }
-
   let aqi = 48;
   let pm2_5 = 32.4;
   let pm10 = 64.1;
   let historical_pm25: number[] = [28, 30, 35, 42, 38, 31, 32.4];
 
-  try {
-    const aqiRes = await axios.get("https://air-quality-api.open-meteo.com/v1/air-quality", {
-      params: {
-        latitude,
-        longitude,
-        current: "european_aqi,pm10,pm2_5",
-        hourly: "pm2_5",
-        past_days: 3,
-      },
-      timeout: 6000,
-    });
-    const cur = aqiRes.data?.current || {};
-    const hourly = aqiRes.data?.hourly?.pm2_5 || [];
-    if (cur.european_aqi !== undefined) aqi = cur.european_aqi;
-    if (cur.pm2_5 !== undefined) pm2_5 = Math.round(cur.pm2_5 * 10) / 10;
-    if (cur.pm10 !== undefined) pm10 = Math.round(cur.pm10 * 10) / 10;
-    if (Array.isArray(hourly) && hourly.length > 0) {
-      historical_pm25 = hourly.slice(-72).map((v: number | null) => (v !== null ? Math.round(v * 10) / 10 : 0));
-    }
-  } catch (e) {
-    console.warn("Open-Meteo client fetch fallback skipped:", e);
-  }
+  await Promise.all([
+    axios
+      .get(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+        { timeout: 6000 }
+      )
+      .then((geoRes) => {
+        if (geoRes.data?.display_name) address = geoRes.data.display_name;
+      })
+      .catch((error) => {
+        console.warn("Nominatim client fetch fallback skipped:", error);
+      }),
+    axios
+      .get("https://air-quality-api.open-meteo.com/v1/air-quality", {
+        params: {
+          latitude,
+          longitude,
+          current: "european_aqi,pm10,pm2_5",
+          hourly: "pm2_5",
+          past_days: 3,
+        },
+        timeout: 6000,
+      })
+      .then((aqiRes) => {
+        const cur = aqiRes.data?.current || {};
+        const hourly = aqiRes.data?.hourly?.pm2_5 || [];
+        if (cur.european_aqi !== undefined) aqi = cur.european_aqi;
+        if (cur.pm2_5 !== undefined) pm2_5 = Math.round(cur.pm2_5 * 10) / 10;
+        if (cur.pm10 !== undefined) pm10 = Math.round(cur.pm10 * 10) / 10;
+        if (Array.isArray(hourly) && hourly.length > 0) {
+          historical_pm25 = hourly
+            .slice(-72)
+            .map((value: number | null) =>
+              value !== null ? Math.round(value * 10) / 10 : 0
+            );
+        }
+      })
+      .catch((error) => {
+        console.warn("Open-Meteo client fetch fallback skipped:", error);
+      }),
+  ]);
 
   return {
     _id: "client-telemetry-" + Date.now(),
@@ -117,11 +154,20 @@ export async function investigateCoordinates(
   longitude: number
 ): Promise<InvestigationResult> {
   try {
-    const response = await apiClient.post<InvestigationResult>("/investigate", {
+    const response = await apiClient.post<
+      | ApiInvestigationResult
+      | { success: boolean; cached: boolean; data: ApiInvestigationResult }
+    >("/investigate", {
       latitude,
       longitude,
     });
-    return response.data;
+    if ("data" in response.data && "success" in response.data) {
+      return {
+        ...normalizeInvestigationResult(response.data.data),
+        cached: response.data.cached,
+      };
+    }
+    return normalizeInvestigationResult(response.data);
   } catch (err: any) {
     // If backend is not available, provide real-time browser telemetry fallback
     console.warn("Backend request failed, falling back to direct public telemetry APIs:", err.message);
