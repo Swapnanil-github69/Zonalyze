@@ -58,10 +58,8 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
   return (
     <header className="fixed top-5 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
       <div
-        className={`pointer-events-auto flex items-center justify-between gap-4 sm:gap-8 px-4 sm:px-6 py-2.5 rounded-full transition-all duration-300 ${
-          scrolled
-            ? "bg-[#102124]/95 backdrop-blur-md border border-[#192E31] shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
-            : "bg-[#102124]/80 backdrop-blur-sm border border-[#192E31]/80 shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
+        className={`pointer-events-auto flex items-center justify-between gap-4 sm:gap-8 px-4 sm:px-6 py-2.5 rounded-full transition-all duration-300 liquid-glass-nav ${
+          scrolled ? "shadow-[0_20px_48px_rgba(0,0,0,0.8)]" : ""
         }`}
       >
         {/* Brand: ZONALYZE with restrained sage location mark */}
@@ -104,7 +102,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
         <div className="flex items-center space-x-2">
           <button
             onClick={onStartInvestigation}
-            className="inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-[#0B1719] bg-[#B6C6A3] hover:bg-[#DCE7CD] shadow-[0_0_16px_rgba(182,198,163,0.25)] transition-all duration-200 cursor-pointer font-sans"
+            className="inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-[#0B1719] bg-gradient-to-b from-[#DCE7CD] via-[#B6C6A3] to-[#98A885] shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_4px_16px_rgba(182,198,163,0.3)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer font-sans"
           >
             <span>Investigate a Location</span>
             <ArrowRight className="w-3.5 h-3.5 text-[#0B1719]" />

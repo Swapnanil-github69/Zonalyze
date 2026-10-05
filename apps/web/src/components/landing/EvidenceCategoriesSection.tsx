@@ -95,8 +95,10 @@ export const EvidenceCategoriesSection: React.FC = () => {
             return (
               <div
                 key={cat.id}
-                className="p-6 sm:p-8 rounded-[24px] bg-[#102124] border border-[#192E31] shadow-[0_4px_24px_rgba(0,0,0,0.35)] hover:border-[#B6C6A3]/40 transition-all duration-300 flex flex-col justify-between space-y-6"
+                className="glass-3d-card p-6 sm:p-8 rounded-[24px] relative overflow-hidden flex flex-col justify-between space-y-6"
               >
+                {/* Subtle top edge specular highlight */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#B6C6A3]/25 to-transparent pointer-events-none" />
                 {/* Card Title & Icon */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">

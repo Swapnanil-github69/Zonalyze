@@ -67,8 +67,10 @@ export const HowItWorksSection: React.FC = () => {
             return (
               <div
                 key={step.number}
-                className="p-6 rounded-[24px] bg-[#102124] border border-[#192E31] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:border-[#B6C6A3]/40 transition-all flex flex-col justify-between space-y-6"
+                className="glass-3d-card p-6 rounded-[24px] relative overflow-hidden flex flex-col justify-between space-y-6"
               >
+                {/* Specular top highlight */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#B6C6A3]/20 to-transparent pointer-events-none" />
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs font-bold text-[#B6C6A3] px-2.5 py-1 rounded-md bg-[#142629] border border-[#192E31]">

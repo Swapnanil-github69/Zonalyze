@@ -60,8 +60,10 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
             return (
               <div
                 key={item.id}
-                className="p-6 sm:p-8 rounded-[24px] bg-[#102124] border border-[#192E31] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:border-[#B6C6A3]/40 transition-all space-y-4"
+                className="glass-3d-card p-6 sm:p-8 rounded-[24px] relative overflow-hidden space-y-4"
               >
+                {/* Specular top highlight */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#B6C6A3]/20 to-transparent pointer-events-none" />
                 <div className="flex items-center justify-between">
                   <div className="w-9 h-9 rounded-xl border border-[#192E31] bg-[#142629] flex items-center justify-center text-[#B6C6A3]">
                     <IconComponent className="w-4 h-4 text-[#B6C6A3]" />
