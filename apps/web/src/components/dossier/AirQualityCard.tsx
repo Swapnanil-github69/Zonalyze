@@ -145,11 +145,11 @@ export const AirQualityCard: React.FC<AirQualityCardProps> = ({ environment, coo
     historicalTemp.length > 0
       ? historicalTemp
       : [
-          (temperature ?? 28.2) - 1.2,
-          (temperature ?? 28.2) - 0.4,
-          (temperature ?? 28.2) + 1.1,
-          temperature ?? 28.2,
-        ];
+        (temperature ?? 28.2) - 1.2,
+        (temperature ?? 28.2) - 0.4,
+        (temperature ?? 28.2) + 1.1,
+        temperature ?? 28.2,
+      ];
 
   const values = activeTab === "pm25" ? rawPm25Values : rawTempValues;
 
@@ -363,22 +363,20 @@ export const AirQualityCard: React.FC<AirQualityCardProps> = ({ environment, coo
           <div className="flex items-center space-x-1.5 bg-slate-950/70 p-1 rounded-lg border border-slate-800">
             <button
               onClick={() => handleTabChange("pm25")}
-              className={`text-xs px-2.5 py-1 rounded-md font-medium transition flex items-center space-x-1.5 ${
-                activeTab === "pm25"
+              className={`text-xs px-2.5 py-1 rounded-md font-medium transition flex items-center space-x-1.5 ${activeTab === "pm25"
                   ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
                   : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-              }`}
+                }`}
             >
               <Activity className="w-3.5 h-3.5 text-cyan-400" />
               <span>72h PM2.5 Profile</span>
             </button>
             <button
               onClick={() => handleTabChange("temperature")}
-              className={`text-xs px-2.5 py-1 rounded-md font-medium transition flex items-center space-x-1.5 ${
-                activeTab === "temperature"
+              className={`text-xs px-2.5 py-1 rounded-md font-medium transition flex items-center space-x-1.5 ${activeTab === "temperature"
                   ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
                   : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-              }`}
+                }`}
             >
               <Thermometer className="w-3.5 h-3.5 text-amber-400" />
               <span>Temperature Trend</span>
@@ -586,10 +584,10 @@ export const AirQualityCard: React.FC<AirQualityCardProps> = ({ environment, coo
                   ? val <= 15
                     ? "bg-emerald-500/80 hover:bg-emerald-400"
                     : val <= 35
-                    ? "bg-cyan-500/80 hover:bg-cyan-400"
-                    : val <= 60
-                    ? "bg-yellow-500/80 hover:bg-yellow-400"
-                    : "bg-rose-500/80 hover:bg-rose-400"
+                      ? "bg-cyan-500/80 hover:bg-cyan-400"
+                      : val <= 60
+                        ? "bg-yellow-500/80 hover:bg-yellow-400"
+                        : "bg-rose-500/80 hover:bg-rose-400"
                   : "bg-amber-500/80 hover:bg-amber-400";
 
                 if (isSelected) {

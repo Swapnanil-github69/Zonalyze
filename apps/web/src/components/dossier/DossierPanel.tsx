@@ -49,11 +49,11 @@ export const DossierPanel: React.FC<DossierPanelProps> = ({
   // Compute livability score if investigation available
   const livabilityScore = investigation
     ? investigation.livabilityScore ||
-      calculateLivabilityScore(
-        investigation.environment,
-        investigation.infrastructure,
-        investigation.noiseProfile
-      )
+    calculateLivabilityScore(
+      investigation.environment,
+      investigation.infrastructure,
+      investigation.noiseProfile
+    )
     : null;
 
   return (

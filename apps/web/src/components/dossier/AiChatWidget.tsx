@@ -353,11 +353,10 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                       setSelectedLang(lang);
                       setShowLangMenu(false);
                     }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition ${
-                      selectedLang.code === lang.code
+                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition ${selectedLang.code === lang.code
                         ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
                         : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                    }`}
+                      }`}
                   >
                     <div className="flex flex-col">
                       <span className="font-semibold">{lang.label}</span>
@@ -375,11 +374,10 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
           {speechSupported && (
             <button
               onClick={() => setAutoSpeak(!autoSpeak)}
-              className={`p-1.5 rounded-lg border transition ${
-                autoSpeak
+              className={`p-1.5 rounded-lg border transition ${autoSpeak
                   ? "bg-indigo-600/30 border-indigo-400 text-indigo-300"
                   : "bg-slate-800/80 border-slate-700 text-slate-400 hover:text-slate-200"
-              }`}
+                }`}
               title={autoSpeak ? "Auto-voice readout enabled" : "Auto-voice readout disabled"}
             >
               <Volume2 className="w-3.5 h-3.5" />
@@ -441,11 +439,10 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                   className={`flex flex-col ${isAssistant ? "items-start" : "items-end"}`}
                 >
                   <div
-                    className={`max-w-[90%] rounded-2xl p-2.5 text-xs leading-relaxed shadow-md ${
-                      isAssistant
+                    className={`max-w-[90%] rounded-2xl p-2.5 text-xs leading-relaxed shadow-md ${isAssistant
                         ? "bg-slate-900 border border-indigo-500/25 text-slate-200 rounded-tl-sm"
                         : "bg-indigo-600 text-white rounded-tr-sm"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center space-x-1.5 mb-1 opacity-75 text-[10px]">
                       {isAssistant ? (
@@ -469,11 +466,10 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                       <div className="mt-2 pt-1.5 border-t border-slate-800/80 flex items-center justify-between">
                         <button
                           onClick={() => speakText(msg.text, msg.id)}
-                          className={`flex items-center space-x-1.5 text-[10px] px-2.5 py-1 rounded-lg transition font-medium ${
-                            isSpeaking
+                          className={`flex items-center space-x-1.5 text-[10px] px-2.5 py-1 rounded-lg transition font-medium ${isSpeaking
                               ? "bg-indigo-600/30 text-indigo-300 border border-indigo-500/50 shadow-sm shadow-indigo-500/20"
                               : "text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800/60"
-                          }`}
+                            }`}
                           title={`Listen in natural ${selectedLang.label} voice`}
                         >
                           {isSpeaking ? (
@@ -549,10 +545,10 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                   isListening
                     ? `Listening in ${selectedLang.label}...`
                     : selectedLang.code === "hi-IN"
-                    ? "सुरक्षा, स्कूल, मेट्रो, दूरी या किसी भी चीज़ के बारे में पूछें..."
-                    : selectedLang.code === "bn-IN"
-                    ? "নিরাপত্তা, মেট্রো, হাসপাতাল বা যেকোনো দূরত্ব সম্পর্কে জিজ্ঞেস করুন..."
-                    : "Ask anything about this area (safety, schools, distance, commute, vibe)..."
+                      ? "सुरक्षा, स्कूल, मेट्रो, दूरी या किसी भी चीज़ के बारे में पूछें..."
+                      : selectedLang.code === "bn-IN"
+                        ? "নিরাপত্তা, মেট্রো, হাসপাতাল বা যেকোনো দূরত্ব সম্পর্কে জিজ্ঞেস করুন..."
+                        : "Ask anything about this area (safety, schools, distance, commute, vibe)..."
                 }
                 disabled={isLoading}
                 className="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition disabled:opacity-50"
@@ -564,11 +560,10 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
               <button
                 type="button"
                 onClick={toggleListening}
-                className={`p-2.5 rounded-xl border transition ${
-                  isListening
+                className={`p-2.5 rounded-xl border transition ${isListening
                     ? "bg-rose-600 text-white border-rose-500 animate-pulse shadow-lg shadow-rose-600/40"
                     : "bg-slate-800/90 text-slate-300 hover:text-white hover:bg-slate-700 border-slate-700"
-                }`}
+                  }`}
                 title={
                   isListening
                     ? "Stop listening"

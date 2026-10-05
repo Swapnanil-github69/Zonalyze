@@ -1,46 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import maplibregl from "maplibre-gl";
-import { Train, Navigation, Trees, Layers, MapPin } from "lucide-react";
-
-export interface MapPreset {
-  id: string;
-  name: string;
-  description: string;
-  lat: number;
-  lng: number;
-  zoom: number;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-export const MAP_PRESETS: MapPreset[] = [
-  {
-    id: "metro-hub",
-    name: "City Center Metro Hub",
-    description: "Esplanade & Park St Interchange",
-    lat: 22.5645,
-    lng: 88.3516,
-    zoom: 14.5,
-    icon: Train,
-  },
-  {
-    id: "highway-corridor",
-    name: "Highway Corridor",
-    description: "EM Bypass Arterial Transit",
-    lat: 22.5186,
-    lng: 88.398,
-    zoom: 14.2,
-    icon: Navigation,
-  },
-  {
-    id: "green-belt",
-    name: "Suburban Green Belt",
-    description: "New Town Eco Park Area",
-    lat: 22.602,
-    lng: 88.465,
-    zoom: 14.0,
-    icon: Trees,
-  },
-];
+import { Layers } from "lucide-react";
 
 interface MapViewProps {
   onCoordinateClick: (lat: number, lng: number) => void;
@@ -81,7 +41,6 @@ export const MapView: React.FC<MapViewProps> = ({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
   const [activeTileStyle, setActiveTileStyle] = useState<"voyager" | "osm">("voyager");
-  const [activePresetId, setActivePresetId] = useState<string | null>(null);
 
   // Initialize MapLibre GL instance
   useEffect(() => {
@@ -121,7 +80,6 @@ export const MapView: React.FC<MapViewProps> = ({
     // Click handler: drop pin and trigger audit
     mapInstance.on("click", (e) => {
       const { lat, lng } = e.lngLat;
-      setActivePresetId(null);
       onCoordinateClick(lat, lng);
     });
 
@@ -168,7 +126,17 @@ export const MapView: React.FC<MapViewProps> = ({
         </div>
       `;
 
-      markerRef.current = new maplibregl.Marker({ element: el })
+      el.innerHTML = `
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="h-10 w-10 rounded-full border border-cyan-300/50 bg-cyan-400/10 shadow-[0_0_22px_rgba(34,211,238,0.35)] animate-pulse"></div>
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="h-5 w-5 rounded-full border-2 border-white bg-gradient-to-br from-cyan-300 via-sky-400 to-blue-600 shadow-[0_0_18px_rgba(59,130,246,0.6)]"></div>
+        </div>
+        <div class="absolute left-1/2 top-[calc(100%-0.8rem)] -translate-x-1/2 h-4 w-2 rounded-b-full bg-gradient-to-b from-cyan-400 to-blue-700 shadow-[0_0_18px_rgba(59,130,246,0.4)]"></div>
+      `;
+
+      markerRef.current = new maplibregl.Marker({ element: el, anchor: "bottom" })
         .setLngLat([lng, lat])
         .addTo(mapRef.current);
     } else {
@@ -176,77 +144,19 @@ export const MapView: React.FC<MapViewProps> = ({
     }
   }, [selectedCoords]);
 
-  // Handler for preset quick buttons
-  const handleSelectPreset = (preset: MapPreset) => {
-    setActivePresetId(preset.id);
-    if (mapRef.current) {
-      mapRef.current.flyTo({
-        center: [preset.lng, preset.lat],
-        zoom: preset.zoom,
-        pitch: 40,
-        essential: true,
-        duration: 1800,
-      });
-    }
-    onCoordinateClick(preset.lat, preset.lng);
-  };
-
   return (
     <div className={`relative w-full h-full ${className}`}>
       {/* MapLibre DOM Container */}
       <div ref={mapContainerRef} className="w-full h-full absolute inset-0 z-0" />
 
-      {/* Floating Quick Preset Buttons */}
-      <div className="absolute top-20 left-4 sm:left-6 z-20 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-[calc(100vw-2rem)] overflow-x-auto pb-1 scrollbar-none">
-        <div className="glass-panel px-3 py-1.5 rounded-xl border border-slate-700/60 shadow-lg flex items-center space-x-2 text-[11px] font-mono text-slate-300 backdrop-blur-md hidden md:flex shrink-0">
-          <MapPin className="w-3.5 h-3.5 text-blue-400" />
-          <span>Hotspot Presets:</span>
-        </div>
-
-        {MAP_PRESETS.map((preset) => {
-          const Icon = preset.icon;
-          const isActive = activePresetId === preset.id;
-          return (
-            <button
-              key={preset.id}
-              onClick={() => handleSelectPreset(preset)}
-              className={`group flex items-center space-x-2.5 px-3 py-2 rounded-xl border shadow-xl transition-all duration-200 text-left shrink-0 backdrop-blur-md ${
-                isActive
-                  ? "bg-blue-600/90 text-white border-blue-400 shadow-blue-500/20 scale-[1.02]"
-                  : "glass-panel hover:bg-slate-800/90 text-slate-200 border-slate-700/70 hover:border-blue-500/40"
-              }`}
-              title={`${preset.name} (${preset.lat.toFixed(4)}, ${preset.lng.toFixed(4)})`}
-            >
-              <div
-                className={`p-1.5 rounded-lg ${
-                  isActive ? "bg-white/20 text-white" : "bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold leading-tight">{preset.name}</span>
-                <span
-                  className={`text-[10px] leading-none mt-0.5 ${
-                    isActive ? "text-blue-100" : "text-slate-400"
-                  }`}
-                >
-                  {preset.description}
-                </span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
       {/* Layer Tile Switcher Floating Button */}
       <div className="absolute bottom-6 left-6 z-20 hidden sm:flex items-center space-x-2">
         <button
           onClick={toggleTileStyle}
-          className="glass-panel hover:bg-slate-800/90 text-slate-300 hover:text-white px-3 py-2 rounded-xl border border-slate-700/60 shadow-xl flex items-center space-x-2 text-xs font-mono transition"
+          className="flex items-center gap-2 rounded-xl border border-slate-700/70 bg-slate-950/60 px-3 py-2 text-xs font-mono text-slate-200 shadow-[0_20px_40px_rgba(2,6,23,0.35)] backdrop-blur-md transition hover:border-cyan-500/40 hover:text-white"
           title="Toggle between Carto Voyager and OpenStreetMap base tiles"
         >
-          <Layers className="w-3.5 h-3.5 text-blue-400" />
+          <Layers className="w-3.5 h-3.5 text-cyan-400" />
           <span>Layer: {activeTileStyle === "voyager" ? "Carto Voyager" : "OpenStreetMap"}</span>
         </button>
       </div>
