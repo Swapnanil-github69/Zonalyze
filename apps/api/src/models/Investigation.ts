@@ -12,10 +12,13 @@ export interface FacilityEntity {
   distanceMeters: number;
   coordinates: [number, number]; // [longitude, latitude]
 }
-
-export interface HotelEntity extends FacilityEntity {
-  stars?: number | null;
-  hotelType?: string;
+export interface HotelEntity {
+  name: string;
+  distanceMeters: number;
+  coordinates: [number, number]; // [lon, lat]
+  type: string; // 'hotel' | 'guest_house' | 'hostel' | 'motel'
+  stars?: number;
+  reviewUrl: string;
 }
 
 export interface FacilitiesData {
@@ -107,8 +110,9 @@ const HotelSubSchema = new Schema(
     name: { type: String, required: true },
     distanceMeters: { type: Number, required: true },
     coordinates: { type: [Number], required: true }, // [longitude, latitude]
+    type: { type: String, required: true, default: "hotel" },
     stars: { type: Number, default: null },
-    hotelType: { type: String },
+    reviewUrl: { type: String, required: true },
   },
   { _id: false }
 );

@@ -88,7 +88,7 @@ export class HeuristicService {
           nearestRailwayDist = dist;
           nearestRailwayName = facilityName || "Railway Station";
         }
-      } else if (tags.railway && ["rail", "subway", "light_rail"].includes(tags.railway)) {
+      } else if (tags.railway && tags.railway === "rail") {
         if (nearestRailwayDist === null || dist < nearestRailwayDist) {
           nearestRailwayDist = dist;
         }

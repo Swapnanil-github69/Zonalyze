@@ -122,7 +122,7 @@ function computeOffsetCoords(
 export function buildDetailedFacilities(
   infra: InfrastructureData,
   coords: [number, number], // [lon, lat]
-  address: string,
+  _address?: string,
   rawFacilities?: FacilitiesData
 ): DetailedFacilities {
   const [lon, lat] = coords;
@@ -135,75 +135,65 @@ export function buildDetailedFacilities(
   const airportDistM = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
 
   // Determine transit metrics
-  const metroStations =
-    rawFacilities?.metro !== undefined
-      ? (rawFacilities.metro ? 1 : 0)
-      : (infra.metro_stations ?? 0);
-  const railStations = infra.railway_stations ?? 0;
-
-  const nearestMetro =
-    rawFacilities?.metro !== undefined
-      ? (rawFacilities.metro?.distanceMeters ?? null)
-      : (infra.nearest_metro_dist_m ?? null);
+  const metroDetected = rawFacilities?.metro !== null && rawFacilities?.metro !== undefined;
+  const metroStations = metroDetected
+    ? 1
+    : (rawFacilities?.metro === null ? 0 : (infra.metro_stations ?? 0));
+  const nearestMetro = metroDetected
+    ? rawFacilities!.metro!.distanceMeters
+    : (rawFacilities?.metro === null ? null : (infra.nearest_metro_dist_m ?? null));
+  const metroName = metroDetected
+    ? (rawFacilities!.metro!.name || "Metro Station")
+    : (nearestMetro !== null ? (infra.nearest_metro_name || "Metro Station") : null);
   const metroCoords: [number, number] | undefined =
     rawFacilities?.metro?.coordinates ||
-    (nearestMetro !== null && infra.nearest_metro_name
+    (nearestMetro !== null && metroName
       ? computeOffsetCoords(coords, nearestMetro, 45)
       : undefined);
 
-  const nearestRail =
-    rawFacilities?.railway?.distanceMeters ?? infra.nearest_railway_dist_m ?? null;
+  const railDetected = rawFacilities?.railway !== null && rawFacilities?.railway !== undefined;
+  const railStations = railDetected
+    ? 1
+    : (rawFacilities?.railway === null ? 0 : (infra.railway_stations ?? 0));
+  const nearestRail = railDetected
+    ? rawFacilities!.railway!.distanceMeters
+    : (rawFacilities?.railway === null ? null : (infra.nearest_railway_dist_m ?? null));
+  const railName = railDetected
+    ? (rawFacilities!.railway!.name || "Railway Station")
+    : (nearestRail !== null ? (infra.nearest_railway_name || "Railway Station") : null);
   const railCoords: [number, number] | undefined =
     rawFacilities?.railway?.coordinates ||
-    (nearestRail !== null ? computeOffsetCoords(coords, nearestRail, 135) : undefined);
+    (nearestRail !== null && railName
+      ? computeOffsetCoords(coords, nearestRail, 135)
+      : undefined);
 
-  const busDist = rawFacilities?.busStop?.distanceMeters ?? 120;
-  const busCoords: [number, number] =
-    rawFacilities?.busStop?.coordinates || computeOffsetCoords(coords, busDist, 220);
+  // Real Bus Stop metrics
+  const busDetected = rawFacilities?.busStop !== null && rawFacilities?.busStop !== undefined;
+  const busDist = busDetected ? rawFacilities!.busStop!.distanceMeters : null;
+  const busCoords: [number, number] | undefined = busDetected
+    ? rawFacilities!.busStop!.coordinates
+    : undefined;
+  const busName = busDetected ? (rawFacilities!.busStop!.name || "Bus Stop") : null;
+  const busRoutes = busDetected ? (rawFacilities!.busStop!.routesCount ?? 1) : 0;
 
   const airportCoords: [number, number] =
     rawFacilities?.airport?.coordinates || [ccuLon, ccuLat];
 
-  // Calculate nearby hotels with star ratings and reviews
-  const queryArea = encodeURIComponent(address.split(",")[0] || "Kolkata");
+  // Map verified real OpenStreetMap hospitality venues
   let hotels: HotelItem[] = [];
 
   if (rawFacilities?.hotels && rawFacilities.hotels.length > 0) {
-    hotels = rawFacilities.hotels.slice(0, 4).map((h, i) => ({
-      id: `h-${i + 1}`,
+    hotels = rawFacilities.hotels.map((h, i) => ({
+      id: `hotel-${i + 1}`,
       name: h.name,
-      stars: 4.8 - i * 0.2,
+      stars: h.stars ?? null,
       distance_m: h.distanceMeters,
       coordinates: h.coordinates,
-      reviewsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + " " + queryArea)}`,
+      type: h.type || "hotel",
+      reviewsUrl:
+        h.reviewUrl ||
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${h.name} ${h.coordinates[1]},${h.coordinates[0]}`)}`,
     }));
-  } else {
-    hotels = [
-      {
-        id: "h-1",
-        name: "Grand Horizon Suites & Residences",
-        stars: 4.8,
-        distance_m: 420,
-        coordinates: computeOffsetCoords(coords, 420, 30),
-        reviewsUrl: `https://www.google.com/maps/search/?api=1&query=Hotels+near+${queryArea}`,
-      },
-      {
-        id: "h-2",
-        name: "The Royal Meridian Luxury Hotel",
-        stars: 4.6,
-        distance_m: 780,
-        coordinates: computeOffsetCoords(coords, 780, 160),
-        reviewsUrl: `https://www.google.com/maps/search/?api=1&query=Hotels+near+${queryArea}`,
-      },
-      {
-        id: "h-3",
-        name: "Metropolitan Business Inn & Suites",
-        stars: 4.3,
-        distance_m: 1150,
-        coordinates: computeOffsetCoords(coords, 1150, 290),
-        reviewsUrl: `https://www.google.com/maps/search/?api=1&query=Hotels+near+${queryArea}`,
-      },
-    ];
   }
 
   // Hospital metrics
@@ -236,19 +226,19 @@ export function buildDetailedFacilities(
       metro: {
         count: metroStations,
         nearest_dist_m: nearestMetro,
-        name: rawFacilities?.metro?.name || (nearestMetro !== null ? (infra.nearest_metro_name || "Metro Station") : null),
+        name: metroName,
         coordinates: metroCoords,
       },
       rail: {
         count: railStations,
         nearest_dist_m: nearestRail,
-        name: rawFacilities?.railway?.name || infra.nearest_railway_name || (railStations > 0 ? "Railway Station" : null),
+        name: railName,
         coordinates: railCoords,
       },
       bus: {
-        count: Math.max(4, Math.round(railStations * 3 + 2)),
+        count: busRoutes,
         nearest_dist_m: busDist,
-        name: rawFacilities?.busStop?.name || "Bus Transit Stop",
+        name: busName,
         coordinates: busCoords,
       },
       airport: {

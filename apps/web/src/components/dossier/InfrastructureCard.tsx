@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import {
   Building2,
-  Train,
   HeartPulse,
   Trees,
   Pill,
-  Bus,
-  Plane,
   Star,
   ExternalLink,
   Hotel,
@@ -14,6 +11,7 @@ import {
 } from "lucide-react";
 import { InfrastructureData, FacilitiesData } from "../../types/investigation";
 import { buildDetailedFacilities } from "../../utils/livabilityMetrics";
+import { FacilitiesGrid } from "../FacilitiesGrid";
 
 export interface SelectedFacility {
   name: string;
@@ -134,141 +132,11 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
             <span className="text-[10px] text-cyan-400 font-mono">Closest Access</span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {/* Metro */}
-            <div
-              onClick={() =>
-                handleCardClick(
-                  detailed.transit.metro.name || "Metro Station",
-                  detailed.transit.metro.coordinates,
-                  detailed.transit.metro.nearest_dist_m,
-                  "metro"
-                )
-              }
-              className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.transit.metro.name || "Metro Station")
-                  ? "bg-cyan-950/50 border-cyan-400 ring-1 ring-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "bg-slate-900/80 border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium group-hover:text-cyan-300 transition">Metro</span>
-                <Train className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition" />
-              </div>
-              <div className="mt-2">
-                <div className="text-sm font-bold text-white font-mono">
-                  {formatDistance(detailed.transit.metro.nearest_dist_m)}
-                </div>
-                {detailed.transit.metro.name && (
-                  <div
-                    className="text-[10px] text-blue-300 font-medium truncate mt-0.5"
-                    title={detailed.transit.metro.name}
-                  >
-                    {detailed.transit.metro.name}
-                  </div>
-                )}
-                <div className="text-[10px] text-slate-400 mt-0.5">
-                  {detailed.transit.metro.count} stations within radius
-                </div>
-              </div>
-            </div>
-
-            {/* Railway */}
-            <div
-              onClick={() =>
-                handleCardClick(
-                  detailed.transit.rail.name || "Railway Station",
-                  detailed.transit.rail.coordinates,
-                  detailed.transit.rail.nearest_dist_m,
-                  "rail"
-                )
-              }
-              className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.transit.rail.name || "Railway Station")
-                  ? "bg-cyan-950/50 border-cyan-400 ring-1 ring-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "bg-slate-900/80 border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium group-hover:text-sky-300 transition">Rail Station</span>
-                <Train className="w-3.5 h-3.5 text-sky-400 group-hover:scale-110 transition" />
-              </div>
-              <div className="mt-2">
-                <div className="text-sm font-bold text-white font-mono">
-                  {formatDistance(detailed.transit.rail.nearest_dist_m)}
-                </div>
-                {detailed.transit.rail.name && (
-                  <div
-                    className="text-[10px] text-sky-300 font-medium truncate mt-0.5"
-                    title={detailed.transit.rail.name}
-                  >
-                    {detailed.transit.rail.name}
-                  </div>
-                )}
-                <div className="text-[10px] text-slate-400 mt-0.5">
-                  {detailed.transit.rail.count} line nodes
-                </div>
-              </div>
-            </div>
-
-            {/* Bus Stand */}
-            <div
-              onClick={() =>
-                handleCardClick(
-                  detailed.transit.bus.name || "Bus Stop",
-                  detailed.transit.bus.coordinates,
-                  detailed.transit.bus.nearest_dist_m,
-                  "bus"
-                )
-              }
-              className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.transit.bus.name || "Bus Stop")
-                  ? "bg-cyan-950/50 border-cyan-400 ring-1 ring-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "bg-slate-900/80 border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium group-hover:text-indigo-300 transition">Bus Stop</span>
-                <Bus className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition" />
-              </div>
-              <div className="mt-2">
-                <div className="text-sm font-bold text-white font-mono">
-                  {formatDistance(detailed.transit.bus.nearest_dist_m)}
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  {detailed.transit.bus.count} active routes
-                </div>
-              </div>
-            </div>
-
-            {/* Airport */}
-            <div
-              onClick={() =>
-                handleCardClick(
-                  detailed.transit.airport.name || "CCU International Airport",
-                  detailed.transit.airport.coordinates,
-                  detailed.transit.airport.nearest_dist_m,
-                  "airport"
-                )
-              }
-              className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.transit.airport.name || "CCU International Airport")
-                  ? "bg-cyan-950/50 border-cyan-400 ring-1 ring-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "bg-slate-900/80 border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium group-hover:text-cyan-300 transition">Airport</span>
-                <Plane className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition" />
-              </div>
-              <div className="mt-2">
-                <div className="text-sm font-bold text-white font-mono">
-                  {formatDistance(detailed.transit.airport.nearest_dist_m)}
-                </div>
-                <div className="text-[10px] text-slate-400">CCU International Terminal</div>
-              </div>
-            </div>
-          </div>
+          <FacilitiesGrid
+            detailed={detailed}
+            selectedFacilityName={selectedFacility?.name}
+            onSelectFacility={handleCardClick}
+          />
         </div>
       )}
 
@@ -427,47 +295,61 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
             <span className="text-[10px] text-amber-400 font-mono">Click to Trace Route</span>
           </div>
 
-          <div className="space-y-1.5">
-            {detailed.hotels.map((hotel) => (
-              <div
-                key={hotel.id}
-                onClick={() =>
-                  handleCardClick(hotel.name, hotel.coordinates, hotel.distance_m, "hotel")
-                }
-                className={`p-2.5 rounded-xl border flex items-center justify-between transition cursor-pointer group active:scale-[0.99] ${
-                  isSelected(hotel.name)
-                    ? "bg-amber-950/40 border-amber-400 ring-1 ring-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.25)]"
-                    : "bg-slate-900/80 border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/80"
-                }`}
-              >
-                <div className="space-y-0.5">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs font-semibold text-slate-200 group-hover:text-amber-300 transition">
-                      {hotel.name}
-                    </span>
-                    <span className="inline-flex items-center text-[10px] font-bold text-amber-300 bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-500/30">
-                      <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400 mr-0.5" />
-                      {hotel.stars.toFixed(1)}
-                    </span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 font-mono">
-                    {formatDistance(hotel.distance_m)} away from pinpoint
-                  </div>
-                </div>
-
-                <a
-                  href={hotel.reviewsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center space-x-1 text-[11px] font-medium text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-2.5 py-1 rounded-lg border border-blue-500/30 transition shrink-0 ml-2"
+          {detailed.hotels.length === 0 ? (
+            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-center text-xs text-slate-400 font-mono">
+              No hospitality venues detected within 3,000m envelope.
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {detailed.hotels.map((hotel) => (
+                <div
+                  key={hotel.id}
+                  onClick={() =>
+                    handleCardClick(hotel.name, hotel.coordinates, hotel.distance_m, "hotel")
+                  }
+                  className={`p-2.5 rounded-xl border flex items-center justify-between transition cursor-pointer group active:scale-[0.99] ${
+                    isSelected(hotel.name)
+                      ? "bg-amber-950/40 border-amber-400 ring-1 ring-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.25)]"
+                      : "bg-slate-900/80 border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/80"
+                  }`}
                 >
-                  <span>Reviews</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            ))}
-          </div>
+                  <div className="space-y-0.5 min-w-0 pr-2">
+                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                      <span className="text-xs font-semibold text-slate-200 group-hover:text-amber-300 transition truncate max-w-[180px] sm:max-w-xs">
+                        {hotel.name}
+                      </span>
+                      {hotel.stars !== null && hotel.stars !== undefined && hotel.stars > 0 && (
+                        <span className="inline-flex items-center text-[10px] font-bold text-amber-300 bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-500/30">
+                          <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400 mr-0.5" />
+                          {Number(hotel.stars).toFixed(1)}
+                        </span>
+                      )}
+                      {hotel.type && (
+                        <span className="text-[9px] font-mono capitalize px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                          {hotel.type.replace("_", " ")}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[10px] text-slate-400 font-mono">
+                      {formatDistance(hotel.distance_m)} away from pinpoint
+                    </div>
+                  </div>
+
+                  <a
+                    href={hotel.reviewsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center space-x-1 text-[11px] font-medium text-cyan-400 hover:text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 px-2.5 py-1 rounded-lg border border-cyan-500/30 transition shrink-0 ml-2"
+                    title={`View reviews for ${hotel.name} on Google Maps`}
+                  >
+                    <span>Reviews</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

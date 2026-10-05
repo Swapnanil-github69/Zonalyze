@@ -12,7 +12,7 @@ export const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 15000,
+  timeout: 30000,
 });
 
 type ApiInvestigationResult = Omit<InvestigationResult, "livabilityScore"> & {
@@ -41,6 +41,34 @@ function normalizeInvestigationResult(
   };
 }
 
+const KNOWN_METRO_STOPS = [
+  "sovabazar", "sutanuti", "phoolbagan", "esplanade", "chandni chowk",
+  "central", "shyambazar", "girish park", "mahatma gandhi road", "mg road",
+  "park street", "maidan", "rabindra sadan", "netaji bhavan", "jatin das park",
+  "kalighat", "rabindra sarobar", "mahanayak uttam kumar", "tollygunge",
+  "netaji", "masterda surya sen", "gitanjali", "kavi nazrul", "shahid khudiram",
+  "kavi subhash", "city centre", "salt lake sector", "sector v", "karunamoyee",
+  "central park", "bengal chemical", "salt lake stadium", "sealdah metro",
+  "howrah metro", "dakshineswar", "baranagar", "noapara", "dum dum metro",
+  "taratala", "majherhat metro", "joka"
+];
+
+function isClientMetroName(name: string): boolean {
+  const clean = name.toLowerCase().replace(/[^a-z0-9\s]/g, " ").trim();
+  if (/\b(metro|subway)\b/i.test(clean)) return true;
+  if (KNOWN_METRO_STOPS.some((km) => clean.includes(km))) {
+    if (
+      !clean.includes("ahiritola") &&
+      !clean.includes("railway station") &&
+      !clean.includes("junction") &&
+      !clean.includes("jn")
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * Fallback browser-side telemetry synthesizer when backend is not running.
  * Uses keyless public Open-Meteo and Nominatim APIs as defined in ARCHITECTURE.md.
@@ -59,8 +87,32 @@ async function fallbackClientInvestigation(
 
   let nearestHospitalName = "Local Medical Facility";
   let nearestHospitalDistM: number | null = null;
-  let nearbyHospitals: Array<{ name: string; distance: number; type: string }> = [];
+  let nearbyHospitals: Array<{
+    name: string;
+    distance: number;
+    type: string;
+    coordinates?: [number, number];
+  }> = [];
   let hospitalsCount = 1;
+
+  let nearestRailwayName: string | null = null;
+  let nearestRailwayDistM: number | null = null;
+  let nearestRailwayCoords: [number, number] | null = null;
+
+  let nearestMetroName: string | null = null;
+  let nearestMetroDistM: number | null = null;
+  let nearestMetroCoords: [number, number] | null = null;
+
+  const fallbackHotels: Array<{
+    name: string;
+    distanceMeters: number;
+    coordinates: [number, number];
+    type: string;
+    stars?: number;
+    reviewUrl: string;
+  }> = [];
+
+  const viewbox = `${(longitude - 0.025).toFixed(4)},${(latitude + 0.025).toFixed(4)},${(longitude + 0.025).toFixed(4)},${(latitude - 0.025).toFixed(4)}`;
 
   await Promise.all([
     axios
@@ -104,7 +156,7 @@ async function fallbackClientInvestigation(
       }),
     axios
       .get(
-        `https://nominatim.openstreetmap.org/search?q=hospital+clinic+nursing+home&format=json&limit=5&viewbox=${(longitude - 0.015).toFixed(4)},${(latitude + 0.015).toFixed(4)},${(longitude + 0.015).toFixed(4)},${(latitude - 0.015).toFixed(4)}&bounded=1`,
+        `https://nominatim.openstreetmap.org/search?q=hospital+clinic&format=json&limit=5&viewbox=${viewbox}&bounded=1`,
         { timeout: 5000 }
       )
       .then((hospRes) => {
@@ -120,6 +172,7 @@ async function fallbackClientInvestigation(
                 name: item.name || item.display_name?.split(",")[0] || "Medical Center",
                 distance: dist,
                 type: "healthcare",
+                coordinates: [iLon, iLat] as [number, number],
               };
             })
             .sort((a: any, b: any) => a.distance - b.distance);
@@ -129,6 +182,65 @@ async function fallbackClientInvestigation(
             nearestHospitalDistM = nearbyHospitals[0].distance;
             hospitalsCount = nearbyHospitals.length;
           }
+        }
+      })
+      .catch(() => {}),
+    axios
+      .get(
+        `https://nominatim.openstreetmap.org/search?q=station&format=json&limit=10&viewbox=${viewbox}&bounded=1`,
+        { timeout: 5000 }
+      )
+      .then((stnRes) => {
+        if (Array.isArray(stnRes.data) && stnRes.data.length > 0) {
+          for (const item of stnRes.data) {
+            const stnName = (item.name || item.display_name?.split(",")[0] || "").trim();
+            const iLat = parseFloat(item.lat);
+            const iLon = parseFloat(item.lon);
+            const dLat = (iLat - latitude) * 111000;
+            const dLon = (iLon - longitude) * 111000 * Math.cos((latitude * Math.PI) / 180);
+            const dist = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+
+            if (isClientMetroName(stnName)) {
+              if (nearestMetroDistM === null || dist < nearestMetroDistM) {
+                nearestMetroDistM = dist;
+                nearestMetroName = stnName;
+                nearestMetroCoords = [iLon, iLat];
+              }
+            } else {
+              if (nearestRailwayDistM === null || dist < nearestRailwayDistM) {
+                nearestRailwayDistM = dist;
+                nearestRailwayName = stnName;
+                nearestRailwayCoords = [iLon, iLat];
+              }
+            }
+          }
+        }
+      })
+      .catch(() => {}),
+    axios
+      .get(
+        `https://nominatim.openstreetmap.org/search?q=hotel&format=json&limit=8&viewbox=${viewbox}&bounded=1`,
+        { timeout: 5000 }
+      )
+      .then((htlRes) => {
+        if (Array.isArray(htlRes.data) && htlRes.data.length > 0) {
+          for (const item of htlRes.data) {
+            const htlName = (item.name || item.display_name?.split(",")[0] || "Hotel").trim();
+            const iLat = parseFloat(item.lat);
+            const iLon = parseFloat(item.lon);
+            const dLat = (iLat - latitude) * 111000;
+            const dLon = (iLon - longitude) * 111000 * Math.cos((latitude * Math.PI) / 180);
+            const dist = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+
+            fallbackHotels.push({
+              name: htlName,
+              distanceMeters: dist,
+              coordinates: [iLon, iLat],
+              type: "hotel",
+              reviewUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${htlName} ${iLat},${iLon}`)}`,
+            });
+          }
+          fallbackHotels.sort((a, b) => a.distanceMeters - b.distanceMeters);
         }
       })
       .catch(() => {}),
@@ -153,28 +265,58 @@ async function fallbackClientInvestigation(
     infrastructure: {
       hospitals: hospitalsCount,
       pharmacies: 3,
-      railway_stations: 1,
+      railway_stations: nearestRailwayDistM !== null ? 1 : 0,
+      metro_stations: nearestMetroDistM !== null ? 1 : 0,
       parks: 2,
       nearest_hospital_dist_m: nearestHospitalDistM ?? 150,
       nearest_hospital_name: nearestHospitalName,
       nearby_hospitals: nearbyHospitals,
-      nearest_railway_dist_m: 650,
+      nearest_railway_dist_m: nearestRailwayDistM,
+      nearest_railway_name: nearestRailwayName,
+      nearest_metro_dist_m: nearestMetroDistM,
+      nearest_metro_name: nearestMetroName,
       nearest_arterial_dist_m: 180,
     },
+    facilities: {
+      metro: nearestMetroDistM !== null ? {
+        name: nearestMetroName || "Metro Station",
+        distanceMeters: nearestMetroDistM,
+        coordinates: nearestMetroCoords || [longitude, latitude],
+      } : null,
+      railway: nearestRailwayDistM !== null ? {
+        name: nearestRailwayName || "Railway Station",
+        distanceMeters: nearestRailwayDistM,
+        coordinates: nearestRailwayCoords || [longitude, latitude],
+      } : null,
+      hospital: nearestHospitalDistM !== null ? {
+        name: nearestHospitalName,
+        distanceMeters: nearestHospitalDistM,
+        coordinates: (nearbyHospitals[0]?.coordinates as [number, number]) || [longitude, latitude],
+      } : null,
+      busStop: null,
+      store: null,
+      park: null,
+      airport: null,
+      hotels: fallbackHotels,
+    },
     noiseProfile: {
-      estimated_bracket: "Moderate",
-      nearest_source_type: "arterial_road",
-      distance_meters: 180,
+      estimated_bracket: nearestRailwayDistM && nearestRailwayDistM < 300 ? "Elevated" : "Moderate",
+      nearest_source_type: nearestRailwayDistM && nearestRailwayDistM < 300 ? "railway" : "arterial_road",
+      distance_meters: nearestRailwayDistM && nearestRailwayDistM < 300 ? nearestRailwayDistM : 180,
       confidence: "Verified Open-Telemetry Proxy",
       estimated_decibels: 58,
     },
     aiReport: {
       summary:
-        `Urban corridor exhibiting moderate particulate density, active transit accessibility, and nearby medical coverage via ${nearestHospitalName}.`,
+        `Audited location exhibiting verified atmospheric coverage, transit proximity (${nearestMetroName || nearestRailwayName || 'regional link'}), and nearby medical coverage via ${nearestHospitalName}.`,
       empirical_observations: [
         `Direct atmospheric audit registers PM2.5 at ${pm2_5} µg/m³ with European AQI index ${aqi}.`,
         `Nearest medical facility (${nearestHospitalName}) detected at ${nearestHospitalDistM ? `${nearestHospitalDistM}m` : 'close proximity'}.`,
-        "Local transit access and commercial roads within operational walking radius.",
+        nearestMetroName
+          ? `Rapid transit connection verified: Metro Station (${nearestMetroName}) within operational radius.`
+          : nearestRailwayName
+          ? `Rail access verified: Station (${nearestRailwayName}) within operational radius.`
+          : "Regional transit and commercial access routes within operational radius.",
       ],
       site_inspection_targets: [
         "Audit perimeter facade acoustic insulation against traffic surge periods.",

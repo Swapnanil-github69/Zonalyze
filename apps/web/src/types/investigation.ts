@@ -21,10 +21,20 @@ export interface FacilityItem {
 export interface HotelItem {
   id: string;
   name: string;
-  stars: number;
+  stars?: number | null;
   distance_m: number;
   coordinates?: [number, number]; // [lon, lat]
+  type?: string;
   reviewsUrl: string;
+}
+
+export interface HotelEntity {
+  name: string;
+  distanceMeters: number;
+  coordinates: [number, number]; // [lon, lat]
+  type: string; // 'hotel' | 'guest_house' | 'hostel' | 'motel'
+  stars?: number;
+  reviewUrl: string;
 }
 
 export interface TransitFacilities {
@@ -105,6 +115,7 @@ export interface FacilitiesEntity {
   name: string;
   distanceMeters: number;
   coordinates: [number, number]; // [lon, lat]
+  routesCount?: number;
 }
 
 export interface FacilitiesData {
@@ -115,7 +126,7 @@ export interface FacilitiesData {
   store: FacilitiesEntity | null;
   park: FacilitiesEntity | null;
   airport: FacilitiesEntity | null;
-  hotels: FacilitiesEntity[];
+  hotels: HotelEntity[];
 }
 
 export interface InvestigationResult {
