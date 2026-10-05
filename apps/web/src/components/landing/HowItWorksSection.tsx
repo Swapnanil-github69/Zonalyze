@@ -5,97 +5,86 @@ export const HowItWorksSection: React.FC = () => {
   const steps = [
     {
       number: "01",
-      title: "Choose a place",
+      title: "COORDINATE ENTRY",
       icon: Search,
-      description: "Search a location, enter latitude and longitude coordinates, or select a specific point directly on the map.",
-      clarification: "Accepts any global coordinate or municipal address.",
+      description: "Input exact decimal degrees, search a municipal locality, or select a pinpoint directly on the cartographic canvas.",
+      clarification: "[GLOBAL COVERAGE // ACCEPTS DUAL-PRECISION EPSG:4326]",
     },
     {
       number: "02",
-      title: "Gather available evidence",
+      title: "OBSERVATION HARVEST",
       icon: Database,
-      description: "Retrieve relevant source observations, atmospheric readings, and mapped infrastructure context.",
-      clarification: "Data retrieval depends on regional provider coverage.",
+      description: "Query open-access atmospheric arrays, regional digital elevation profiles, and mapped urban infrastructure nodes.",
+      clarification: "[REST API // SENSOR FRESHNESS TIMESTAMPED IN-SITU]",
     },
     {
       number: "03",
-      title: "Review the record",
+      title: "LIMITATION PRESERVATION",
       icon: FileCheck,
-      description: "Inspect measured values, observation timestamps, source coverage boundaries, and analytical limitations.",
-      clarification: "Uncertainties and missing signals are visibly preserved.",
+      description: "Inspect measured values, sensor radii, and spatial gaps. Missing provider measurements are preserved rather than invented.",
+      clarification: "[UNCERTAINTY EXPLICIT // NO SYNTHETIC RATINGS]",
     },
     {
       number: "04",
-      title: "Read the interpretation",
+      title: "GROUNDED DOSSIER",
       icon: BookOpen,
-      description: "Receive an AI-assisted explanation grounded strictly in the retrieved evidence without invented data.",
-      clarification: "Synthesizes observations; does not fabricate scores.",
+      description: "Review a deterministic synthesis and narrative debrief derived strictly from verified retrieval records.",
+      clarification: "[ZERO HALLUCINATION // FIELD EVIDENCE ONLY]",
     },
   ];
 
   return (
-    <section id="how-it-works" className="relative w-full py-20 sm:py-28 bg-[#0B1316] border-b border-[#1F353B]">
-      <div className="max-w-[1200px] mx-auto px-6 sm:px-8 space-y-12 sm:space-y-16 text-left">
+    <section id="how-it-works" className="relative w-full py-20 bg-[#161b13] text-[#dde2e4] border-b border-[#84907f]/30">
+      <div className="w-full px-6 sm:px-12 space-y-12">
         
         {/* Section Header */}
-        <div className="max-w-2xl space-y-4">
-          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#34D399]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />
-            <span>METHODOLOGY</span>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#84907f]/30 pb-4 text-[11px] font-mono tracking-wider uppercase text-[#84907f]">
+          <div className="flex items-center space-x-2">
+            <span className="w-2 h-2 bg-[#e2ffcc] inline-block" />
+            <span className="text-[#e2ffcc] font-bold">SECTION 04 // PIPELINE SPECIFICATION</span>
           </div>
+          <div>DETERMINISTIC RETRIEVAL PROTOCOL</div>
+        </div>
 
-          <h2
-            style={{
-              fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
-              lineHeight: 1.15,
-              letterSpacing: "-0.02em",
-            }}
-            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-white"
-          >
-            How ZONALYZE works.
+        <div className="max-w-4xl space-y-4 text-left">
+          <h2 className="font-display-stout text-5xl sm:text-7xl lg:text-[80px] text-[#e2ffcc] tracking-tight leading-[0.90] uppercase">
+            EMPIRICAL METHODOLOGY.
           </h2>
 
-          <p className="text-base text-[#94A3B8] font-sans leading-relaxed">
-            Our pipeline prioritizes empirical observations before generating narrative synthesis. We do not claim every data provider returns observations for every coordinate on earth.
+          <p className="font-mono text-xs sm:text-sm text-[#84907f] leading-relaxed max-w-2xl">
+            Our pipeline prioritizes verifiable physical observations prior to analytical synthesis. Missing signals are left visible as spatial gaps.
           </p>
         </div>
 
-        {/* 4 Steps in Restrained Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* 4 Steps in Sharp 0px Border Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
           {steps.map((step) => {
             const IconComponent = step.icon;
             return (
               <div
                 key={step.number}
-                className="p-6 rounded-[24px] bg-[#132226] border border-[#1F353B] shadow-[0_12px_32px_rgba(0,0,0,0.35)] relative overflow-hidden flex flex-col justify-between space-y-6"
+                className="p-6 border border-[#84907f]/35 bg-[#161b13] flex flex-col justify-between space-y-6 text-left"
               >
-                {/* Specular top highlight */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#34D399]/20 to-transparent pointer-events-none" />
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-[#34D399] px-2.5 py-1 rounded-md bg-[#0E1A1D] border border-[#1F353B]">
-                      {step.number}
+                  <div className="flex items-center justify-between border-b border-[#84907f]/20 pb-3">
+                    <span className="font-mono text-xs font-bold text-[#e2ffcc]">
+                      [STEP {step.number}]
                     </span>
-                    <div className="w-8 h-8 rounded-lg border border-[#1F353B] bg-[#0E1A1D] flex items-center justify-center text-[#38BDF8]">
-                      <IconComponent className="w-4 h-4 text-[#38BDF8]" />
+                    <div className="w-7 h-7 border border-[#e2ffcc] flex items-center justify-center text-[#e2ffcc]">
+                      <IconComponent className="w-3.5 h-3.5" />
                     </div>
                   </div>
 
-                  <h3
-                    style={{
-                      fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
-                    }}
-                    className="text-xl font-normal text-white leading-snug"
-                  >
+                  <h3 className="font-display-stout text-2xl text-[#dde2e4] tracking-wide uppercase">
                     {step.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed font-sans">
+                  <p className="font-mono text-xs text-[#dde2e4]/90 leading-relaxed">
                     {step.description}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#1F353B] text-[11px] font-mono text-[#64748B] leading-relaxed">
+                <div className="pt-4 border-t border-[#84907f]/20 font-mono text-[10px] text-[#84907f] uppercase leading-tight">
                   {step.clarification}
                 </div>
               </div>

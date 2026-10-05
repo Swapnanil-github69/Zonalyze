@@ -1,5 +1,4 @@
 import React from "react";
-import { Compass } from "lucide-react";
 
 export const CinematicFooter: React.FC = () => {
   const scrollTo = (id: string) => {
@@ -12,58 +11,64 @@ export const CinematicFooter: React.FC = () => {
   };
 
   return (
-    <footer className="relative w-full bg-[#0B1316] text-[#94A3B8] py-14 sm:py-16 border-t border-[#1F353B] text-left font-sans">
-      <div className="max-w-[1200px] mx-auto px-6 sm:px-8 space-y-8">
+    <footer className="relative w-full bg-[#161b13] text-[#dde2e4] py-16 border-t border-[#84907f]/30 text-left font-mono">
+      <div className="w-full px-6 sm:px-12 space-y-10">
         
         {/* Top Footer Row */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-[#1F353B]">
-          {/* Brand */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-[#84907f]/25">
+          {/* Brand Wordmark Stamp */}
           <div
             onClick={() => scrollTo("top")}
-            className="flex items-center space-x-2.5 cursor-pointer select-none group"
+            className="cursor-pointer select-none group flex items-baseline space-x-3"
           >
-            <div className="w-6 h-6 rounded-full border border-[#1F353B] bg-[#132226] flex items-center justify-center text-[#34D399] group-hover:border-[#34D399] transition-colors">
-              <Compass className="w-3.5 h-3.5" />
-            </div>
-            <span
-              style={{ fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif" }}
-              className="text-xl sm:text-2xl font-normal tracking-tight text-white"
-            >
+            <span className="font-display-stout text-3xl sm:text-4xl text-[#e2ffcc] tracking-wider leading-none">
               ZONALYZE
+            </span>
+            <span className="text-[10px] text-[#84907f] uppercase tracking-widest">
+              [EST. 2026]
             </span>
           </div>
 
-          {/* Links: About, Method, Explore */}
-          <nav className="flex items-center space-x-6 text-sm text-[#94A3B8]">
+          {/* Navigation Links: Mono caps */}
+          <nav className="flex flex-wrap items-center gap-8 text-[11px] font-mono tracking-wider uppercase text-[#84907f]">
             <button
               onClick={() => scrollTo("about")}
-              className="hover:text-white transition-colors cursor-pointer"
+              className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              About
+              01 // SYSTEM
+            </button>
+            <button
+              onClick={() => scrollTo("categories")}
+              className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
+            >
+              02 // EVIDENCE
             </button>
             <button
               onClick={() => scrollTo("how-it-works")}
-              className="hover:text-white transition-colors cursor-pointer"
+              className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              Method
+              03 // METHODOLOGY
             </button>
             <button
               onClick={() => scrollTo("preview")}
-              className="hover:text-white transition-colors cursor-pointer"
+              className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              Explore
+              04 // FIELD PREVIEW
             </button>
           </nav>
         </div>
 
-        {/* Bottom Footer Note & Dynamic Copyright */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#64748B] font-sans">
-          <p className="max-w-xl leading-relaxed">
-            A field guide to environmental and civic context. Data availability, resolution, and freshness vary by source and location.
-          </p>
+        {/* Bottom Footer Row: Geographical & Technical Lineage */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end text-[10px] text-[#84907f] uppercase tracking-wider">
+          <div className="md:col-span-7 space-y-1 leading-relaxed">
+            <div>AN OBJECTIVE FIELD GUIDE TO ENVIRONMENTAL AND CIVIC CONTEXT.</div>
+            <div>VERIFIED TELEMETRY HARVESTED VIA OPEN-METEO & OPENSTREETMAP REGISTRIES.</div>
+            <div>ALL GAPS, RADIUS LIMITS, AND DECIBEL DECAY FACTORS REMAIN TRANSPARENT.</div>
+          </div>
 
-          <div className="font-mono text-[11px] text-[#64748B] whitespace-nowrap">
-            © {new Date().getFullYear()} ZONALYZE. All rights reserved.
+          <div className="md:col-span-5 md:text-right font-mono text-[#e2ffcc] space-y-1">
+            <div>GEODETIC DATUM: WGS 84 (EPSG:4326)</div>
+            <div>© {new Date().getFullYear()} ZONALYZE. ALL SURVEY RIGHTS RESERVED.</div>
           </div>
         </div>
 
