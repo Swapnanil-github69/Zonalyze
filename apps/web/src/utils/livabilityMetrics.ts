@@ -122,7 +122,7 @@ function computeOffsetCoords(
 export function buildDetailedFacilities(
   infra: InfrastructureData,
   coords: [number, number], // [lon, lat]
-  address: string,
+  _address?: string,
   rawFacilities?: FacilitiesData
 ): DetailedFacilities {
   const [lon, lat] = coords;
@@ -164,46 +164,21 @@ export function buildDetailedFacilities(
   const airportCoords: [number, number] =
     rawFacilities?.airport?.coordinates || [ccuLon, ccuLat];
 
-  // Calculate nearby hotels with star ratings and reviews
-  const queryArea = encodeURIComponent(address.split(",")[0] || "Kolkata");
+  // Map verified real OpenStreetMap hospitality venues
   let hotels: HotelItem[] = [];
 
   if (rawFacilities?.hotels && rawFacilities.hotels.length > 0) {
-    hotels = rawFacilities.hotels.slice(0, 4).map((h, i) => ({
-      id: `h-${i + 1}`,
+    hotels = rawFacilities.hotels.map((h, i) => ({
+      id: `hotel-${i + 1}`,
       name: h.name,
-      stars: 4.8 - i * 0.2,
+      stars: h.stars ?? null,
       distance_m: h.distanceMeters,
       coordinates: h.coordinates,
-      reviewsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + " " + queryArea)}`,
+      type: h.type || "hotel",
+      reviewsUrl:
+        h.reviewUrl ||
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${h.name} ${h.coordinates[1]},${h.coordinates[0]}`)}`,
     }));
-  } else {
-    hotels = [
-      {
-        id: "h-1",
-        name: "Grand Horizon Suites & Residences",
-        stars: 4.8,
-        distance_m: 420,
-        coordinates: computeOffsetCoords(coords, 420, 30),
-        reviewsUrl: `https://www.google.com/maps/search/?api=1&query=Hotels+near+${queryArea}`,
-      },
-      {
-        id: "h-2",
-        name: "The Royal Meridian Luxury Hotel",
-        stars: 4.6,
-        distance_m: 780,
-        coordinates: computeOffsetCoords(coords, 780, 160),
-        reviewsUrl: `https://www.google.com/maps/search/?api=1&query=Hotels+near+${queryArea}`,
-      },
-      {
-        id: "h-3",
-        name: "Metropolitan Business Inn & Suites",
-        stars: 4.3,
-        distance_m: 1150,
-        coordinates: computeOffsetCoords(coords, 1150, 290),
-        reviewsUrl: `https://www.google.com/maps/search/?api=1&query=Hotels+near+${queryArea}`,
-      },
-    ];
   }
 
   // Hospital metrics

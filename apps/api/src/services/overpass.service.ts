@@ -1,15 +1,16 @@
 import axios from "axios";
 import { config } from "../config/env.js";
 import { OverpassResponse, OverpassElement } from "../types/index.js";
+import { isMetroStation } from "./overpassService.js";
 
 /**
  * Contributor 1: Backend Lead
- * Executes a single batch Overpass QL query covering a 3000m radius around (lat, lon).
+ * Executes a single batch Overpass QL query covering transit, hospitality, and civic infrastructure.
  */
 export class OverpassService {
   private static readonly ENDPOINTS = [
-    "https://overpass.kumi.systems/api/interpreter",
     "https://lz4.overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
     "https://overpass-api.de/api/interpreter",
   ];
 
@@ -17,35 +18,39 @@ export class OverpassService {
     lat: number,
     lon: number
   ): Promise<OverpassElement[]> {
+    const TRANSIT_RADIUS = 2500; // 2.5 km covers regional metro links
+    const HOTEL_RADIUS = 3000;   // 3 km to ensure hotels are found in all sectors
+
     const query = `
-      [out:json][timeout:5];
+      [out:json][timeout:25];
       (
-        node["amenity"~"hospital|clinic|nursing_home"](around:3000, ${lat}, ${lon});
-        way["amenity"~"hospital|clinic|nursing_home"](around:3000, ${lat}, ${lon});
-        node["healthcare"~"hospital|clinic|centre|nursing_home"](around:3000, ${lat}, ${lon});
-        way["healthcare"~"hospital|clinic|centre|nursing_home"](around:3000, ${lat}, ${lon});
-        node["amenity"="pharmacy"](around:1500, ${lat}, ${lon});
-        node["railway"="station"](around:4000, ${lat}, ${lon});
-        way["railway"="station"](around:4000, ${lat}, ${lon});
-        node["station"="subway"](around:4000, ${lat}, ${lon});
-        way["station"="subway"](around:4000, ${lat}, ${lon});
-        node["railway"="subway_entrance"](around:4000, ${lat}, ${lon});
-        way["railway"="subway_entrance"](around:4000, ${lat}, ${lon});
-        node["railway"="subway"](around:4000, ${lat}, ${lon});
-        way["railway"="subway"](around:4000, ${lat}, ${lon});
-        node["subway"="yes"](around:4000, ${lat}, ${lon});
-        way["subway"="yes"](around:4000, ${lat}, ${lon});
-        way["railway"="rail"](around:800, ${lat}, ${lon});
-        way["highway"="motorway"](around:800, ${lat}, ${lon});
-        way["highway"="trunk"](around:800, ${lat}, ${lon});
-        way["highway"="primary"](around:800, ${lat}, ${lon});
-        node["leisure"="park"](around:2000, ${lat}, ${lon});
-        way["leisure"="park"](around:2000, ${lat}, ${lon});
+        // Transit nodes & ways
+        nwr["railway"="station"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
+        nwr["station"="subway"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
+        nwr["railway"="subway_entrance"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
+        nwr["subway"="yes"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
+        nwr["railway"="subway"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
+
+        // Accommodations (Hotels, Guest Houses, Hostels, Motels)
+        nwr["tourism"~"hotel|guest_house|hostel|motel"](around:${HOTEL_RADIUS}, ${lat}, ${lon});
+
+        // Health & Essentials
+        nwr["amenity"~"hospital|clinic|pharmacy|nursing_home"](around:2000, ${lat}, ${lon});
+        nwr["healthcare"~"hospital|clinic|centre|nursing_home"](around:2000, ${lat}, ${lon});
+        nwr["highway"="bus_stop"](around:1000, ${lat}, ${lon});
+        nwr["amenity"="bus_station"](around:2000, ${lat}, ${lon});
+        nwr["amenity"="taxi"](around:1000, ${lat}, ${lon});
+        nwr["shop"~"convenience|supermarket|general"](around:1000, ${lat}, ${lon});
+        nwr["leisure"="park"](around:1500, ${lat}, ${lon});
+        way["railway"="rail"](around:1500, ${lat}, ${lon});
+        way["highway"~"motorway|trunk|primary"](around:1000, ${lat}, ${lon});
       );
-      out center 150;
+      out center body;
+      >;
+      out skel qt;
     `;
 
-    // Race fast mirrors concurrently with a 3500ms timeout
+    // Race fast mirrors concurrently with a 9000ms timeout
     const fetchFromEndpoint = async (endpoint: string): Promise<OverpassElement[]> => {
       const response = await axios.post<OverpassResponse>(
         endpoint,
@@ -53,10 +58,12 @@ export class OverpassService {
         {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-            "User-Agent": config.nominatimUserAgent || "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
+            "User-Agent":
+              config.nominatimUserAgent ||
+              "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
             Accept: "application/json",
           },
-          timeout: 3500,
+          timeout: 9000,
         }
       );
 
@@ -71,13 +78,13 @@ export class OverpassService {
       const elements = await Promise.any(this.ENDPOINTS.map((ep) => fetchFromEndpoint(ep)));
       return elements;
     } catch {
-      console.warn("⚠️ Overpass mirrors busy/timed out within 3.5s, activating fast Nominatim fallback...");
+      console.warn("⚠️ Overpass mirrors busy/timed out within 9s, activating fast Nominatim fallback...");
       return await this.fallbackWithNominatim(lat, lon);
     }
   }
 
   /**
-   * Resilient fallback using Nominatim search to detect hospitals, stations, and parks
+   * Resilient fallback using Nominatim search to detect hospitals, stations, hotels, and parks
    * if public Overpass servers are rate-limited or experiencing high latency.
    */
   private static async fallbackWithNominatim(
@@ -93,12 +100,13 @@ export class OverpassService {
           "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
       };
 
-      const [hospRes, clinicRes, nursingRes, stationRes, parkRes] = await Promise.allSettled([
-        axios.get(`https://nominatim.openstreetmap.org/search?q=hospital&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3000 }),
-        axios.get(`https://nominatim.openstreetmap.org/search?q=clinic&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3000 }),
-        axios.get(`https://nominatim.openstreetmap.org/search?q=nursing+home&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3000 }),
-        axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3000 }),
-        axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3000 }),
+      const [hospRes, clinicRes, stationRes, hotelRes, guestHouseRes, parkRes] = await Promise.allSettled([
+        axios.get(`https://nominatim.openstreetmap.org/search?q=hospital&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=clinic&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=15&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=hotel&format=json&limit=12&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=guest+house&format=json&limit=6&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
       ]);
 
       const elements: OverpassElement[] = [];
@@ -127,12 +135,12 @@ export class OverpassService {
 
       if (hospRes.status === "fulfilled") addHealthcare(hospRes.value.data, "hospital");
       if (clinicRes.status === "fulfilled") addHealthcare(clinicRes.value.data, "clinic");
-      if (nursingRes.status === "fulfilled") addHealthcare(nursingRes.value.data, "nursing_home");
 
       if (stationRes.status === "fulfilled" && Array.isArray(stationRes.value.data)) {
         for (const item of stationRes.value.data) {
           const stationName = (item.name || item.display_name?.split(",")[0] || "").trim();
-          const isMetro = /\b(metro|subway)\b/i.test(stationName);
+          const fakeTags: Record<string, string> = { railway: "station", name: stationName };
+          const isMetro = isMetroStation(fakeTags);
           elements.push({
             type: "node",
             id: Number(item.osm_id) || Math.floor(Math.random() * 100000),
@@ -146,6 +154,30 @@ export class OverpassService {
           });
         }
       }
+
+      const addHotels = (data: any[], type: string) => {
+        if (!Array.isArray(data)) return;
+        for (const item of data) {
+          const hotelName = (item.name || item.display_name?.split(",")[0] || "Hotel").trim();
+          const osmId = Number(item.osm_id) || Math.floor(Math.random() * 100000);
+          if (seenOsmIds.has(osmId)) continue;
+          seenOsmIds.add(osmId);
+
+          elements.push({
+            type: "node",
+            id: osmId,
+            lat: parseFloat(item.lat),
+            lon: parseFloat(item.lon),
+            tags: {
+              tourism: type,
+              name: hotelName || "Hotel",
+            },
+          });
+        }
+      };
+
+      if (hotelRes.status === "fulfilled") addHotels(hotelRes.value.data, "hotel");
+      if (guestHouseRes.status === "fulfilled") addHotels(guestHouseRes.value.data, "guest_house");
 
       if (parkRes.status === "fulfilled" && Array.isArray(parkRes.value.data)) {
         for (const item of parkRes.value.data) {
