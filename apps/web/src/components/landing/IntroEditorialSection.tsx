@@ -34,11 +34,14 @@ export const IntroEditorialSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Schematic Diagram Card */}
-          <div className="lg:col-span-7">
-            <div className="p-6 sm:p-8 rounded-[24px] bg-[#102124] border border-[#192E31] shadow-[0_4px_24px_rgba(0,0,0,0.4)] space-y-6">
+          {/* Right Column: Schematic Diagram Card with 3D Translucent Effect */}
+          <div className="lg:col-span-7 relative">
+            {/* Ambient backlight glow */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-[#142629]/50 via-[#B6C6A3]/10 to-transparent blur-2xl rounded-[32px] pointer-events-none" />
+
+            <div className="relative p-6 sm:p-8 rounded-[24px] glass-panel-elevated space-y-6">
               
-              <div className="flex items-center justify-between text-xs text-[#829492] font-mono border-b border-[#192E31] pb-3">
+              <div className="flex items-center justify-between text-xs text-[#829492] font-mono border-b border-white/[0.08] pb-3">
                 <span>SCHEMATIC 01 — EVIDENCE CONVERGENCE</span>
                 <span className="text-[#B6C6A3]">SINGLE COORDINATE CATCHMENT</span>
               </div>
@@ -47,9 +50,9 @@ export const IntroEditorialSection: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 
                 {/* 1. Atmosphere */}
-                <div className="p-4 rounded-xl bg-[#142629] border border-[#192E31] space-y-2 hover:border-[#B6C6A3]/50 transition-colors">
+                <div className="glass-3d-card p-4 rounded-xl space-y-2">
                   <div className="flex items-center space-x-2 text-[#F1F0E9]">
-                    <div className="w-7 h-7 rounded-lg bg-[#192E31] flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-lg bg-[#0B1719]/80 border border-[#192E31] flex items-center justify-center">
                       <Wind className="w-3.5 h-3.5 text-[#B6C6A3]" />
                     </div>
                     <span className="font-medium text-sm text-[#F1F0E9]">Atmosphere</span>
@@ -60,9 +63,9 @@ export const IntroEditorialSection: React.FC = () => {
                 </div>
 
                 {/* 2. Infrastructure */}
-                <div className="p-4 rounded-xl bg-[#142629] border border-[#192E31] space-y-2 hover:border-[#B6C6A3]/50 transition-colors">
+                <div className="glass-3d-card p-4 rounded-xl space-y-2">
                   <div className="flex items-center space-x-2 text-[#F1F0E9]">
-                    <div className="w-7 h-7 rounded-lg bg-[#192E31] flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-lg bg-[#0B1719]/80 border border-[#192E31] flex items-center justify-center">
                       <Building2 className="w-3.5 h-3.5 text-[#D1C6A5]" />
                     </div>
                     <span className="font-medium text-sm text-[#F1F0E9]">Nearby Infrastructure</span>
@@ -73,9 +76,9 @@ export const IntroEditorialSection: React.FC = () => {
                 </div>
 
                 {/* 3. Noise Context */}
-                <div className="p-4 rounded-xl bg-[#142629] border border-[#192E31] space-y-2 hover:border-[#B6C6A3]/50 transition-colors">
+                <div className="glass-3d-card p-4 rounded-xl space-y-2">
                   <div className="flex items-center space-x-2 text-[#F1F0E9]">
-                    <div className="w-7 h-7 rounded-lg bg-[#192E31] flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-lg bg-[#0B1719]/80 border border-[#192E31] flex items-center justify-center">
                       <Volume2 className="w-3.5 h-3.5 text-[#B6C6A3]" />
                     </div>
                     <span className="font-medium text-sm text-[#F1F0E9]">Noise Context</span>
@@ -86,9 +89,9 @@ export const IntroEditorialSection: React.FC = () => {
                 </div>
 
                 {/* 4. Geography */}
-                <div className="p-4 rounded-xl bg-[#142629] border border-[#192E31] space-y-2 hover:border-[#B6C6A3]/50 transition-colors">
+                <div className="glass-3d-card p-4 rounded-xl space-y-2">
                   <div className="flex items-center space-x-2 text-[#F1F0E9]">
-                    <div className="w-7 h-7 rounded-lg bg-[#192E31] flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-lg bg-[#0B1719]/80 border border-[#192E31] flex items-center justify-center">
                       <Mountain className="w-3.5 h-3.5 text-[#D1C6A5]" />
                     </div>
                     <span className="font-medium text-sm text-[#F1F0E9]">Environmental Context</span>
@@ -101,7 +104,7 @@ export const IntroEditorialSection: React.FC = () => {
               </div>
 
               {/* Schematic Footer Note */}
-              <div className="flex items-center justify-between pt-2 text-[11px] text-[#829492] font-mono border-t border-[#192E31]">
+              <div className="flex items-center justify-between pt-2 text-[11px] text-[#829492] font-mono border-t border-white/[0.08]">
                 <span>◉ SELECTED POINT [22.5726° N, 88.3639° E]</span>
                 <span className="text-[#B6C6A3] font-medium">OPEN EVIDENCE RECORD →</span>
               </div>
