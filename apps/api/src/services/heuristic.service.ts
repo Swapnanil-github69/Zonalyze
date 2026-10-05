@@ -22,7 +22,12 @@ export class HeuristicService {
     let metro_stations = 0;
     let parks = 0;
 
-    const detectedHospitals: Array<{ name: string; distance: number; type: string }> = [];
+    const detectedHospitals: Array<{
+      name: string;
+      distance: number;
+      type: string;
+      coordinates?: [number, number];
+    }> = [];
     let nearestHospitalDist: number | null = null;
     let nearestHospitalName: string | null = null;
     let nearestRailwayDist: number | null = null;
@@ -62,24 +67,19 @@ export class HeuristicService {
           name: facilityName || fallback,
           distance: dist,
           type,
+          coordinates: [lon, lat],
         });
       } else if (tags.amenity === "pharmacy") {
         pharmacies++;
       } else if (
         tags.station === "subway" ||
-        tags.station === "light_rail" ||
         tags.subway === "yes" ||
-        (tags.railway === "station" && (tags.subway === "yes" || tags.station === "subway"))
+        tags.railway === "subway"
       ) {
         metro_stations++;
-        railway_stations++;
         if (nearestMetroDist === null || dist < nearestMetroDist) {
           nearestMetroDist = dist;
           nearestMetroName = facilityName || "Metro Station";
-        }
-        if (nearestRailwayDist === null || dist < nearestRailwayDist) {
-          nearestRailwayDist = dist;
-          nearestRailwayName = facilityName || "Railway Station";
         }
       } else if (
         tags.railway === "station" ||

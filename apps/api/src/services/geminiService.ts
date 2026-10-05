@@ -173,7 +173,7 @@ Return JSON only, matching this exact schema:
 
 Use the display name, livability score, PM2.5, current temperature, noise bracket and nearest noise source, transit distances, and hospital distance as provided. Do not add fields. Inspection targets must be framed only as checks to perform, never as claims about conditions already present.`;
 
-  const models = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-3.7-flash", "gemini-flash-latest"];
+  const models = ["gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-flash-latest"];
   for (const model of models) {
     try {
       const response = await ai.models.generateContent({
