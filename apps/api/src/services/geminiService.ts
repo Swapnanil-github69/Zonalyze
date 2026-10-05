@@ -173,10 +173,10 @@ Return JSON only, matching this exact schema:
 
 Use the display name, livability score, PM2.5, current temperature, noise bracket and nearest noise source, transit distances, and hospital distance as provided. Do not add fields. Inspection targets must be framed only as checks to perform, never as claims about conditions already present.`;
 
-  const models = ["gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-flash-latest"];
+  const models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-2.5-flash", "gemini-flash-latest"];
   for (const model of models) {
     try {
-      const response = await ai.models.generateContent({
+      const generatePromise = ai.models.generateContent({
         model,
         contents: prompt,
         config: {
@@ -199,13 +199,20 @@ Use the display name, livability score, PM2.5, current temperature, noise bracke
         },
       });
 
+      // Cap AI debrief to 3 seconds max so user is never blocked
+      const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+      const response = await Promise.race([generatePromise, timeoutPromise]);
+      if (!response) {
+        console.warn(`Model ${model} debrief timed out after 3s, proceeding to fallback...`);
+        break;
+      }
+
       const parsed = parseDebrief(response.text);
       if (parsed) return parsed;
-    } catch (error) {
-      console.warn(`Model ${model} debrief failed, trying next candidate...`);
+    } catch (error: any) {
+      console.warn(`Model ${model} debrief failed: ${error?.message || error}, trying next candidate...`);
     }
   }
 
-  console.warn("All Gemini candidate models failed; returning telemetry-based fallback.");
   return fallback;
 }

@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import {
   Building2,
-  Train,
   HeartPulse,
   Trees,
   Pill,
-  Bus,
-  Plane,
   Star,
   ExternalLink,
   Hotel,
@@ -14,6 +11,7 @@ import {
 } from "lucide-react";
 import { InfrastructureData, FacilitiesData } from "../../types/investigation";
 import { buildDetailedFacilities } from "../../utils/livabilityMetrics";
+import { FacilitiesGrid } from "../FacilitiesGrid";
 
 export interface SelectedFacility {
   name: string;
@@ -134,141 +132,11 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
             <span className="text-[10px] text-cyan-400 font-mono">Closest Access</span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {/* Metro */}
-            <div
-              onClick={() =>
-                handleCardClick(
-                  detailed.transit.metro.name || "Metro Station",
-                  detailed.transit.metro.coordinates,
-                  detailed.transit.metro.nearest_dist_m,
-                  "metro"
-                )
-              }
-              className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.transit.metro.name || "Metro Station")
-                  ? "bg-cyan-950/50 border-cyan-400 ring-1 ring-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "bg-slate-900/80 border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium group-hover:text-cyan-300 transition">Metro</span>
-                <Train className="w-3.5 h-3.5 text-blue-400 group-hover:scale-110 transition" />
-              </div>
-              <div className="mt-2">
-                <div className="text-sm font-bold text-white font-mono">
-                  {formatDistance(detailed.transit.metro.nearest_dist_m)}
-                </div>
-                {detailed.transit.metro.name && (
-                  <div
-                    className="text-[10px] text-blue-300 font-medium truncate mt-0.5"
-                    title={detailed.transit.metro.name}
-                  >
-                    {detailed.transit.metro.name}
-                  </div>
-                )}
-                <div className="text-[10px] text-slate-400 mt-0.5">
-                  {detailed.transit.metro.count} stations within radius
-                </div>
-              </div>
-            </div>
-
-            {/* Railway */}
-            <div
-              onClick={() =>
-                handleCardClick(
-                  detailed.transit.rail.name || "Railway Station",
-                  detailed.transit.rail.coordinates,
-                  detailed.transit.rail.nearest_dist_m,
-                  "rail"
-                )
-              }
-              className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.transit.rail.name || "Railway Station")
-                  ? "bg-cyan-950/50 border-cyan-400 ring-1 ring-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "bg-slate-900/80 border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium group-hover:text-sky-300 transition">Rail Station</span>
-                <Train className="w-3.5 h-3.5 text-sky-400 group-hover:scale-110 transition" />
-              </div>
-              <div className="mt-2">
-                <div className="text-sm font-bold text-white font-mono">
-                  {formatDistance(detailed.transit.rail.nearest_dist_m)}
-                </div>
-                {detailed.transit.rail.name && (
-                  <div
-                    className="text-[10px] text-sky-300 font-medium truncate mt-0.5"
-                    title={detailed.transit.rail.name}
-                  >
-                    {detailed.transit.rail.name}
-                  </div>
-                )}
-                <div className="text-[10px] text-slate-400 mt-0.5">
-                  {detailed.transit.rail.count} line nodes
-                </div>
-              </div>
-            </div>
-
-            {/* Bus Stand */}
-            <div
-              onClick={() =>
-                handleCardClick(
-                  detailed.transit.bus.name || "Bus Stop",
-                  detailed.transit.bus.coordinates,
-                  detailed.transit.bus.nearest_dist_m,
-                  "bus"
-                )
-              }
-              className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.transit.bus.name || "Bus Stop")
-                  ? "bg-cyan-950/50 border-cyan-400 ring-1 ring-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "bg-slate-900/80 border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium group-hover:text-indigo-300 transition">Bus Stop</span>
-                <Bus className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition" />
-              </div>
-              <div className="mt-2">
-                <div className="text-sm font-bold text-white font-mono">
-                  {formatDistance(detailed.transit.bus.nearest_dist_m)}
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  {detailed.transit.bus.count} active routes
-                </div>
-              </div>
-            </div>
-
-            {/* Airport */}
-            <div
-              onClick={() =>
-                handleCardClick(
-                  detailed.transit.airport.name || "CCU International Airport",
-                  detailed.transit.airport.coordinates,
-                  detailed.transit.airport.nearest_dist_m,
-                  "airport"
-                )
-              }
-              className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.transit.airport.name || "CCU International Airport")
-                  ? "bg-cyan-950/50 border-cyan-400 ring-1 ring-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                  : "bg-slate-900/80 border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium group-hover:text-cyan-300 transition">Airport</span>
-                <Plane className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition" />
-              </div>
-              <div className="mt-2">
-                <div className="text-sm font-bold text-white font-mono">
-                  {formatDistance(detailed.transit.airport.nearest_dist_m)}
-                </div>
-                <div className="text-[10px] text-slate-400">CCU International Terminal</div>
-              </div>
-            </div>
-          </div>
+          <FacilitiesGrid
+            detailed={detailed}
+            selectedFacilityName={selectedFacility?.name}
+            onSelectFacility={handleCardClick}
+          />
         </div>
       )}
 

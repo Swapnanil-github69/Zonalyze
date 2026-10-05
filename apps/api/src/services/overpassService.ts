@@ -5,6 +5,7 @@ export type Facility = {
   name: string;
   distanceMeters: number;
   coordinates: [number, number]; // [lon, lat]
+  routesCount?: number;
 };
 
 export interface HotelFacility extends Facility {
@@ -68,109 +69,93 @@ export function createFallbackResult(confidence: string): OSMResult {
   };
 }
 
-export function isMetroStation(tags: Record<string, string>): boolean {
-  if (
-    tags.station === "subway" ||
-    tags.subway === "yes" ||
-    tags.railway === "subway" ||
-    tags.railway === "subway_entrance"
-  ) {
-    return true;
+export function classifyStation(tags: Record<string, string> = {}): "metro" | "railway" | "ignore" {
+  const name = (tags.name || "").toLowerCase();
+  const station = (tags.station || "").toLowerCase();
+  const subway = (tags.subway || "").toLowerCase();
+  const railway = (tags.railway || "").toLowerCase();
+  const network = (tags.network || "").toLowerCase();
+  const operator = (tags.operator || "").toLowerCase();
+  const usage = (tags.usage || "").toLowerCase();
+
+  // 1. HARD DISQUALIFIERS: Regardless of elevation, viaducts, bridges, or layers,
+  // these attributes belong exclusively to Indian Railways / heavy rail.
+  const isHeavyRail =
+    usage === "main" ||
+    usage === "branch" ||
+    network.includes("eastern railway") ||
+    network.includes("south eastern railway") ||
+    network.includes("indian railway") ||
+    network.includes("suburban") ||
+    network === "ir" ||
+    operator.includes("eastern railway") ||
+    operator.includes("south eastern railway") ||
+    operator.includes("indian railway") ||
+    operator === "ir" ||
+    name.includes("kamarkundu") ||
+    name.includes("singur") ||
+    name.includes("junction") ||
+    name.includes("jn") ||
+    name.includes("halt");
+
+  if (isHeavyRail) {
+    return "railway";
   }
 
-  const METRO_NETWORK_PATTERN = /\b(metro|subway|dmrc|bmrcl|cmrl|kmrl|hmrl|mmrda|mmmocl|mmopl|upmrc|lmrc|gmrc|jmrc|nmrc|mahametro)\b/i;
+  // 2. EXPLICIT METRO / RAPID TRANSIT TAGS
+  // Do NOT rely on "bridge", "viaduct", or "layer" to identify a metro!
+  const isSubwayInfrastructure =
+    station === "subway" ||
+    subway === "yes" ||
+    railway === "subway" ||
+    railway === "subway_entrance" ||
+    tags.light_rail === "yes";
 
-  // Network, operator, or line explicitly mentions metro or Indian transit agency
-  if (
-    (typeof tags.network === "string" && METRO_NETWORK_PATTERN.test(tags.network)) ||
-    (typeof tags.operator === "string" && METRO_NETWORK_PATTERN.test(tags.operator)) ||
-    (typeof tags.line === "string" && METRO_NETWORK_PATTERN.test(tags.line))
-  ) {
-    return true;
-  }
+  const isMetroOperator =
+    network === "kolkata metro" ||
+    network.includes("metro rail") ||
+    network === "kmrc" ||
+    operator.includes("kolkata metro") ||
+    operator.includes("kmrc");
 
-  // Station or entrance name explicitly contains 'metro'
-  const name = (tags.name || tags["name:en"] || "").trim();
-  if (/\bmetro\b/i.test(name)) {
-    return true;
-  }
+  const isMetroNamed =
+    name.includes("metro station") ||
+    name.endsWith(" metro");
 
-  // Underground stations in urban settings are subways/metros
-  if (tags.station === "underground") {
-    return true;
-  }
-
-  // Elevated stations: ONLY classify as Metro if there is explicit metro evidence
-  if (tags.station === "elevated") {
-    const hasMetroEvidence =
-      (typeof tags.network === "string" && METRO_NETWORK_PATTERN.test(tags.network)) ||
-      (typeof tags.operator === "string" && METRO_NETWORK_PATTERN.test(tags.operator)) ||
-      (typeof tags.line === "string" && METRO_NETWORK_PATTERN.test(tags.line)) ||
-      /\bmetro\b/i.test(name);
-    if (hasMetroEvidence) {
-      return true;
-    }
-  }
-
-  // Explicit check for known Kolkata Metro stations (elevated and underground)
-  const cleanName = name.toLowerCase().replace(/[^a-z0-9\s]/g, " ").trim();
   const knownMetroStops = [
     "sovabazar",
     "sutanuti",
     "phoolbagan",
     "esplanade",
     "chandni chowk",
-    "central",
-    "shyambazar",
-    "girish park",
-    "mahatma gandhi road",
-    "mg road",
-    "park street",
-    "maidan",
-    "rabindra sadan",
-    "netaji bhavan",
-    "jatin das park",
-    "kalighat",
-    "rabindra sarobar",
-    "mahanayak uttam kumar",
-    "tollygunge",
-    "netaji",
-    "masterda surya sen",
-    "gitanjali",
-    "kavi nazrul",
-    "shahid khudiram",
-    "kavi subhash",
-    "city centre",
-    "salt lake sector",
-    "sector v",
-    "karunamoyee",
     "central park",
+    "karunamoyee",
+    "city centre",
     "bengal chemical",
     "salt lake stadium",
-    "sealdah metro",
-    "howrah metro",
+    "kalighat",
+    "park street",
+    "rabindra sarobar",
     "dakshineswar",
     "baranagar",
     "noapara",
-    "dum dum metro",
-    "taratala",
-    "majherhat metro",
-    "joka",
   ];
+  const isKnownMetro = knownMetroStops.some((km) => name.includes(km));
 
-  if (knownMetroStops.some((km) => cleanName.includes(km))) {
-    // Exclude if it's explicitly the heavy railway / circular rail counterpart
-    if (
-      !cleanName.includes("ahiritola") &&
-      !cleanName.includes("railway station") &&
-      !cleanName.includes("junction") &&
-      !cleanName.includes("jn")
-    ) {
-      return true;
-    }
+  if (isSubwayInfrastructure || isMetroOperator || isMetroNamed || isKnownMetro) {
+    return "metro";
   }
 
-  return false;
+  // 3. DEFAULT: Any other railway station is standard heavy rail
+  if (railway === "station" || railway === "halt" || tags.public_transport === "station") {
+    return "railway";
+  }
+
+  return "ignore";
+}
+
+export function isMetroStation(tags: Record<string, string> = {}): boolean {
+  return classifyStation(tags) === "metro";
 }
 
 export function getFacility(
@@ -241,14 +226,25 @@ function estimateNoise(
  * Retrieves and parses nearby OSM facilities and estimates noise from primary
  * highways and railway lines around the supplied coordinate.
  */
-const TRANSIT_RADIUS = 2500; // 2.5 km covers regional metro links
+const TRANSIT_RADIUS = 2500; // 2.5 km for rail and metro
+const BUS_RADIUS = 1000;     // 1.0 km for bus stops
 const HOTEL_RADIUS = 3000;   // 3 km to ensure accommodations are found in all sectors
 
 const OVERPASS_ENDPOINTS = [
   "https://lz4.overpass-api.de/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
   "https://overpass-api.de/api/interpreter",
   "https://overpass.kumi.systems/api/interpreter",
 ];
+
+// In-memory cache for fast repeated or nearby requests
+const osmMemoryCache = new Map<string, { timestamp: number; data: OSMResult }>();
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
+function getCacheKey(lat: number, lon: number): string {
+  // Quantize coordinates to ~110m bucket
+  return `${lat.toFixed(3)},${lon.toFixed(3)}`;
+}
 
 async function fallbackWithNominatimFacilities(
   lat: number,
@@ -261,9 +257,10 @@ async function fallbackWithNominatimFacilities(
       "User-Agent": "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
     };
 
-    const [hospRes, stationRes, hotelRes, guestHouseRes, parkRes] = await Promise.allSettled([
+    const [hospRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes] = await Promise.allSettled([
       axios.get(`https://nominatim.openstreetmap.org/search?q=hospital+clinic&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=15&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
+      axios.get(`https://nominatim.openstreetmap.org/search?q=bus+stop&format=json&limit=8&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=hotel&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=guest+house&format=json&limit=5&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
@@ -288,14 +285,28 @@ async function fallbackWithNominatimFacilities(
       for (const item of stationRes.value.data) {
         const name = (item.name || item.display_name?.split(",")[0] || "").trim();
         const fakeTags: Record<string, string> = { railway: "station", name };
-        const isMetro = isMetroStation(fakeTags);
+        const classification = classifyStation(fakeTags);
         elements.push({
           lat: parseFloat(item.lat),
           lon: parseFloat(item.lon),
           tags: {
             railway: "station",
-            ...(isMetro ? { station: "subway", subway: "yes" } : {}),
+            ...(classification === "metro" ? { station: "subway", subway: "yes" } : {}),
             name: name || "Station",
+          },
+        });
+      }
+    }
+
+    if (busRes.status === "fulfilled" && Array.isArray(busRes.value.data)) {
+      for (const item of busRes.value.data) {
+        const name = (item.name || item.display_name?.split(",")[0] || "Bus Stop").trim();
+        elements.push({
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon),
+          tags: {
+            highway: "bus_stop",
+            name: name || "Bus Stop",
           },
         });
       }
@@ -358,32 +369,43 @@ export async function fetchOSMData(lat: number, lon: number): Promise<OSMResult>
     throw new RangeError("Latitude and longitude must be valid geographic coordinates.");
   }
 
-  const query = `[out:json][timeout:25];
+  // Check in-memory cache
+  const cacheKey = getCacheKey(lat, lon);
+  const cached = osmMemoryCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  const query = `[out:json][timeout:10];
 (
-  // Transit nodes & ways
-  nwr["railway"="station"](around:${TRANSIT_RADIUS},${lat},${lon});
+  // Metro Stations & Entrances
   nwr["station"="subway"](around:${TRANSIT_RADIUS},${lat},${lon});
   nwr["railway"="subway_entrance"](around:${TRANSIT_RADIUS},${lat},${lon});
   nwr["subway"="yes"](around:${TRANSIT_RADIUS},${lat},${lon});
   nwr["railway"="subway"](around:${TRANSIT_RADIUS},${lat},${lon});
+  nwr["network"~"Kolkata Metro|KMRC|Metro Rail",i](around:${TRANSIT_RADIUS},${lat},${lon});
+
+  // Heavy Railway (Indian Railways)
+  nwr["railway"="station"](around:${TRANSIT_RADIUS},${lat},${lon});
+  nwr["railway"="halt"](around:${TRANSIT_RADIUS},${lat},${lon});
+
+  // Bus Stops & Platforms
+  nwr["highway"="bus_stop"](around:${BUS_RADIUS},${lat},${lon});
+  nwr["public_transport"="platform"]["bus"="yes"](around:${BUS_RADIUS},${lat},${lon});
 
   // Accommodations (Hotels, Guest Houses, Hostels, Motels)
   nwr["tourism"~"hotel|guest_house|hostel|motel"](around:${HOTEL_RADIUS},${lat},${lon});
 
   // Health & Essentials
-  nwr["amenity"~"hospital|clinic|pharmacy|nursing_home"](around:2000,${lat},${lon});
-  nwr["healthcare"~"hospital|clinic|centre|nursing_home"](around:2000,${lat},${lon});
-  nwr["highway"="bus_stop"](around:1000,${lat},${lon});
+  nwr["amenity"~"hospital|clinic|pharmacy"](around:2000,${lat},${lon});
+  nwr["healthcare"~"hospital|clinic|centre"](around:2000,${lat},${lon});
   nwr["amenity"="bus_station"](around:2000,${lat},${lon});
   nwr["amenity"="taxi"](around:1000,${lat},${lon});
-  nwr["shop"~"convenience|supermarket|general"](around:1000,${lat},${lon});
   nwr["leisure"="park"](around:1500,${lat},${lon});
   way["railway"="rail"](around:1500,${lat},${lon});
   way["highway"~"motorway|trunk|primary"](around:1000,${lat},${lon});
 );
-out center body;
->;
-out skel qt;`;
+out center body qt;`;
 
   const fetchFromEndpoint = async (endpoint: string): Promise<OverpassElement[]> => {
     const response = await axios.post<OverpassResponse>(
@@ -395,7 +417,7 @@ out skel qt;`;
           "User-Agent": "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
           Accept: "application/json",
         },
-        timeout: 9000,
+        timeout: 3800,
       }
     );
     if (response.data && Array.isArray(response.data.elements) && response.data.elements.length > 0) {
@@ -404,12 +426,42 @@ out skel qt;`;
     throw new Error("No elements in response");
   };
 
+  // Hedged execution: try Overpass mirrors first; if slow (>2200ms), start Nominatim fallback speculatively
+  let fallbackTimer: NodeJS.Timeout | null = null;
+  const overpassPromise = Promise.any(OVERPASS_ENDPOINTS.map((ep) => fetchFromEndpoint(ep)))
+    .then((elements) => {
+      const parsed = parseElements(lat, lon, elements);
+      osmMemoryCache.set(cacheKey, { timestamp: Date.now(), data: parsed });
+      return parsed;
+    });
+
+  const hedgedFallbackPromise = new Promise<OSMResult>((resolve) => {
+    fallbackTimer = setTimeout(async () => {
+      try {
+        const fallbackRes = await fallbackWithNominatimFacilities(lat, lon);
+        osmMemoryCache.set(cacheKey, { timestamp: Date.now(), data: fallbackRes });
+        resolve(fallbackRes);
+      } catch {
+        // let overpass continue
+      }
+    }, 2200);
+  });
+
   try {
-    const elements = await Promise.any(OVERPASS_ENDPOINTS.map((ep) => fetchFromEndpoint(ep)));
-    return parseElements(lat, lon, elements);
+    const result = await Promise.race([
+      overpassPromise.then((res) => {
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+        return res;
+      }),
+      hedgedFallbackPromise,
+    ]);
+    return result;
   } catch (error) {
-    console.warn("Overpass mirrors busy or timed out, activating fast Nominatim fallback...");
-    return await fallbackWithNominatimFacilities(lat, lon);
+    if (fallbackTimer) clearTimeout(fallbackTimer);
+    console.warn("Overpass mirrors busy or timed out, executing fast Nominatim fallback...");
+    const fallbackRes = await fallbackWithNominatimFacilities(lat, lon);
+    osmMemoryCache.set(cacheKey, { timestamp: Date.now(), data: fallbackRes });
+    return fallbackRes;
   }
 }
 
@@ -428,6 +480,8 @@ export function parseElements(
   const hotels: OSMResult["facilities"]["hotels"] = [];
   let railwayDistance: number | null = null;
   let highwayDistance: number | null = null;
+  let busStopsCount = 0;
+  let maxBusRoutes = 0;
 
   for (const element of elements) {
     const elLat = element.lat ?? element.center?.lat;
@@ -438,25 +492,38 @@ export function parseElements(
     const tags = element.tags ?? {};
     const d = calculateHaversineMeters(centerLat, centerLon, elLat, elLon);
 
-    const isMetro = isMetroStation(tags);
+    const stationClass = classifyStation(tags);
 
-    if (isMetro) {
+    if (stationClass === "metro") {
       const metroStation = getFacility(tags, d, "Metro Station", elLon, elLat);
       result.facilities.metro = updateNearest(result.facilities.metro, metroStation);
-    } else if (
-      tags.railway === "station" ||
-      tags.railway === "halt" ||
-      tags.public_transport === "station"
-    ) {
+    } else if (stationClass === "railway") {
       const trainStation = getFacility(tags, d, "Railway Station", elLon, elLat);
       result.facilities.railway = updateNearest(result.facilities.railway, trainStation);
     }
 
-    if (tags.highway === "bus_stop" || tags.amenity === "bus_station") {
-      result.facilities.busStop = updateNearest(
-        result.facilities.busStop,
-        getFacility(tags, d, "Bus stop", elLon, elLat)
-      );
+    if (
+      tags.highway === "bus_stop" ||
+      tags.amenity === "bus_station" ||
+      (tags.public_transport === "platform" && tags.bus === "yes")
+    ) {
+      busStopsCount++;
+      let routes = 1;
+      const routeStr = tags.route_ref || tags.routes || tags.lines;
+      if (routeStr) {
+        const parts = routeStr.split(/[,;/]+/).map((s) => s.trim()).filter(Boolean);
+        if (parts.length > 0) routes = parts.length;
+      }
+      maxBusRoutes = Math.max(maxBusRoutes, routes);
+
+      const candidateBus: Facility = {
+        name: tags.name?.trim() || "Bus Stop",
+        distanceMeters: d,
+        coordinates: [elLon, elLat],
+        routesCount: routes,
+      };
+
+      result.facilities.busStop = updateNearest(result.facilities.busStop, candidateBus);
     }
     if (tags.amenity === "taxi") {
       result.facilities.autoStand = updateNearest(
@@ -534,6 +601,24 @@ export function parseElements(
       seenHotelKeys.add(key);
       uniqueHotels.push(h);
     }
+  }
+
+  if (result.facilities.busStop) {
+    result.facilities.busStop.routesCount = Math.max(
+      result.facilities.busStop.routesCount || 1,
+      maxBusRoutes,
+      busStopsCount
+    );
+  }
+
+  // Cross-assignment safety check: if railway picked the exact same location as metro, clear false railway
+  if (
+    result.facilities.railway &&
+    result.facilities.metro &&
+    Math.abs(result.facilities.railway.distanceMeters - result.facilities.metro.distanceMeters) < 20 &&
+    result.facilities.railway.name.toLowerCase() === result.facilities.metro.name.toLowerCase()
+  ) {
+    result.facilities.railway = null;
   }
 
   result.facilities.hotels = uniqueHotels.slice(0, 8);

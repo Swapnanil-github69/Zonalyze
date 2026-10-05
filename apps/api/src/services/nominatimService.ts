@@ -16,7 +16,16 @@ export interface AddressData {
  * @param lon Longitude of the target coordinate
  * @returns Parsed AddressData or safe defaults upon failure/timeout
  */
+const addressMemoryCache = new Map<string, { timestamp: number; data: AddressData }>();
+const ADDR_TTL_MS = 60 * 60 * 1000; // 1 hour
+
 export async function fetchAddress(lat: number, lon: number): Promise<AddressData> {
+  const cacheKey = `${lat.toFixed(3)},${lon.toFixed(3)}`;
+  const cached = addressMemoryCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < ADDR_TTL_MS) {
+    return cached.data;
+  }
+
   const fallback: AddressData = {
     displayName: `Point (${lat.toFixed(4)},${lon.toFixed(4)})`,
     suburb: "",
@@ -43,13 +52,15 @@ export async function fetchAddress(lat: number, lon: number): Promise<AddressDat
 
     const addr = data.address || {};
 
-    return {
+    const result: AddressData = {
       displayName: data.display_name || fallback.displayName,
       suburb: addr.suburb || addr.neighbourhood || addr.residential || "",
       city: addr.city || addr.town || addr.municipality || addr.county || "Unknown City",
       state: addr.state || "",
       pincode: addr.postcode || null,
     };
+    addressMemoryCache.set(cacheKey, { timestamp: Date.now(), data: result });
+    return result;
   } catch (error) {
     return fallback;
   }

@@ -18,18 +18,27 @@ export class OverpassService {
     lat: number,
     lon: number
   ): Promise<OverpassElement[]> {
-    const TRANSIT_RADIUS = 2500; // 2.5 km covers regional metro links
+    const TRANSIT_RADIUS = 2500; // 2.5 km for rail and metro
+    const BUS_RADIUS = 1000;     // 1.0 km for bus stops
     const HOTEL_RADIUS = 3000;   // 3 km to ensure hotels are found in all sectors
 
     const query = `
       [out:json][timeout:25];
       (
-        // Transit nodes & ways
-        nwr["railway"="station"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
+        // Metro Stations & Entrances
         nwr["station"="subway"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
         nwr["railway"="subway_entrance"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
         nwr["subway"="yes"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
         nwr["railway"="subway"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
+        nwr["network"~"Kolkata Metro|KMRC|Metro Rail",i](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
+
+        // Heavy Railway (Indian Railways)
+        nwr["railway"="station"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
+        nwr["railway"="halt"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
+
+        // Bus Stops & Platforms
+        nwr["highway"="bus_stop"](around:${BUS_RADIUS}, ${lat}, ${lon});
+        nwr["public_transport"="platform"]["bus"="yes"](around:${BUS_RADIUS}, ${lat}, ${lon});
 
         // Accommodations (Hotels, Guest Houses, Hostels, Motels)
         nwr["tourism"~"hotel|guest_house|hostel|motel"](around:${HOTEL_RADIUS}, ${lat}, ${lon});
@@ -37,7 +46,6 @@ export class OverpassService {
         // Health & Essentials
         nwr["amenity"~"hospital|clinic|pharmacy|nursing_home"](around:2000, ${lat}, ${lon});
         nwr["healthcare"~"hospital|clinic|centre|nursing_home"](around:2000, ${lat}, ${lon});
-        nwr["highway"="bus_stop"](around:1000, ${lat}, ${lon});
         nwr["amenity"="bus_station"](around:2000, ${lat}, ${lon});
         nwr["amenity"="taxi"](around:1000, ${lat}, ${lon});
         nwr["shop"~"convenience|supermarket|general"](around:1000, ${lat}, ${lon});
@@ -84,7 +92,7 @@ export class OverpassService {
   }
 
   /**
-   * Resilient fallback using Nominatim search to detect hospitals, stations, hotels, and parks
+   * Resilient fallback using Nominatim search to detect hospitals, stations, bus stops, hotels, and parks
    * if public Overpass servers are rate-limited or experiencing high latency.
    */
   private static async fallbackWithNominatim(
@@ -100,10 +108,11 @@ export class OverpassService {
           "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
       };
 
-      const [hospRes, clinicRes, stationRes, hotelRes, guestHouseRes, parkRes] = await Promise.allSettled([
+      const [hospRes, clinicRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes] = await Promise.allSettled([
         axios.get(`https://nominatim.openstreetmap.org/search?q=hospital&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=clinic&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=15&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=bus+stop&format=json&limit=8&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=hotel&format=json&limit=12&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=guest+house&format=json&limit=6&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
@@ -150,6 +159,26 @@ export class OverpassService {
               railway: "station",
               ...(isMetro ? { station: "subway", subway: "yes" } : {}),
               name: stationName || "Station",
+            },
+          });
+        }
+      }
+
+      if (busRes.status === "fulfilled" && Array.isArray(busRes.value.data)) {
+        for (const item of busRes.value.data) {
+          const busName = (item.name || item.display_name?.split(",")[0] || "Bus Stop").trim();
+          const osmId = Number(item.osm_id) || Math.floor(Math.random() * 100000);
+          if (seenOsmIds.has(osmId)) continue;
+          seenOsmIds.add(osmId);
+
+          elements.push({
+            type: "node",
+            id: osmId,
+            lat: parseFloat(item.lat),
+            lon: parseFloat(item.lon),
+            tags: {
+              highway: "bus_stop",
+              name: busName || "Bus Stop",
             },
           });
         }

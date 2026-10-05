@@ -115,6 +115,7 @@ export interface FacilitiesEntity {
   name: string;
   distanceMeters: number;
   coordinates: [number, number]; // [lon, lat]
+  routesCount?: number;
 }
 
 export interface FacilitiesData {
