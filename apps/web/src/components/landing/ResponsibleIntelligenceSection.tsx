@@ -50,6 +50,73 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
           </p>
         </div>
 
+        {/* Speculative Marketing Claim vs. Grounded Evidence Comparison Widget */}
+        <div className="border border-[#2d3329] p-6 sm:p-8 bg-[#dde2e4] space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#2d3329] pb-3 text-[11px] font-mono uppercase tracking-wider text-[#84907f]">
+            <span className="font-bold text-[#2d3329]">EMPIRICAL COMPARISON // SPECULATION VS. IN-SITU TRUTH</span>
+            <span>COORDINATE AUDIT BENCHMARK</span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* Left: Speculative Listing Fluff */}
+            <div className="p-5 border border-red-900/30 bg-red-950/10 space-y-4 text-left">
+              <div className="flex items-center justify-between border-b border-red-900/20 pb-2">
+                <span className="font-mono text-[10px] font-bold uppercase text-red-700 tracking-wider">
+                  [!] UNVERIFIED LISTING NARRATIVE
+                </span>
+                <span className="text-[10px] font-mono text-red-600">ZERO SENSOR DATA</span>
+              </div>
+
+              <blockquote className="font-mono text-xs sm:text-sm text-[#2d3329]/80 italic border-l-2 border-red-700/60 pl-3 leading-relaxed">
+                "Bespoke residential haven nestled in tranquil green serenity with pristine fresh morning air and unmatched civic connectivity."
+              </blockquote>
+
+              <div className="space-y-1.5 font-mono text-[11px] text-red-900/80 pt-2 border-t border-red-900/20">
+                <div>✗ Hides PM2.5 particulate spikes during thermal inversion</div>
+                <div>✗ Omits high-frequency rail noise corridor 140m east</div>
+                <div>✗ Zero station logs, coordinates, or capture timestamps</div>
+              </div>
+            </div>
+
+            {/* Right: Zonalyze Grounded Telemetry */}
+            <div className="p-5 border border-[#2d3329] bg-[#161b13] text-[#dde2e4] space-y-4 text-left shadow-xl">
+              <div className="flex items-center justify-between border-b border-[#84907f]/40 pb-2">
+                <span className="font-mono text-[10px] font-bold uppercase text-[#e2ffcc] tracking-wider">
+                  [✓] ZONALYZE IN-SITU OBSERVATIONS
+                </span>
+                <span className="text-[10px] font-mono text-[#84907f]">DATUM: WGS 84</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+                <div className="p-2.5 border border-[#84907f]/30 bg-[#2d3329]/40">
+                  <div className="text-[9px] text-[#84907f] uppercase">PM2.5 CONCENTRATION</div>
+                  <div className="font-bold text-[#e2ffcc] text-base">143 µg/m³</div>
+                  <div className="text-[9px] text-[#84907f]">9.5x WHO 24h limit</div>
+                </div>
+
+                <div className="p-2.5 border border-[#84907f]/30 bg-[#2d3329]/40">
+                  <div className="text-[9px] text-[#84907f] uppercase">ACOUSTIC CORRIDOR</div>
+                  <div className="font-bold text-[#e2ffcc] text-base">78 dB Peak</div>
+                  <div className="text-[9px] text-[#84907f]">Rail line buffer: 140m</div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 font-mono text-[11px] text-[#dde2e4] pt-2 border-t border-[#84907f]/30">
+                <div className="flex items-center space-x-2 text-[#e2ffcc]">
+                  <span>✓</span>
+                  <span>Nearest emergency trauma center verified at 420m (OSM registry)</span>
+                </div>
+                <div className="flex items-center space-x-2 text-[#84907f]">
+                  <span>✓</span>
+                  <span>Direct physical DEM elevation contour: 11m above mean sea level</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         {/* 3 Core Commitments in Sharp Topo Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
           {commitments.map((item) => {
