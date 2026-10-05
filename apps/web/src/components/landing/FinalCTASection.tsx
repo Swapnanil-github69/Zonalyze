@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, Compass } from "lucide-react";
+import { ArrowRight, Crosshair } from "lucide-react";
 
 interface FinalCTASectionProps {
   onStartInvestigation: () => void;
@@ -9,53 +9,82 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
   onStartInvestigation,
 }) => {
   return (
-    <section className="relative w-full py-24 sm:py-32 bg-[#0B1316] border-b border-[#1F353B]">
-      <div className="max-w-[1200px] mx-auto px-6 sm:px-8 relative">
-        {/* Ambient colored backlight */}
-        <div className="absolute -inset-6 bg-gradient-to-r from-[#10B981]/15 via-[#06B6D4]/10 to-[#10B981]/15 blur-3xl rounded-[36px] pointer-events-none" />
-
-        <div className="relative p-8 sm:p-14 rounded-[24px] bg-[#132226] border border-[#1F353B] shadow-[0_20px_50px_rgba(0,0,0,0.45)] overflow-hidden text-left space-y-8">
-          {/* Specular top highlight */}
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#34D399]/30 to-transparent pointer-events-none" />
+    <section className="relative w-full py-24 bg-[#161b13] text-[#dde2e4] border-b border-[#84907f]/30 overflow-hidden">
+      <div className="w-full px-6 sm:px-12">
+        
+        <div className="border border-[#84907f]/35 bg-[#161b13] p-8 sm:p-14 text-left">
           
-          <div className="max-w-2xl space-y-4">
-            <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#34D399]">
-              <Compass className="w-3.5 h-3.5 text-[#34D399]" />
-              <span>START AN INVESTIGATION</span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Content Column */}
+            <div className="lg:col-span-7 space-y-6">
+              
+              <div className="flex items-center space-x-3">
+                <div className="sr-badge-circle">
+                  <Crosshair className="w-4 h-4 text-[#e2ffcc]" />
+                </div>
+                <span className="font-mono text-xs uppercase tracking-widest text-[#84907f]">
+                  [DISPATCH // INITIATE INVESTIGATION]
+                </span>
+              </div>
+
+              <h2 className="font-display-stout text-5xl sm:text-7xl lg:text-[88px] text-[#e2ffcc] tracking-tight leading-[0.90] uppercase">
+                START WITH A PLACE. <br />
+                FOLLOW THE EVIDENCE.
+              </h2>
+
+              <p className="font-mono text-xs sm:text-sm text-[#dde2e4] leading-relaxed max-w-xl">
+                Explore the verified physical and civic signals around any point on earth. Generate an objective location debrief with real-time telemetry caches.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-5 pt-3">
+                <button
+                  onClick={onStartInvestigation}
+                  className="sr-btn-mint text-xs py-4 px-8"
+                >
+                  <span>[ LAUNCH INVESTIGATION WORKSPACE ]</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+
+                <span className="font-mono text-[11px] text-[#84907f] uppercase">
+                  ZERO LOGINS REQUIRED // DIRECT COORDINATE DISPATCH
+                </span>
+              </div>
             </div>
 
-            <h2
-              style={{
-                fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
-                lineHeight: 1.15,
-                letterSpacing: "-0.02em",
-              }}
-              className="text-3xl sm:text-5xl lg:text-[52px] font-normal text-white"
-            >
-              Start with a place. <br />
-              Follow the evidence.
-            </h2>
+            {/* Right Column: Hand-Scattered Tilted Polaroid Photo Cluster */}
+            <div className="lg:col-span-5 relative flex justify-center py-6">
+              <div className="relative w-full max-w-md h-72">
+                
+                {/* Photo 1: -8deg tilt */}
+                <div className="absolute top-2 left-0 w-64 p-2.5 bg-[#dde2e4] border border-[#2d3329] -rotate-6 shadow-2xl transition-transform hover:rotate-0 hover:scale-105 duration-300 z-10">
+                  <div className="aspect-[4/3] w-full overflow-hidden bg-black mb-2">
+                    <img src="/zonalyze_liquid_glass_crop.jpg" alt="Field Crop 1" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="font-mono text-[9px] text-[#2d3329] font-bold flex justify-between uppercase">
+                    <span>SURVEY LOG #01</span>
+                    <span>22.60°N // 88.41°E</span>
+                  </div>
+                </div>
 
-            <p className="text-base sm:text-lg text-[#94A3B8] font-sans leading-relaxed">
-              Explore the signals available around a location and decide which questions to investigate next.
-            </p>
-          </div>
+                {/* Photo 2: +6deg tilt overlapping */}
+                <div className="absolute top-10 right-4 w-60 p-2.5 bg-[#dde2e4] border border-[#2d3329] rotate-6 shadow-2xl transition-transform hover:rotate-0 hover:scale-105 duration-300 z-20">
+                  <div className="aspect-[4/3] w-full overflow-hidden bg-black mb-2">
+                    <img src="/zonalyze_liquid_glass_ui.jpg" alt="Field Crop 2" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="font-mono text-[9px] text-[#2d3329] font-bold flex justify-between uppercase">
+                    <span>RADAR TELEMETRY</span>
+                    <span>AQI: 83 POOR</span>
+                  </div>
+                </div>
 
-          <div className="flex flex-wrap items-center gap-4 pt-2">
-            <button
-              onClick={onStartInvestigation}
-              className="inline-flex items-center space-x-2.5 px-6 py-3.5 rounded-full text-sm font-semibold text-[#071317] bg-gradient-to-r from-[#10b981] to-[#06b6d4] hover:opacity-95 shadow-[0_4px_24px_rgba(16,185,129,0.25)] transition-all duration-200 cursor-pointer font-sans"
-            >
-              <span>Open the Investigation Workspace</span>
-              <ArrowRight className="w-4 h-4 text-[#071317]" />
-            </button>
+              </div>
+            </div>
 
-            <span className="text-xs text-[#64748B] font-mono">
-              Preserves active session • Direct coordinate entry
-            </span>
           </div>
 
         </div>
+
       </div>
     </section>
   );

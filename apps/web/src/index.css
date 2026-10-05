@@ -3,8 +3,20 @@
 @tailwind utilities;
 
 :root {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color-scheme: light;
+  /* San Rita Tokens */
+  --color-highlighter-mint: #e2ffcc;
+  --color-sage-stone: #84907f;
+  --color-carbon-ink: #161b13;
+  --color-forest-charcoal: #2d3329;
+  --color-topo-gray: #dde2e4;
+  --color-pure-black: #000000;
+
+  --font-f37stout: 'Bebas Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  --font-times: 'Times New Roman', Times, serif;
+
+  font-family: var(--font-mono);
+  color-scheme: dark;
 }
 
 html {
@@ -15,26 +27,75 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background-color: #0B1316;
-  color: #FFFFFF;
+  background-color: #161b13;
+  color: #dde2e4;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  letter-spacing: -0.01em;
 }
 
-.font-serif,
-.font-display {
-  font-family: 'Fraunces', 'Cormorant Garamond', 'DM Serif Display', 'Instrument Serif', Georgia, serif;
+.font-display-stout {
+  font-family: 'Bebas Neue', sans-serif;
+  line-height: 0.90;
+  letter-spacing: 0.01em;
 }
 
-.font-sans {
-  font-family: 'Manrope', 'Inter', system-ui, -apple-system, sans-serif;
+.font-serif-times {
+  font-family: 'Times New Roman', Times, serif;
 }
 
-.font-mono {
-  font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace;
+/* San Rita Component Affordances: 0px radius, 1px borders */
+.sr-btn-mint {
+  border: 1px solid #e2ffcc;
+  background: transparent;
+  color: #e2ffcc;
+  border-radius: 0px;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  transition: all 180ms ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.sr-btn-mint:hover {
+  background: #e2ffcc;
+  color: #161b13;
 }
 
-/* Atmospheric editorial glow */
-.atmospheric-glow-teal {
-  background: radial-gradient(circle, rgba(20, 38, 41, 0.55) 0%, rgba(11, 23, 25, 0) 70%);
+.sr-btn-charcoal {
+  border: 1px solid #2d3329;
+  background: transparent;
+  color: #2d3329;
+  border-radius: 0px;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  transition: all 180ms ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.sr-btn-charcoal:hover {
+  background: #2d3329;
+  color: #dde2e4;
+}
+
+.sr-badge-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  border: 1.5px solid #e2ffcc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e2ffcc;
+  background: transparent;
 }
 
 .mountain-ambient-radial {

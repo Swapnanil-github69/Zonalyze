@@ -15,8 +15,8 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToInvestigation }) => {
   return (
-    <div className="relative min-h-screen w-full bg-[#0B1316] text-[#FFFFFF] selection:bg-[#10B981]/30 selection:text-white overflow-x-hidden font-sans antialiased">
-      {/* 1. Floating navigation (pill) */}
+    <div className="relative min-h-screen w-full bg-[#161b13] text-[#dde2e4] selection:bg-[#e2ffcc] selection:text-[#161b13] overflow-x-hidden font-mono antialiased">
+      {/* 1. San Rita Minimal Navigation Header */}
       <Navigation onStartInvestigation={onNavigateToInvestigation} />
 
       {/* Main Editorial Flow */}
