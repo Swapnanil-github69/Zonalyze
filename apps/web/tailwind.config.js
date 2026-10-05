@@ -7,6 +7,22 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Literary Journal & Field Guide Palette
+        parchment: "#fefffc",
+        paper: "#ffffff",
+        linen: "#f9faf7",
+        inkBlack: "#171717",
+        graphite: "#2c2c2c",
+        charcoal: "#444141",
+        ash: "#646464",
+        fog: "#b4b8b4",
+        mist: "#dee2de",
+        twilight: "#282834",
+        dusk: "#1f1f29",
+        signalBlue: "#41a1cf",
+        cerulean: "#0081c0",
+
+        // Existing / Backwards compatibility tokens
         primaryBg: "#0B1719",
         altBg: "#102124",
         cardElevated: "#142629",
@@ -25,7 +41,6 @@ export default {
           light: "#E4DCBF",
           muted: "#B8AC8B",
         },
-        // Backwards compatibility tokens
         midnight: "#0B1719",
         forestCharcoal: "#102124",
         atmosphericTeal: "#142629",
@@ -37,10 +52,10 @@ export default {
         surface: "#142629",
       },
       fontFamily: {
-        serif: ["'DM Serif Display'", "'Cormorant Garamond'", "'Instrument Serif'", "Georgia", "serif"],
-        display: ["'DM Serif Display'", "'Cormorant Garamond'", "Georgia", "serif"],
-        cormorant: ["'Cormorant Garamond'", "'DM Serif Display'", "Georgia", "serif"],
-        sans: ["'Manrope'", "'Inter'", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["'Fraunces'", "'Cormorant Garamond'", "'DM Serif Display'", "'Instrument Serif'", "Georgia", "serif"],
+        display: ["'Fraunces'", "'Cormorant Garamond'", "'DM Serif Display'", "Georgia", "serif"],
+        cormorant: ["'Cormorant Garamond'", "'Fraunces'", "'DM Serif Display'", "Georgia", "serif"],
+        sans: ["'Inter'", "'Manrope'", "system-ui", "-apple-system", "sans-serif"],
         mono: ["'IBM Plex Mono'", "'JetBrains Mono'", "monospace"],
       },
     },

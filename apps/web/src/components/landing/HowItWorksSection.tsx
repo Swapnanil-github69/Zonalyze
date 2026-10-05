@@ -1,114 +1,105 @@
 import React from "react";
-import { useScrollReveal } from "../../hooks/useScrollReveal";
+import { Search, Database, FileCheck, BookOpen } from "lucide-react";
 
 export const HowItWorksSection: React.FC = () => {
-  const { ref, isVisible } = useScrollReveal<HTMLElement>({ threshold: 0.14 });
-
   const steps = [
     {
       number: "01",
-      title: "Choose a Location",
-      description: "Select a place using the map or coordinates.",
+      title: "Choose a place",
+      icon: Search,
+      description: "Search a location, enter latitude and longitude coordinates, or select a specific point directly on the map.",
+      clarification: "Accepts any global coordinate or municipal address.",
     },
     {
       number: "02",
-      title: "Gather the Evidence",
-      description: "Retrieve environmental and infrastructure data.",
+      title: "Gather available evidence",
+      icon: Database,
+      description: "Retrieve relevant source observations, atmospheric readings, and mapped infrastructure context.",
+      clarification: "Data retrieval depends on regional provider coverage.",
     },
     {
       number: "03",
-      title: "Examine the Context",
-      description: "Analyze metrics and noise exposure estimates.",
+      title: "Review the record",
+      icon: FileCheck,
+      description: "Inspect measured values, observation timestamps, source coverage boundaries, and analytical limitations.",
+      clarification: "Uncertainties and missing signals are visibly preserved.",
     },
     {
       number: "04",
-      title: "Discover the Findings",
-      description: "Get an AI-powered report based on verified evidence.",
+      title: "Read the interpretation",
+      icon: BookOpen,
+      description: "Receive an AI-assisted explanation grounded strictly in the retrieved evidence without invented data.",
+      clarification: "Synthesizes observations; does not fabricate scores.",
     },
   ];
 
   return (
-    <section
-      ref={ref}
-      id="process"
-      className="relative w-full py-28 lg:py-36 bg-[#102124] text-[#F1F0E9] overflow-hidden border-b border-[rgba(190,210,202,0.13)] scroll-mt-20"
-    >
-      {/* Seamless Top Gradient Blend */}
-      <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-[#0B1719]/70 to-transparent pointer-events-none" />
-
-      {/* Background Radial Atmosphere */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className={`absolute top-1/2 left-1/3 -translate-y-1/2 w-[850px] h-[550px] bg-[#142629]/70 rounded-full blur-[190px] transition-all duration-1000 ${
-            isVisible ? "opacity-100 scale-100" : "opacity-40 scale-95"
-          }`}
-        />
-        <div className="absolute inset-0 topographic-grid opacity-30" />
-      </div>
-
-      <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16 lg:space-y-20">
+    <section id="how-it-works" className="relative w-full py-20 sm:py-28 bg-[#fefffc] border-b border-[#dee2de]">
+      <div className="max-w-[1200px] mx-auto px-6 sm:px-8 space-y-12 sm:space-y-16 text-left">
+        
         {/* Section Header */}
-        <div className="text-left space-y-4 max-w-2xl">
+        <div className="max-w-2xl space-y-4">
+          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#646464]">
+            <span>METHODOLOGY</span>
+          </div>
+
           <h2
-            className={`font-serif text-[42px] sm:text-[54px] lg:text-[64px] font-normal text-[#F1F0E9] leading-[1.04] tracking-[-1.5px] reveal-init ${
-              isVisible ? "revealed" : ""
-            }`}
+            style={{
+              fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
+              lineHeight: 1.15,
+              letterSpacing: "-0.02em",
+            }}
+            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#2c2c2c]"
           >
-            From a Point on the Map <br />
-            to a <em className="italic font-normal text-[#D1C6A5]">Deeper Understanding.</em>
+            How ZONALYZE works.
           </h2>
-          <p
-            style={{ transitionDelay: "140ms" }}
-            className={`font-sans text-sm sm:text-base text-[#B8C5C2] leading-relaxed font-normal max-w-lg reveal-init ${
-              isVisible ? "revealed" : ""
-            }`}
-          >
-            A seamless four-stage analytical pipeline converting raw geographical coordinates into evidence-grounded spatial intelligence.
+
+          <p className="text-base text-[#444141] font-sans leading-relaxed">
+            Our pipeline prioritizes empirical observations before generating narrative synthesis. We do not claim every data provider returns observations for every coordinate on earth.
           </p>
         </div>
 
-        {/* Horizontal Process Timeline */}
-        <div className="relative">
-          {/* Subtle animated connecting line running behind the circular step nodes on desktop */}
-          <div
-            className={`hidden lg:block absolute top-[28px] left-[12%] right-[12%] h-[1px] bg-gradient-to-r from-transparent via-[rgba(182,198,163,0.35)] to-transparent z-0 shadow-[0_0_8px_rgba(182,198,163,0.2)] reveal-line-init ${
-              isVisible ? "revealed" : ""
-            }`}
-          />
-
-          {/* 4 Steps Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 relative z-10">
-            {steps.map((step, idx) => (
+        {/* 4 Steps in Restrained Diagram Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {steps.map((step) => {
+            const IconComponent = step.icon;
+            return (
               <div
                 key={step.number}
-                style={{ transitionDelay: `${150 + idx * 120}ms` }}
-                className={`flex flex-col items-center lg:items-center text-center space-y-5 group cursor-default p-5 rounded-2xl hover:bg-[#142629]/60 border border-transparent hover:border-[rgba(190,210,202,0.12)] transition-all duration-300 reveal-init ${
-                  isVisible ? "revealed" : ""
-                }`}
+                className="p-6 rounded-2xl bg-[#ffffff] border border-[#dee2de] shadow-[0_1px_6px_rgba(0,0,0,0.02)] hover:border-[#b4b8b4] transition-all flex flex-col justify-between space-y-6"
               >
-                {/* Circular Number Marker */}
-                <div
-                  className={`w-14 h-14 rounded-full flex items-center justify-center font-mono text-sm transition-all duration-300 ${
-                    idx === 0
-                      ? "border border-[#B6C6A3] bg-[#142629] text-[#B6C6A3] shadow-[0_0_20px_rgba(182,198,163,0.25)]"
-                      : "border border-[rgba(190,210,202,0.14)] bg-[#102124] text-[#829492] group-hover:border-[#B6C6A3]/60 group-hover:text-[#F1F0E9] group-hover:bg-[#142629] group-hover:shadow-[0_0_16px_rgba(182,198,163,0.18)]"
-                  }`}
-                >
-                  {step.number}
-                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-sm font-semibold text-[#282834]">
+                      {step.number}
+                    </span>
+                    <div className="w-8 h-8 rounded-lg border border-[#dee2de] flex items-center justify-center text-[#282834]">
+                      <IconComponent className="w-4 h-4 text-[#282834]" />
+                    </div>
+                  </div>
 
-                <div className="space-y-2 max-w-[220px]">
-                  <h3 className="font-serif text-xl sm:text-2xl font-normal text-[#F1F0E9] tracking-tight group-hover:text-[#D1C6A5] transition-colors">
+                  <h3
+                    style={{
+                      fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
+                    }}
+                    className="text-xl font-normal text-[#171717] leading-snug"
+                  >
                     {step.title}
                   </h3>
-                  <p className="font-sans text-xs sm:text-[13px] text-[#829492] group-hover:text-[#B8C5C2] leading-relaxed transition-colors">
+
+                  <p className="text-xs sm:text-sm text-[#444141] leading-relaxed font-sans">
                     {step.description}
                   </p>
                 </div>
+
+                <div className="pt-3 border-t border-[#dee2de] text-[11px] font-mono text-[#646464] leading-relaxed">
+                  {step.clarification}
+                </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
+
       </div>
     </section>
   );
