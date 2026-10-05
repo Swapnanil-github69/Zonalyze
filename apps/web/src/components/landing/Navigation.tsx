@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowUpRight, Crosshair } from "lucide-react";
 
 interface NavigationProps {
   onStartInvestigation: () => void;
@@ -31,11 +31,14 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#161b13]/90 backdrop-blur-sm border-b border-[#84907f]/30 px-6 sm:px-12 py-4">
       <div className="w-full flex items-center justify-between">
         
-        {/* Brand Wordmark Stamp */}
+        {/* Brand Wordmark Stamp with Crosshair Symbol */}
         <div
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="cursor-pointer select-none group flex items-baseline space-x-3"
+          className="cursor-pointer select-none group flex items-center space-x-2.5 sm:space-x-3"
         >
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-[#e2ffcc] flex items-center justify-center text-[#e2ffcc] group-hover:scale-105 transition-transform duration-200">
+            <Crosshair className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#e2ffcc]" />
+          </div>
           <span className="font-display-stout text-3xl sm:text-4xl text-[#e2ffcc] tracking-wider leading-none">
             ZONALYZE
           </span>
