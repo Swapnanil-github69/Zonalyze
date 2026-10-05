@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ArrowUpRight } from "lucide-react";
 
 interface NavigationProps {
   onStartInvestigation: () => void;
@@ -21,17 +21,17 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
   };
 
   const navLinks = [
-    { id: "about", label: "01 // SYSTEM" },
-    { id: "categories", label: "02 // EVIDENCE" },
-    { id: "how-it-works", label: "03 // METHOD" },
-    { id: "preview", label: "04 // TELEMETRY" },
+    { id: "about", label: "SYSTEM" },
+    { id: "categories", label: "EVIDENCE" },
+    { id: "how-it-works", label: "METHOD" },
+    { id: "preview", label: "TELEMETRY" },
   ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#161b13]/90 backdrop-blur-sm border-b border-[#84907f]/30 px-6 sm:px-12 py-4">
       <div className="w-full flex items-center justify-between">
         
-        {/* Brand Wordmark Stamp: F37stout condensed style at ~40px */}
+        {/* Brand Wordmark Stamp */}
         <div
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="cursor-pointer select-none group flex items-baseline space-x-3"
@@ -39,31 +39,29 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
           <span className="font-display-stout text-3xl sm:text-4xl text-[#e2ffcc] tracking-wider leading-none">
             ZONALYZE
           </span>
-          <span className="hidden sm:inline-block font-mono text-[10px] uppercase tracking-widest text-[#84907f]">
-            [GEO.INTEL // 22.60°N]
-          </span>
         </div>
 
-        {/* Links: mono caps at 11px, -0.01em tracking */}
-        <nav className="hidden md:flex items-center space-x-8 text-xs font-mono tracking-tight">
+        {/* Links: mono caps, clean and spaced */}
+        <nav className="hidden md:flex items-center space-x-8 text-xs font-mono tracking-wider">
           {navLinks.map((link) => (
             <button
               key={link.id}
               onClick={() => scrollTo(link.id)}
-              className="text-[#84907f] hover:text-[#e2ffcc] transition-colors uppercase tracking-wider text-[11px] cursor-pointer"
+              className="text-[#84907f] hover:text-[#e2ffcc] transition-colors uppercase text-[11px] cursor-pointer font-medium tracking-widest"
             >
               {link.label}
             </button>
           ))}
         </nav>
 
-        {/* Outlined Nav Button: 1px solid #e2ffcc border, transparent fill, 0px radius */}
+        {/* Enhanced High-Impact Initiate Survey Button */}
         <div className="flex items-center space-x-4">
           <button
             onClick={onStartInvestigation}
-            className="sr-btn-mint"
+            className="group relative inline-flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-[#e2ffcc] text-[#161b13] font-mono font-bold text-xs uppercase tracking-wider transition-all duration-200 hover:bg-[#d5fca8] hover:shadow-[0_0_20px_rgba(226,255,204,0.35)] active:scale-95 cursor-pointer border border-[#e2ffcc]"
           >
-            <span>[ INITIATE SURVEY ]</span>
+            <span>INITIATE SURVEY</span>
+            <ArrowUpRight className="w-3.5 h-3.5 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </button>
 
           {/* Mobile menu toggle */}
@@ -99,9 +97,10 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
                 setMobileMenuOpen(false);
                 onStartInvestigation();
               }}
-              className="w-full sr-btn-mint justify-center"
+              className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-[#e2ffcc] text-[#161b13] font-mono font-bold text-xs uppercase tracking-wider transition-all duration-200 hover:bg-[#d5fca8]"
             >
-              <span>[ INITIATE SURVEY ]</span>
+              <span>INITIATE SURVEY</span>
+              <ArrowUpRight className="w-3.5 h-3.5 ml-1.5" />
             </button>
           </div>
         </div>

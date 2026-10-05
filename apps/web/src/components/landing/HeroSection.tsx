@@ -1,5 +1,5 @@
 import React from "react";
-import { Crosshair, ArrowDown } from "lucide-react";
+import { Crosshair, ArrowDown, ArrowUpRight } from "lucide-react";
 
 interface HeroSectionProps {
   onStartInvestigation: () => void;
@@ -15,7 +15,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section id="hero" className="relative w-full min-h-[90vh] pt-32 pb-20 bg-[#161b13] border-b border-[#84907f]/30 overflow-hidden flex flex-col justify-between">
+    <section id="hero" className="relative w-full min-h-[90vh] pt-28 sm:pt-32 pb-20 bg-[#161b13] border-b border-[#84907f]/30 overflow-hidden flex flex-col justify-between">
       
       {/* Animated Liquid Caustic Background Blobs */}
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-[550px] h-[550px] bg-[#e2ffcc]/5 rounded-full liquid-caustic-blob pointer-events-none" />
@@ -25,24 +25,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       {/* Topographic grid overlay */}
       <div className="absolute inset-0 topographic-grid opacity-40 pointer-events-none" />
 
-      {/* Top Field Survey Meta Bar */}
-      <div className="relative z-10 w-full px-6 sm:px-12 pt-2">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#84907f]/25 pb-4 text-[11px] font-mono tracking-wider text-[#84907f]">
-          <div className="flex items-center space-x-3">
-            <span className="w-2 h-2 bg-[#e2ffcc] inline-block" />
-            <span className="text-[#e2ffcc] font-bold">SYSTEM ACTIVE</span>
-            <span>// LOG: 2026.10</span>
-            <span className="hidden md:inline">// CATCHMENT: 3,000M RADIUS</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="hidden sm:inline">PROJECTION: EPSG:4326</span>
-            <span className="text-[#dde2e4]">DATUM: WGS 84</span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Hero Container */}
-      <div className="w-full px-6 sm:px-12 py-10 sm:py-14 space-y-10">
+      <div className="w-full px-6 sm:px-12 py-8 sm:py-12 space-y-10">
         
         {/* Massive Landscape-Blocking Display Headline */}
         <div className="space-y-4 text-left max-w-7xl">
@@ -70,9 +54,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <div className="lg:col-span-5 flex flex-wrap items-center gap-4">
               <button
                 onClick={onStartInvestigation}
-                className="sr-btn-mint text-xs py-3.5 px-6"
+                className="group relative inline-flex items-center justify-center px-6 py-3.5 bg-[#e2ffcc] text-[#161b13] font-mono font-bold text-xs uppercase tracking-wider transition-all duration-200 hover:bg-[#d5fca8] hover:shadow-[0_0_25px_rgba(226,255,204,0.4)] active:scale-95 cursor-pointer border border-[#e2ffcc]"
               >
-                <span>[ INITIATE SURVEY RECORD ]</span>
+                <span>INITIATE SURVEY RECORD</span>
+                <ArrowUpRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </button>
 
               <button
