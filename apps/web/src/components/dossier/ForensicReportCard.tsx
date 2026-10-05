@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { AiReportData, InvestigationResult } from "../../types/investigation";
 import { AudioDebriefPlayer } from "./AudioDebriefPlayer";
-import { AiChatWidget } from "./AiChatWidget";
 
 interface ForensicReportCardProps {
   aiReport: AiReportData;
@@ -198,13 +197,6 @@ export const ForensicReportCard: React.FC<ForensicReportCardProps> = ({
           })}
         </div>
       </div>
-
-      {/* Interactive Chat & Voice Box */}
-      {investigation && (
-        <div className="pt-2">
-          <AiChatWidget investigation={investigation} />
-        </div>
-      )}
     </div>
   );
 };

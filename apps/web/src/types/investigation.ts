@@ -2,9 +2,11 @@ export interface EnvironmentData {
   pm2_5: number;
   pm10: number;
   aqi: number;
+  aqiStatus?: "Good" | "Fair" | "Moderate" | "Poor" | "Very Poor";
   historical_pm25: number[];
   temperature?: number;
   temperature_7d_avg?: number;
+  historical_temp?: number[];
 }
 
 export interface FacilityItem {

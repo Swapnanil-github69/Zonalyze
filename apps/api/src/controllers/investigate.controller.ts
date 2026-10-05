@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import axios from "axios";
 import { CacheService } from "../services/cache.service.js";
 import { NominatimService } from "../services/nominatim.service.js";
-import { OpenMeteoService } from "../services/openMeteo.service.js";
+import { fetchAtmosphere } from "../services/openMeteoService.js";
 import { OverpassService } from "../services/overpass.service.js";
 import { HeuristicService } from "../services/heuristic.service.js";
 import { GeminiService } from "../services/gemini.service.js";
@@ -49,11 +49,23 @@ export class InvestigateController {
       console.log(`🌐 [CACHE MISS] Ingesting telemetry from external APIs in parallel...`);
 
       // 3. Parallel Ingestion (Nominatim, Open-Meteo, Overpass)
-      const [address, airQuality, overpassElements] = await Promise.all([
+      const [address, atmosphere, overpassElements] = await Promise.all([
         NominatimService.reverseGeocode(latitude, longitude),
-        OpenMeteoService.fetchAirQuality(latitude, longitude),
+        fetchAtmosphere(latitude, longitude),
         OverpassService.queryInfrastructure(latitude, longitude),
       ]);
+
+      // Map AtmosphereData fields to the shape EnvironmentData expects
+      const airQuality = {
+        aqi: atmosphere.aqi,
+        aqiStatus: atmosphere.aqiStatus,
+        pm2_5: atmosphere.pm2_5,
+        pm10: atmosphere.pm10,
+        historical_pm25: atmosphere.historicalPm25,
+        temperature: atmosphere.currentTemp,
+        temperature_7d_avg: atmosphere.avgTempLastWeek,
+        historical_temp: atmosphere.historicalTemp,
+      };
 
       // 4. Deterministic Heuristics (Haversine distances + Acoustic noise proxy)
       const { infrastructure, noiseProfile } = HeuristicService.processInfrastructure(
@@ -71,9 +83,9 @@ export class InvestigateController {
         noiseProfile,
       });
 
-      // 6. Persistence to MongoDB Atlas (only cache if external ingestion was successful)
+      // 6. Persistence to MongoDB Atlas
       let savedDoc: any = null;
-      if (overpassElements.length > 0) {
+      if (address && !address.startsWith("Point (")) {
         savedDoc = await CacheService.saveInvestigation({
           location: {
             type: "Point",
@@ -96,8 +108,6 @@ export class InvestigateController {
           aiReport,
         });
         console.log(`✅ [AUDIT COMPLETE] Saved investigation to cache: ${savedDoc._id}`);
-      } else {
-        console.warn(`⚠️ [AUDIT WARNING] Zero elements detected; skipping cache persistence to avoid poisoning.`);
       }
 
       res.status(200).json(
