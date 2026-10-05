@@ -3,7 +3,6 @@ import { Crosshair, ArrowDown, ArrowUpRight } from "lucide-react";
 
 interface HeroSectionProps {
   onStartInvestigation: () => void;
-  onExploreCapabilities?: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
