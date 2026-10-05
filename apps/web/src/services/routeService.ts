@@ -7,6 +7,21 @@ export interface RouteResult {
   formattedDuration: string;
   formattedDistance: string;
   mode: TravelMode;
+  modeLabel: string;
+}
+
+export function getModeLabel(mode: TravelMode): string {
+  switch (mode) {
+    case 'car':
+      return 'Driving';
+    case 'bike':
+      return 'Motorcycle';
+    case 'bicycle':
+      return 'Cycling';
+    case 'walk':
+    default:
+      return 'Walking';
+  }
 }
 
 export function formatDuration(seconds: number): string {
@@ -28,7 +43,7 @@ export function formatDistance(meters: number): string {
 export async function fetchFacilityRoute(
   start: [number, number], // [lon, lat]
   end: [number, number],   // [lon, lat]
-  mode: TravelMode = 'car'
+  mode: TravelMode = 'walk'
 ): Promise<RouteResult | null> {
   try {
     // Map Zonalyze modes to OSRM profiles
@@ -68,6 +83,7 @@ export async function fetchFacilityRoute(
       formattedDuration: formatDuration(durationSeconds),
       formattedDistance: formatDistance(primaryRoute.distance),
       mode,
+      modeLabel: getModeLabel(mode),
     };
   } catch (err) {
     console.error("Routing error:", err);
