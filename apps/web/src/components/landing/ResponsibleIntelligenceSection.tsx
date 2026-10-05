@@ -27,13 +27,13 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
   ];
 
   return (
-    <section id="responsible" className="relative w-full py-20 sm:py-28 bg-[#0B1719] border-b border-[#192E31]">
+    <section id="responsible" className="relative w-full py-20 sm:py-28 bg-[#0B1316] border-b border-[#1F353B]">
       <div className="max-w-[1200px] mx-auto px-6 sm:px-8 space-y-12 sm:space-y-16 text-left">
         
         {/* Section Header */}
         <div className="max-w-2xl space-y-4">
-          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#B6C6A3]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#B6C6A3]" />
+          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#34D399]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />
             <span>RESPONSIBLE EVIDENCE</span>
           </div>
 
@@ -43,12 +43,12 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
               lineHeight: 1.15,
               letterSpacing: "-0.02em",
             }}
-            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#F1F0E9]"
+            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-white"
           >
             Insight should show its working.
           </h2>
 
-          <p className="text-base text-[#B8C5C2] font-sans leading-relaxed">
+          <p className="text-base text-[#94A3B8] font-sans leading-relaxed">
             ZONALYZE separates retrieved observations from interpretation. Sources, timestamps, coverage gaps, and uncertainty matter as much as the summary itself.
           </p>
         </div>
@@ -60,15 +60,15 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
             return (
               <div
                 key={item.id}
-                className="glass-3d-card p-6 sm:p-8 rounded-[24px] relative overflow-hidden space-y-4"
+                className="p-6 sm:p-8 rounded-[24px] bg-[#132226] border border-[#1F353B] shadow-[0_12px_32px_rgba(0,0,0,0.35)] relative overflow-hidden space-y-4"
               >
                 {/* Specular top highlight */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#B6C6A3]/20 to-transparent pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#34D399]/20 to-transparent pointer-events-none" />
                 <div className="flex items-center justify-between">
-                  <div className="w-9 h-9 rounded-xl border border-[#192E31] bg-[#142629] flex items-center justify-center text-[#B6C6A3]">
-                    <IconComponent className="w-4 h-4 text-[#B6C6A3]" />
+                  <div className="w-9 h-9 rounded-xl border border-[#1F353B] bg-[#0E1A1D] flex items-center justify-center text-[#34D399]">
+                    <IconComponent className="w-4 h-4 text-[#34D399]" />
                   </div>
-                  <span className="text-xs font-mono uppercase tracking-wider text-[#D1C6A5]">
+                  <span className="text-xs font-mono uppercase tracking-wider text-[#38BDF8]">
                     {item.subtitle}
                   </span>
                 </div>
@@ -77,12 +77,12 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
                   style={{
                     fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
                   }}
-                  className="text-2xl font-normal text-[#F1F0E9]"
+                  className="text-2xl font-normal text-white"
                 >
                   {item.title}
                 </h3>
 
-                <p className="text-sm text-[#B8C5C2] leading-relaxed font-sans">
+                <p className="text-sm text-[#94A3B8] leading-relaxed font-sans">
                   {item.description}
                 </p>
               </div>
