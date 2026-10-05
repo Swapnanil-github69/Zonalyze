@@ -29,8 +29,8 @@ export interface TransitFacilities {
   metro: { count: number; nearest_dist_m: number | null; name?: string | null };
   rail: { count: number; nearest_dist_m: number | null; name?: string | null };
   bus: { count: number; nearest_dist_m: number | null; name?: string | null };
-  autoToto: { count: number; nearest_dist_m: number | null; name?: string | null };
   airport: { count: number; nearest_dist_m: number | null; name?: string | null };
+  autoToto?: { count: number; nearest_dist_m: number | null; name?: string | null };
 }
 
 export interface EssentialFacilities {

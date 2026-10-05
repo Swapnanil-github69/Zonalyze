@@ -83,7 +83,7 @@ export function calculateLivabilityScore(
 }
 
 /**
- * Builds or complements the facilities grid (Metro, Rail, Bus, Auto/Toto, Airport, Hotels, Essentials)
+ * Builds or complements the facilities grid (Metro, Rail, Bus, Airport, Hotels, Essentials)
  * from geospatial infrastructure data.
  */
 export function buildDetailedFacilities(
@@ -152,10 +152,6 @@ export function buildDetailedFacilities(
       bus: {
         count: Math.max(4, Math.round(railStations * 3 + 2)),
         nearest_dist_m: 120,
-      },
-      autoToto: {
-        count: 5,
-        nearest_dist_m: 90,
       },
       airport: {
         count: 1,

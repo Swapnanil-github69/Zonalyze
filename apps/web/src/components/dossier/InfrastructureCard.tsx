@@ -6,7 +6,6 @@ import {
   Trees,
   Pill,
   Bus,
-  Car,
   Plane,
   Star,
   ExternalLink,
@@ -92,7 +91,7 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
             <span className="text-[10px] text-cyan-400 font-mono">Closest Access</span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {/* Metro */}
             <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
               <div className="flex items-center justify-between">
@@ -157,24 +156,8 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
               </div>
             </div>
 
-            {/* Auto / Toto Stand */}
-            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-medium">Auto / Toto Stand</span>
-                <Car className="w-3.5 h-3.5 text-amber-400" />
-              </div>
-              <div className="mt-2">
-                <div className="text-sm font-bold text-white font-mono">
-                  {formatDistance(detailed.transit.autoToto.nearest_dist_m)}
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  {detailed.transit.autoToto.count} feeder stands
-                </div>
-              </div>
-            </div>
-
             {/* Airport */}
-            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between col-span-2 sm:col-span-1">
+            <div className="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-slate-300 font-medium">Airport</span>
                 <Plane className="w-3.5 h-3.5 text-cyan-400" />
