@@ -57,21 +57,25 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
       />
 
       {/* Brand Watermark Overlay */}
-      <div className="absolute top-6 right-6 z-20 pointer-events-none hidden md:flex items-center space-x-2.5 glass-panel px-3.5 py-2 rounded-2xl border border-slate-700/60 shadow-xl backdrop-blur-md">
-        <div className="relative flex items-center justify-center">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping absolute" />
-          <div className="w-2 h-2 rounded-full bg-emerald-400 relative" />
-        </div>
-        <div className="flex flex-col">
-          <div className="flex items-center space-x-1.5">
-            <span className="text-xs font-black tracking-wider text-white uppercase font-mono">
-              ZONALYZE
-            </span>
-            <span className="text-[10px] text-emerald-400 bg-emerald-950/80 px-1.5 py-0.2 rounded border border-emerald-800/40 font-mono">
-              v1.0
+      <div className="absolute top-6 right-6 z-20 pointer-events-none hidden md:flex">
+        <div className="flex items-center gap-2.5 rounded-2xl border border-slate-700/70 bg-slate-950/55 px-3.5 py-2 shadow-[0_0_0_1px_rgba(148,163,184,0.08),0_20px_50px_rgba(2,6,23,0.55)] backdrop-blur-md">
+          <div className="relative flex h-4 w-4 items-center justify-center">
+            <span className="absolute inset-0 rounded-full border border-emerald-400/40 bg-emerald-400/10" />
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
+          </div>
+          <div className="flex flex-col leading-none">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-semibold tracking-[0.22em] text-slate-100 uppercase font-mono">
+                ZONALYZE
+              </span>
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[8px] font-medium tracking-[0.18em] text-emerald-300 uppercase font-mono">
+                LIVE
+              </span>
+            </div>
+            <span className="mt-1 text-[8px] tracking-[0.18em] text-slate-400 uppercase font-mono">
+              Civic Intelligence Engine
             </span>
           </div>
-          <span className="text-[9px] text-slate-400 font-mono">Civic Intelligence Engine</span>
         </div>
       </div>
 

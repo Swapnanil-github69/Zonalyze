@@ -64,31 +64,31 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearchCoordinates, isLoa
     <div className="absolute top-6 left-6 z-30 w-11/12 max-w-md">
       <form
         onSubmit={handleSearch}
-        className="glass-panel-elevated rounded-2xl shadow-xl p-2 flex items-center space-x-2 border border-slate-700/60"
+        className="flex items-center gap-2 rounded-2xl border border-slate-700/70 bg-slate-950/65 p-2 shadow-[0_20px_45px_rgba(15,23,42,0.45)] backdrop-blur-md"
       >
-        <div className="pl-3 text-blue-400">
-          <MapPin className="w-5 h-5" />
+        <div className="pl-2.5 text-cyan-400">
+          <MapPin className="w-4 h-4" />
         </div>
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search coordinates 'lat, lon' or click map..."
-          className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-400 focus:outline-none px-2"
+          className="flex-1 bg-transparent px-2 py-2 text-sm text-slate-100 placeholder:text-slate-400 focus:outline-none"
           disabled={isLoading}
         />
         <button
           type="button"
           onClick={handleLocateMe}
           title="Detect Current Location"
-          className="p-2 hover:bg-slate-800/80 rounded-xl text-slate-300 hover:text-blue-400 transition"
+          className="rounded-xl border border-slate-700/70 bg-slate-900/80 p-2 text-slate-300 transition hover:border-cyan-500/40 hover:text-cyan-300"
         >
           <Navigation className="w-4 h-4" />
         </button>
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition shadow-md disabled:opacity-50"
+          className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-2 text-white shadow-[0_0_22px_rgba(59,130,246,0.4)] transition hover:brightness-110 disabled:opacity-50"
         >
           <Search className="w-4 h-4" />
         </button>

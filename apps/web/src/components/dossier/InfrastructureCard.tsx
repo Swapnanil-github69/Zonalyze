@@ -56,33 +56,29 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
       <div className="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
         <button
           onClick={() => setActiveTab("all")}
-          className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "all" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-          }`}
+          className={`flex-1 py-1 rounded-lg transition font-medium ${activeTab === "all" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            }`}
         >
           All
         </button>
         <button
           onClick={() => setActiveTab("transit")}
-          className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "transit" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-          }`}
+          className={`flex-1 py-1 rounded-lg transition font-medium ${activeTab === "transit" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            }`}
         >
           Transit
         </button>
         <button
           onClick={() => setActiveTab("essentials")}
-          className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "essentials" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-          }`}
+          className={`flex-1 py-1 rounded-lg transition font-medium ${activeTab === "essentials" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            }`}
         >
           Essentials
         </button>
         <button
           onClick={() => setActiveTab("hotels")}
-          className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "hotels" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-          }`}
+          className={`flex-1 py-1 rounded-lg transition font-medium ${activeTab === "hotels" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            }`}
         >
           Hotels
         </button>

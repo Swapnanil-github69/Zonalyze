@@ -171,18 +171,16 @@ export const ForensicReportCard: React.FC<ForensicReportCardProps> = ({
               <div
                 key={idx}
                 onClick={() => toggleTarget(idx)}
-                className={`p-2.5 rounded-xl border transition cursor-pointer flex items-start space-x-3 ${
-                  isDone
+                className={`p-2.5 rounded-xl border transition cursor-pointer flex items-start space-x-3 ${isDone
                     ? "bg-emerald-950/20 border-emerald-500/40 text-slate-400 line-through"
                     : "bg-slate-900/80 border-slate-800 hover:border-emerald-500/40 text-slate-200"
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition ${
-                    isDone
+                  className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition ${isDone
                       ? "bg-emerald-500 border-emerald-400 text-slate-950"
                       : "border-slate-600 bg-slate-800 text-transparent"
-                  }`}
+                    }`}
                 >
                   <Check className="w-3 h-3 stroke-[3]" />
                 </div>

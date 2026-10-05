@@ -175,8 +175,8 @@ export const AudioDebriefPlayer: React.FC<AudioDebriefPlayerProps> = ({
                 {selectedLang === "hi"
                   ? "हिन्दी (Hindi)"
                   : selectedLang === "bn"
-                  ? "বাংলা (Bangla)"
-                  : "English"}
+                    ? "বাংলা (Bangla)"
+                    : "English"}
                 ...
               </span>
             ) : isPaused ? (
@@ -222,11 +222,10 @@ export const AudioDebriefPlayer: React.FC<AudioDebriefPlayerProps> = ({
             <button
               key={lang.code}
               onClick={() => changeLanguage(lang.code)}
-              className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-medium transition ${
-                selectedLang === lang.code
+              className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-medium transition ${selectedLang === lang.code
                   ? "bg-indigo-600 text-white shadow-sm font-bold"
                   : "text-slate-400 hover:text-slate-200"
-              }`}
+                }`}
               title={`Switch audio to ${lang.name}`}
             >
               {lang.label}
