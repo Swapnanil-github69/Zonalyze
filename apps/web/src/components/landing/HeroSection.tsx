@@ -1,5 +1,5 @@
 import React from "react";
-import { Crosshair, ArrowDown, ArrowUpRight } from "lucide-react";
+import { ArrowDown, ArrowUpRight } from "lucide-react";
 
 interface HeroSectionProps {
   onStartInvestigation: () => void;
@@ -29,16 +29,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         
         {/* Massive Landscape-Blocking Display Headline */}
         <div className="space-y-4 text-left max-w-7xl">
-          <div className="flex items-center space-x-4">
-            {/* San Rita Circular Icon Badge */}
-            <div className="sr-badge-circle">
-              <Crosshair className="w-5 h-5 text-[#e2ffcc]" />
-            </div>
-            <span className="text-xs uppercase tracking-widest text-[#84907f] font-mono">
-              [ ALP.FIELD.GUIDE // VOL. 04 ]
-            </span>
-          </div>
-
           <h1 className="font-display-stout text-5xl sm:text-7xl md:text-8xl lg:text-[110px] xl:text-[132px] text-[#e2ffcc] tracking-tight leading-[0.90] uppercase">
             GEOSPATIAL EVIDENCE. <br />
             GROUNDED TELEMETRY.
@@ -70,48 +60,35 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
         </div>
 
-        {/* 3D Liquid Glass Perspective Console Stage */}
-        <div className="hero-3d-perspective w-full pt-6">
-          <div className="liquid-glass-stage relative border border-[#84907f]/40 bg-[#161b13]">
-            {/* Liquid Specular Top Rim */}
-            <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#e2ffcc]/40 to-transparent z-20 pointer-events-none" />
-
+        {/* Clean Static Console Showcase (No 3D Tilt / No Shaking) */}
+        <div className="w-full pt-4">
+          <div className="relative border border-[#84907f]/40 bg-[#161b13] shadow-2xl overflow-hidden">
             {/* Top Bar of Field Card */}
-            <div className="px-5 py-3 border-b border-[#84907f]/30 flex flex-wrap items-center justify-between text-[11px] font-mono text-[#84907f] bg-[#161b13]/80 backdrop-blur-md">
+            <div className="px-5 py-3 border-b border-[#84907f]/30 flex flex-wrap items-center justify-between text-[11px] font-mono text-[#84907f] bg-[#161b13]">
               <div className="flex items-center space-x-3">
-                <span className="text-[#e2ffcc] font-bold">[RADAR SURVEY VIEW]</span>
-                <span>LAT 22.60995° N, LON 88.41794° E</span>
+                <span className="text-[#e2ffcc] font-bold">[LIVE AUDIT VIEW]</span>
+                <span>LAT 22.57617° N, LON 88.35801° E</span>
               </div>
-              <span className="text-[#dde2e4]">KOLKATA METROPOLITAN BASIN // IN-SITU OBSERVATION</span>
+              <span className="text-[#dde2e4]">TIRETTA BAZAAR, CENTRAL KOLKATA // IN-SITU OBSERVATION</span>
             </div>
 
-            {/* Field Image Canvas with Stamp Elements */}
-            <div className="relative aspect-[21/9] sm:aspect-[24/9] w-full overflow-hidden bg-[#161b13]">
+            {/* Field Image Canvas - Unobstructed, Neat, Clean, and Razor-Sharp */}
+            <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#161b13]">
               <img
                 src="/zonalyze_liquid_glass_ui.jpg"
-                alt="ZONALYZE field telemetry display"
-                className="w-full h-full object-cover filter contrast-[1.08] brightness-[0.92]"
+                alt="ZONALYZE live audit console"
+                className="w-full h-full object-contain sm:object-cover"
+                style={{ imageRendering: "-webkit-optimize-contrast" }}
               />
-              <div className="absolute inset-0 bg-[#161b13]/20 pointer-events-none" />
-
-              {/* Tilted Polaroid Stamp in corner with hover effect */}
-              <div className="hidden lg:block absolute bottom-6 right-8 w-72 bg-[#dde2e4] p-3 shadow-2xl rotate-2 border border-[#2d3329] pointer-events-none transition-transform duration-300">
-                <div className="aspect-[4/3] w-full overflow-hidden bg-black mb-2">
-                  <img src="/zonalyze_liquid_glass_crop.jpg" alt="Field Crop" className="w-full h-full object-cover" />
-                </div>
-                <div className="font-mono text-[9px] text-[#2d3329] font-bold leading-tight uppercase flex justify-between">
-                  <span>FIG 01 // CATCHMENT</span>
-                  <span>ELEV: 11M</span>
-                </div>
-              </div>
             </div>
 
             {/* Bottom Caption Bar */}
-            <div className="px-5 py-3 border-t border-[#84907f]/30 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono text-[#84907f] bg-[#161b13]/80 backdrop-blur-md">
+            <div className="px-5 py-3 border-t border-[#84907f]/30 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono text-[#84907f] bg-[#161b13]">
               <div className="flex items-center space-x-4">
                 <span>[CACHE HIT: 150M]</span>
-                <span className="text-[#e2ffcc]">AQI 83 (POOR)</span>
-                <span>PM2.5: 97.6 µg/m³</span>
+                <span className="text-[#e2ffcc]">AQI 101 (VERY POOR)</span>
+                <span>PM2.5: 143 µg/m³</span>
+                <span>TEMP: 26.9°C</span>
               </div>
               <span className="text-[#dde2e4]">ZERO FABRICATED ESTIMATES // GROUNDED EVIDENCE ONLY</span>
             </div>

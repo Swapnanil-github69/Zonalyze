@@ -1,4 +1,5 @@
 import React from "react";
+import { Crosshair } from "lucide-react";
 
 export const CinematicFooter: React.FC = () => {
   const scrollTo = (id: string) => {
@@ -16,44 +17,44 @@ export const CinematicFooter: React.FC = () => {
         
         {/* Top Footer Row */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-[#84907f]/25">
-          {/* Brand Wordmark Stamp */}
+          {/* Brand Wordmark Stamp with Crosshair Symbol */}
           <div
             onClick={() => scrollTo("top")}
-            className="cursor-pointer select-none group flex items-baseline space-x-3"
+            className="cursor-pointer select-none group flex items-center space-x-3"
           >
+            <div className="w-8 h-8 rounded-full border border-[#e2ffcc] flex items-center justify-center text-[#e2ffcc] group-hover:scale-105 transition-transform duration-200">
+              <Crosshair className="w-4 h-4 text-[#e2ffcc]" />
+            </div>
             <span className="font-display-stout text-3xl sm:text-4xl text-[#e2ffcc] tracking-wider leading-none">
               ZONALYZE
             </span>
-            <span className="text-[10px] text-[#84907f] uppercase tracking-widest">
-              [EST. 2026]
-            </span>
           </div>
 
-          {/* Navigation Links: Mono caps */}
+          {/* Navigation Links: Clean mono caps */}
           <nav className="flex flex-wrap items-center gap-8 text-[11px] font-mono tracking-wider uppercase text-[#84907f]">
             <button
               onClick={() => scrollTo("about")}
               className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              01 // SYSTEM
+              SYSTEM
             </button>
             <button
               onClick={() => scrollTo("categories")}
               className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              02 // EVIDENCE
+              EVIDENCE
             </button>
             <button
               onClick={() => scrollTo("how-it-works")}
               className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              03 // METHODOLOGY
+              METHODOLOGY
             </button>
             <button
               onClick={() => scrollTo("preview")}
               className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              04 // FIELD PREVIEW
+              FIELD PREVIEW
             </button>
           </nav>
         </div>

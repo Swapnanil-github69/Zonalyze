@@ -71,12 +71,13 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                 <div className="relative aspect-[4/3] w-full border border-[#2d3329] bg-black">
                   <img
                     src="/zonalyze_liquid_glass_crop.jpg"
-                    alt="Real interactive map view with dropped pin at Bangur, Lake Town, Kolkata"
-                    className="w-full h-full object-cover filter contrast-[1.05]"
+                    alt="Real interactive map view with dropped pin at Tiretta Bazaar, Kolkata"
+                    className="w-full h-full object-cover"
+                    style={{ imageRendering: "-webkit-optimize-contrast" }}
                   />
                   
                   <div className="absolute bottom-3 left-3 bg-[#dde2e4] border border-[#2d3329] px-2.5 py-1 text-[10px] font-mono text-[#2d3329] font-bold uppercase">
-                    [PIN: 22.60995°N, 88.41794°E]
+                    [PIN: 22.57617°N, 88.35801°E]
                   </div>
                 </div>
               </div>
@@ -167,7 +168,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                       <span>ATMOSPHERIC OBSERVATIONS</span>
                     </div>
                     <span className="font-mono text-xs font-bold text-[#2d3329] border border-[#2d3329] px-2 py-0.5">
-                      AQI 83 // VERY POOR
+                      AQI 101 // VERY POOR
                     </span>
                   </div>
 
@@ -175,26 +176,26 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                   <div className="grid grid-cols-2 gap-3 pt-2">
                     <div className="p-3 border border-[#2d3329] space-y-1">
                       <div className="text-[10px] font-mono text-[#84907f] uppercase">PM2.5 PARTICULATES</div>
-                      <div className="font-display-stout text-3xl text-[#2d3329] leading-none">97.6 µg/m³</div>
+                      <div className="font-display-stout text-3xl text-[#2d3329] leading-none">143 µg/m³</div>
                       <div className="text-[10px] font-mono text-[#84907f]">WHO LIMIT: 15 µg/m³</div>
                     </div>
 
                     <div className="p-3 border border-[#2d3329] space-y-1">
                       <div className="text-[10px] font-mono text-[#84907f] uppercase">PM10 COARSE DUST</div>
-                      <div className="font-display-stout text-3xl text-[#2d3329] leading-none">111.8 µg/m³</div>
+                      <div className="font-display-stout text-3xl text-[#2d3329] leading-none">159.3 µg/m³</div>
                       <div className="text-[10px] font-mono text-[#84907f]">WHO LIMIT: 45 µg/m³</div>
                     </div>
 
                     <div className="p-3 border border-[#2d3329] space-y-1">
                       <div className="text-[10px] font-mono text-[#84907f] uppercase">SURFACE TEMPERATURE</div>
-                      <div className="font-display-stout text-3xl text-[#2d3329] leading-none">28.1°C</div>
+                      <div className="font-display-stout text-3xl text-[#2d3329] leading-none">26.9°C</div>
                       <div className="text-[10px] font-mono text-[#84907f]">LIVE SENSOR 2M</div>
                     </div>
 
                     <div className="p-3 border border-[#2d3329] space-y-1">
                       <div className="text-[10px] font-mono text-[#84907f] uppercase">SEASONAL BASELINE</div>
-                      <div className="font-display-stout text-3xl text-[#2d3329] leading-none">28.5°C</div>
-                      <div className="text-[10px] font-mono text-[#84907f]">7-DAY RUNNING MEAN</div>
+                      <div className="font-display-stout text-3xl text-[#2d3329] leading-none">28.4°C</div>
+                      <div className="text-[10px] font-mono text-[#84907f]">7-DAY SENSORY MEAN</div>
                     </div>
                   </div>
                 </div>
