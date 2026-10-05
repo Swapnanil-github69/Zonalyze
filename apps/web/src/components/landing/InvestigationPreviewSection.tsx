@@ -35,40 +35,46 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
           </p>
         </div>
 
-        {/* Editorial Preview Card */}
-        <div className="rounded-[24px] border border-[#192E31] bg-[#102124] shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden">
-          
-          {/* Card Top Utility Bar */}
-          <div className="px-6 py-4 bg-[#142629] border-b border-[#192E31] flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center space-x-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#B6C6A3] shadow-[0_0_8px_rgba(182,198,163,0.8)]" />
-              <span className="font-mono text-xs text-[#F1F0E9] font-medium">
-                LIVE AUDIT RECORD: BANGUR, KOLKATA METROPOLITAN AREA
-              </span>
-              <span className="text-xs text-[#829492] font-mono">• 22.60995° N, 88.41794° E</span>
-            </div>
+        {/* Liquid Glass Editorial Preview Card */}
+        <div className="relative">
+          {/* Animated Liquid Caustic Backlight Blob */}
+          <div className="absolute -inset-6 bg-gradient-to-tr from-[#142629]/50 via-emerald-500/10 to-[#41a1cf]/10 blur-3xl rounded-[36px] liquid-caustic-blob pointer-events-none" />
 
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-md bg-[#102124] border border-[#192E31] text-xs font-mono text-[#D1C6A5]">
-              <span>Real Location Telemetry</span>
-            </div>
-          </div>
-
-          {/* Split Preview Grid: Map Illustration Crop + 3 Evidence Rows */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#192E31]">
+          <div className="relative rounded-[28px] liquid-glass-card overflow-hidden">
+            {/* Top Specular Edge Line */}
+            <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none z-10" />
             
-            {/* Left: Map Crop */}
-            <div className="lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-[#102124]">
-              <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden border border-[#192E31] bg-[#142629]">
-                <img
-                  src="/zonalyze_map_telemetry_crop.jpg"
-                  alt="Real interactive map view with dropped pin at Bangur, Lake Town, Kolkata"
-                  className="w-full h-full object-cover object-center filter contrast-[1.02]"
-                />
-                
-                <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded bg-[#102124]/90 backdrop-blur-sm border border-[#192E31] text-[11px] font-mono text-[#F1F0E9]">
-                  POINT OF INQUIRY: 22.60995° N, 88.41794° E
-                </div>
+            {/* Card Top Utility Bar */}
+            <div className="px-6 py-4 bg-gradient-to-r from-[#142629]/80 via-[#102124]/70 to-[#142629]/80 backdrop-blur-2xl border-b border-white/[0.1] flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center space-x-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#B6C6A3] shadow-[0_0_10px_rgba(182,198,163,0.9)] animate-pulse" />
+                <span className="font-mono text-xs text-[#F1F0E9] font-medium tracking-wide">
+                  LIVE AUDIT RECORD: BANGUR, KOLKATA METROPOLITAN AREA
+                </span>
+                <span className="text-xs text-[#829492] font-mono">• 22.60995° N, 88.41794° E</span>
               </div>
+
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#0B1719]/70 border border-white/[0.1] text-xs font-mono text-[#D1C6A5] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                <span>Real Location Telemetry</span>
+              </div>
+            </div>
+
+            {/* Split Preview Grid: Map Illustration Crop + 3 Evidence Rows */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.08]">
+              
+              {/* Left: Map Crop */}
+              <div className="lg:col-span-6 p-6 sm:p-8 flex flex-col justify-between space-y-6 bg-transparent">
+                <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden border border-white/[0.12] bg-[#142629]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]">
+                  <img
+                    src="/zonalyze_liquid_glass_crop.jpg"
+                    alt="Real interactive map view with dropped pin at Bangur, Lake Town, Kolkata"
+                    className="w-full h-full object-cover object-center filter contrast-[1.04]"
+                  />
+                  
+                  <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-[#102124]/90 backdrop-blur-md border border-white/[0.12] text-[11px] font-mono text-[#F1F0E9] shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+                    POINT OF INQUIRY: 22.60995° N, 88.41794° E
+                  </div>
+                </div>
 
               <div className="flex items-center justify-between text-xs text-[#829492] font-mono">
                 <span>DATUM: WGS 84</span>
@@ -99,7 +105,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                 </div>
 
                 {/* Row 2: Nearby Infrastructure */}
-                <div className="p-4 rounded-xl bg-[#142629] border border-[#192E31] space-y-1.5 hover:border-[#B6C6A3]/40 transition-colors">
+                <div className="glass-3d-card p-4 rounded-xl space-y-1.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2 text-sm font-medium text-[#F1F0E9]">
                       <Building2 className="w-4 h-4 text-[#D1C6A5]" />
@@ -113,7 +119,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                 </div>
 
                 {/* Row 3: Interpretation */}
-                <div className="p-4 rounded-xl bg-[#142629] border border-[#192E31] space-y-1.5 hover:border-[#B6C6A3]/40 transition-colors">
+                <div className="glass-3d-card p-4 rounded-xl space-y-1.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2 text-sm font-medium text-[#F1F0E9]">
                       <Sparkles className="w-4 h-4 text-[#B6C6A3]" />
@@ -128,14 +134,14 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
               </div>
 
               {/* Bottom Action inside preview */}
-              <div className="pt-4 border-t border-[#192E31] flex flex-wrap items-center justify-between gap-4">
+              <div className="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-4">
                 <span className="text-xs text-[#829492] font-sans">
                   Ready to test a real geographical coordinate?
                 </span>
 
                 <button
                   onClick={onLaunchInvestigation}
-                  className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-sm font-semibold text-[#0B1719] bg-[#B6C6A3] hover:bg-[#DCE7CD] shadow-[0_0_16px_rgba(182,198,163,0.25)] transition-all cursor-pointer font-sans"
+                  className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-sm font-semibold text-[#0B1719] bg-[#B6C6A3] hover:bg-[#DCE7CD] shadow-[0_0_20px_rgba(182,198,163,0.3)] transition-all cursor-pointer font-sans"
                 >
                   <span>Open Investigation Workspace</span>
                   <ArrowRight className="w-4 h-4 text-[#0B1719]" />
@@ -147,6 +153,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
           </div>
 
         </div>
+      </div>
 
       </div>
     </section>

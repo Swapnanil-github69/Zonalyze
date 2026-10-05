@@ -10,8 +10,13 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
 }) => {
   return (
     <section className="relative w-full py-24 sm:py-32 bg-[#0B1719] border-b border-[#192E31]">
-      <div className="max-w-[1200px] mx-auto px-6 sm:px-8">
-        <div className="p-8 sm:p-14 rounded-[24px] bg-[#102124] border border-[#192E31] shadow-[0_8px_32px_rgba(0,0,0,0.5)] text-left space-y-8">
+      <div className="max-w-[1200px] mx-auto px-6 sm:px-8 relative">
+        {/* Ambient colored backlight */}
+        <div className="absolute -inset-6 bg-gradient-to-r from-[#142629]/50 via-[#B6C6A3]/15 to-[#142629]/40 blur-3xl rounded-[36px] pointer-events-none" />
+
+        <div className="relative p-8 sm:p-14 rounded-[24px] glass-panel-elevated overflow-hidden text-left space-y-8">
+          {/* Specular top highlight */}
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#B6C6A3]/35 to-transparent pointer-events-none" />
           
           <div className="max-w-2xl space-y-4">
             <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#B6C6A3]">

@@ -113,19 +113,123 @@ body {
   }
 }
 
-/* Glassmorphism helpers */
+/* Translucent & 3D Glassmorphism Utilities */
+/* Translucent & 3D Glassmorphism Utilities */
 .glass-panel {
-  background: rgba(17, 29, 32, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(220, 235, 230, 0.12);
+  background: rgba(16, 33, 36, 0.65);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(182, 198, 163, 0.12);
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .glass-panel-elevated {
-  background: rgba(32, 56, 62, 0.85);
+  background: rgba(20, 38, 41, 0.75);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(220, 235, 230, 0.18);
+  border: 1px solid rgba(182, 198, 163, 0.18);
+  box-shadow: 0 24px 48px -15px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.glass-3d-card {
+  background: rgba(16, 33, 36, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(182, 198, 163, 0.14);
+  box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease, border-color 0.3s ease;
+}
+
+.glass-3d-card:hover {
+  transform: translateY(-5px) scale(1.008);
+  box-shadow: 0 28px 56px -14px rgba(0, 0, 0, 0.75), 0 0 24px rgba(182, 198, 163, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-color: rgba(182, 198, 163, 0.35);
+}
+
+/* Liquid Glass & Viscous Optical Refraction Utilities */
+.liquid-glass-stage {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(20, 38, 41, 0.55) 40%, rgba(11, 23, 25, 0.8) 100%);
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.6),
+    inset 1px 0 2px 0 rgba(182, 198, 163, 0.2),
+    inset -1px 0 2px 0 rgba(65, 161, 207, 0.2),
+    0 35px 80px -15px rgba(0, 0, 0, 0.85),
+    0 0 50px rgba(20, 38, 41, 0.5);
+  transform: rotateX(4deg) translateY(0px);
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.7s ease, border-color 0.4s ease;
+}
+
+.liquid-glass-stage:hover {
+  transform: rotateX(0deg) translateY(-8px);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    inset 0 2px 2px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -2px 3px 0 rgba(0, 0, 0, 0.7),
+    0 50px 100px -20px rgba(0, 0, 0, 0.92),
+    0 0 80px rgba(182, 198, 163, 0.25);
+}
+
+.liquid-glass-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(20, 38, 41, 0.48) 45%, rgba(11, 23, 25, 0.7) 100%);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5),
+    0 18px 42px -12px rgba(0, 0, 0, 0.6);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease, border-color 0.3s ease;
+}
+
+.liquid-glass-card:hover {
+  transform: translateY(-5px) scale(1.01);
+  border-color: rgba(182, 198, 163, 0.42);
+  box-shadow: 
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.6),
+    0 28px 60px -14px rgba(0, 0, 0, 0.75),
+    0 0 30px rgba(182, 198, 163, 0.2);
+}
+
+.liquid-glass-nav {
+  background: linear-gradient(180deg, rgba(20, 38, 41, 0.72) 0%, rgba(11, 23, 25, 0.88) 100%);
+  backdrop-filter: blur(30px) saturate(190%);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.3),
+    0 16px 40px rgba(0, 0, 0, 0.65),
+    0 0 20px rgba(20, 38, 41, 0.4);
+}
+
+/* Fluid Organic Morphing Blob */
+@keyframes fluidMorph {
+  0% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    transform: rotate(180deg) scale(1.08);
+  }
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.liquid-caustic-blob {
+  animation: fluidMorph 20s ease-in-out infinite;
+  filter: blur(70px);
+}
+
+.hero-3d-perspective {
+  perspective: 1600px;
 }
 
 /* Custom Sleek Scrollbar */
