@@ -4,8 +4,7 @@ const router = Router();
 
 router.get("/health", (req, res) => {
   res.status(200).json({
-    status: "ok",
-    service: "Zonalyze API",
+    status: "healthy",
     timestamp: new Date().toISOString(),
   });
 });
