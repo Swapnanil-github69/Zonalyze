@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { LandingPage } from "./pages/LandingPage";
 import { InvestigationMapPage } from "./pages/InvestigationMapPage";
+import { LandingThemeProvider } from "./context/LandingThemeContext";
 
 export function App() {
   const getInitialView = (): "landing" | "investigate" => {
@@ -56,7 +57,11 @@ export function App() {
     return <InvestigationMapPage onBackToHome={navigateToLanding} />;
   }
 
-  return <LandingPage onNavigateToInvestigation={navigateToInvestigation} />;
+  return (
+    <LandingThemeProvider>
+      <LandingPage onNavigateToInvestigation={navigateToInvestigation} />
+    </LandingThemeProvider>
+  );
 }
 
 export default App;
