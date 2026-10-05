@@ -58,16 +58,23 @@ export const EvidenceCategoriesSection: React.FC = () => {
   ];
 
   return (
-    <section id="categories" className="relative w-full py-20 bg-[#161b13] text-[#dde2e4] border-b border-[#84907f]/30">
-      <div className="w-full px-6 sm:px-12 space-y-12">
+    <section id="categories" className="relative w-full py-20 bg-[#161b13] text-[#dde2e4] border-b border-[#84907f]/30 overflow-hidden">
+      {/* Ambient Radial & Caustic Backlights to reveal frosted glass refraction */}
+      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-[#e2ffcc]/5 rounded-full liquid-caustic-blob pointer-events-none" />
+      <div className="absolute bottom-10 left-10 w-[450px] h-[450px] bg-[#84907f]/8 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-8s" }} />
+      <div className="absolute inset-0 topographic-grid opacity-30 pointer-events-none" />
+
+      <div className="relative w-full px-6 sm:px-12 space-y-12">
         
         {/* Section Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#84907f]/30 pb-4 text-[11px] font-mono tracking-wider uppercase text-[#84907f]">
           <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 bg-[#e2ffcc] inline-block" />
+            <span className="w-2 h-2 bg-[#e2ffcc] inline-block animate-pulse" />
             <span className="text-[#e2ffcc] font-bold">SECTION 02 // EVIDENCE INVENTORY</span>
           </div>
-          <div>FOUR RECOGNIZED TELEMETRY CHANNELS</div>
+          <div className="px-2.5 py-1 glass-badge text-[10px] text-[#e2ffcc]">
+            FOUR RECOGNIZED TELEMETRY CHANNELS
+          </div>
         </div>
 
         <div className="max-w-4xl space-y-4 text-left">
@@ -80,22 +87,22 @@ export const EvidenceCategoriesSection: React.FC = () => {
           </p>
         </div>
 
-        {/* 4 Sharp Telemetry Cards (0px radius, 1px border) */}
+        {/* 4 Frosted Glass Telemetry Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           {categories.map((cat) => {
             const IconComponent = cat.icon;
             return (
               <div
                 key={cat.id}
-                className="p-6 sm:p-8 border border-[#84907f]/35 bg-[#161b13] flex flex-col justify-between space-y-6 text-left"
+                className="p-6 sm:p-8 glass-card border border-[#84907f]/30 hover:border-[#e2ffcc]/40 flex flex-col justify-between space-y-6 text-left transition-all duration-300"
               >
                 {/* Header */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between border-b border-[#84907f]/20 pb-3">
-                    <span className="font-mono text-[11px] text-[#e2ffcc] font-bold">
+                    <span className="font-mono text-[11px] text-[#e2ffcc] font-bold tracking-wider">
                       [{cat.code}] // {cat.subtitle}
                     </span>
-                    <div className="w-8 h-8 border border-[#e2ffcc] flex items-center justify-center text-[#e2ffcc]">
+                    <div className="w-8 h-8 glass-badge flex items-center justify-center text-[#e2ffcc] border border-[#e2ffcc]/40">
                       <IconComponent className="w-4 h-4" />
                     </div>
                   </div>

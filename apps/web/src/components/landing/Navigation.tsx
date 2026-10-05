@@ -28,7 +28,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#161b13]/90 backdrop-blur-sm border-b border-[#84907f]/30 px-6 sm:px-12 py-4">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#161b13]/65 backdrop-blur-xl border-b border-[#e2ffcc]/15 shadow-[0_4px_30px_rgba(0,0,0,0.5)] px-6 sm:px-12 py-4">
       <div className="w-full flex items-center justify-between">
         
         {/* Brand Wordmark Stamp with Crosshair Symbol */}
@@ -81,13 +81,13 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden mt-3 p-4 bg-[#161b13] border border-[#84907f]/40 text-left space-y-4">
+        <div className="md:hidden mt-3 p-5 glass-panel border border-[#e2ffcc]/20 text-left space-y-4 shadow-2xl">
           <div className="flex flex-col space-y-3 font-mono text-xs">
             {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => scrollTo(link.id)}
-                className="text-left text-[#84907f] hover:text-[#e2ffcc] uppercase tracking-wider"
+                className="text-left text-[#84907f] hover:text-[#e2ffcc] uppercase tracking-wider py-1"
               >
                 {link.label}
               </button>

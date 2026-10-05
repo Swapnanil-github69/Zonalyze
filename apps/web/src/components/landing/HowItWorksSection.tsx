@@ -34,16 +34,23 @@ export const HowItWorksSection: React.FC = () => {
   ];
 
   return (
-    <section id="how-it-works" className="relative w-full py-20 bg-[#161b13] text-[#dde2e4] border-b border-[#84907f]/30">
-      <div className="w-full px-6 sm:px-12 space-y-12">
+    <section id="how-it-works" className="relative w-full py-20 bg-[#161b13] text-[#dde2e4] border-b border-[#84907f]/30 overflow-hidden">
+      {/* Ambient background light & grid */}
+      <div className="absolute top-1/4 left-1/3 w-[550px] h-[550px] bg-[#e2ffcc]/5 rounded-full liquid-caustic-blob pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-[#84907f]/8 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-7s" }} />
+      <div className="absolute inset-0 topographic-grid opacity-30 pointer-events-none" />
+
+      <div className="relative w-full px-6 sm:px-12 space-y-12">
         
         {/* Section Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#84907f]/30 pb-4 text-[11px] font-mono tracking-wider uppercase text-[#84907f]">
           <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 bg-[#e2ffcc] inline-block" />
+            <span className="w-2 h-2 bg-[#e2ffcc] inline-block animate-pulse" />
             <span className="text-[#e2ffcc] font-bold">SECTION 04 // PIPELINE SPECIFICATION</span>
           </div>
-          <div>DETERMINISTIC RETRIEVAL PROTOCOL</div>
+          <div className="px-2.5 py-1 glass-badge text-[10px] text-[#e2ffcc]">
+            DETERMINISTIC RETRIEVAL PROTOCOL
+          </div>
         </div>
 
         <div className="max-w-4xl space-y-4 text-left">
@@ -56,21 +63,21 @@ export const HowItWorksSection: React.FC = () => {
           </p>
         </div>
 
-        {/* 4 Steps in Sharp 0px Border Grid */}
+        {/* 4 Frosted Glass Pipeline Steps */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
           {steps.map((step) => {
             const IconComponent = step.icon;
             return (
               <div
                 key={step.number}
-                className="p-6 border border-[#84907f]/35 bg-[#161b13] flex flex-col justify-between space-y-6 text-left"
+                className="p-6 glass-card border border-[#84907f]/30 hover:border-[#e2ffcc]/40 flex flex-col justify-between space-y-6 text-left transition-all duration-300"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b border-[#84907f]/20 pb-3">
-                    <span className="font-mono text-xs font-bold text-[#e2ffcc]">
+                    <span className="font-mono text-xs font-bold text-[#e2ffcc] tracking-wider">
                       [STEP {step.number}]
                     </span>
-                    <div className="w-7 h-7 border border-[#e2ffcc] flex items-center justify-center text-[#e2ffcc]">
+                    <div className="w-7 h-7 glass-badge flex items-center justify-center text-[#e2ffcc] border border-[#e2ffcc]/40">
                       <IconComponent className="w-3.5 h-3.5" />
                     </div>
                   </div>
