@@ -50,7 +50,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         
         {/* Massive Landscape-Blocking Display Headline */}
         <div className="space-y-4 text-left max-w-7xl">
-          <h1 className="font-display-stout text-5xl sm:text-7xl md:text-8xl lg:text-[110px] xl:text-[132px] text-[#e2ffcc] tracking-tight leading-[0.90] uppercase">
+          <h1 className="font-space font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#e2ffcc] tracking-tight leading-[1.08] uppercase">
             GEOSPATIAL EVIDENCE. <br />
             GROUNDED TELEMETRY.
           </h1>
@@ -69,7 +69,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Enter coordinates or locality (e.g. 22.57617, 88.35801)..."
-                  className="w-full bg-[#161b13] border border-[#84907f]/50 px-10 py-3.5 text-xs font-mono text-[#dde2e4] placeholder-[#84907f] focus:outline-none focus:border-[#e2ffcc] transition-colors"
+                  className="w-full glass-input px-10 py-3.5 text-xs font-mono text-[#dde2e4] placeholder-[#84907f] focus:outline-none focus:border-[#e2ffcc] transition-all"
                 />
               </div>
 
@@ -89,7 +89,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <button
                   key={idx}
                   onClick={onStartInvestigation}
-                  className="px-2.5 py-1 border border-[#84907f]/30 bg-[#2d3329]/40 hover:border-[#e2ffcc] hover:text-[#e2ffcc] text-[#dde2e4] transition-colors cursor-pointer"
+                  className="px-2.5 py-1 border border-[#84907f]/30 bg-[#2d3329]/40 backdrop-blur-md hover:border-[#e2ffcc] hover:text-[#e2ffcc] hover:bg-[#e2ffcc]/10 text-[#dde2e4] transition-all cursor-pointer"
                 >
                   <MapPin className="w-2.5 h-2.5 inline mr-1 text-[#e2ffcc]" />
                   <span>{chip.label}</span>
@@ -99,9 +99,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
         </div>
 
-        {/* 2. High-Fidelity Workstation OS Window Console Frame */}
+        {/* 2. High-Fidelity Workstation OS Window Console Frame with Glass Effect */}
         <div className="w-full pt-2">
-          <div className="relative border border-[#84907f]/50 bg-[#161b13] shadow-2xl overflow-hidden">
+          <div className="relative glass-panel border border-[#e2ffcc]/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(226,255,204,0.25)] overflow-hidden">
             
             {/* Geodetic Corner Crosshair Ticks */}
             <span className="absolute top-1 left-1.5 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none">+</span>
@@ -110,7 +110,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <span className="absolute bottom-1 right-1.5 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none">+</span>
 
             {/* Workstation Window Chrome Bar */}
-            <div className="px-4 py-2.5 border-b border-[#84907f]/30 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono bg-[#161b13]">
+            <div className="px-4 py-2.5 border-b border-[#84907f]/30 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono bg-[#161b13]/70 backdrop-blur-md">
               
               {/* Window Controls & Live Stream Badge */}
               <div className="flex items-center space-x-3">
@@ -127,7 +127,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
 
               {/* Simulated Terminal Address Capsule */}
-              <div className="hidden md:flex items-center space-x-2 px-3 py-0.5 border border-[#84907f]/30 bg-[#2d3329]/50 text-[10px] text-[#84907f]">
+              <div className="hidden md:flex items-center space-x-2 px-3 py-0.5 border border-[#84907f]/30 bg-[#2d3329]/60 backdrop-blur-sm text-[10px] text-[#84907f]">
                 <Radio className="w-3 h-3 text-[#e2ffcc]" />
                 <span className="text-[#dde2e4]">zonalyze.gis/telemetry?lat=22.57617&lon=88.35801&datum=WGS84</span>
               </div>
@@ -149,7 +149,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Bottom Telemetry Status Bar */}
-            <div className="px-5 py-3 border-t border-[#84907f]/30 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono text-[#84907f] bg-[#161b13]">
+            <div className="px-5 py-3 border-t border-[#84907f]/30 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono text-[#84907f] bg-[#161b13]/70 backdrop-blur-md">
               <div className="flex items-center space-x-4">
                 <span>[CACHE HIT: 150M]</span>
                 <span className="text-[#e2ffcc] font-bold">AQI 101 (VERY POOR)</span>
@@ -162,7 +162,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* 3. Verified Ground-Truth Data Source Trust Ticker */}
-        <div className="w-full border-t border-b border-[#84907f]/25 py-3.5 flex flex-wrap items-center justify-between gap-3 text-[10px] font-mono text-[#84907f] uppercase tracking-wider">
+        <div className="w-full glass-card border border-[#84907f]/25 py-3.5 px-5 flex flex-wrap items-center justify-between gap-3 text-[10px] font-mono text-[#84907f] uppercase tracking-wider">
           <div className="flex items-center space-x-2 text-[#e2ffcc]">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span className="font-bold">VERIFIED OBSERVATION FEEDS:</span>

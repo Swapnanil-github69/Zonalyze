@@ -12,8 +12,11 @@ export const CinematicFooter: React.FC = () => {
   };
 
   return (
-    <footer className="relative w-full bg-[#161b13] text-[#dde2e4] py-16 border-t border-[#84907f]/30 text-left font-mono">
-      <div className="w-full px-6 sm:px-12 space-y-10">
+    <footer className="relative w-full bg-[#161b13]/85 backdrop-blur-xl text-[#dde2e4] py-16 border-t border-[#e2ffcc]/15 shadow-[0_-10px_30px_rgba(0,0,0,0.4)] text-left font-mono overflow-hidden">
+      {/* Ambient background light */}
+      <div className="absolute top-0 right-1/4 w-[400px] h-[200px] bg-[#e2ffcc]/4 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative w-full px-6 sm:px-12 space-y-10">
         
         {/* Top Footer Row */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-[#84907f]/25">
@@ -22,7 +25,7 @@ export const CinematicFooter: React.FC = () => {
             onClick={() => scrollTo("top")}
             className="cursor-pointer select-none group flex items-center space-x-3"
           >
-            <div className="w-8 h-8 rounded-full border border-[#e2ffcc] flex items-center justify-center text-[#e2ffcc] group-hover:scale-105 transition-transform duration-200">
+            <div className="w-8 h-8 rounded-full glass-badge border border-[#e2ffcc]/50 flex items-center justify-center text-[#e2ffcc] group-hover:scale-105 group-hover:border-[#e2ffcc] transition-all duration-200 shadow-[0_0_15px_rgba(226,255,204,0.15)]">
               <Crosshair className="w-4 h-4 text-[#e2ffcc]" />
             </div>
             <span className="font-display-stout text-3xl sm:text-4xl text-[#e2ffcc] tracking-wider leading-none">
@@ -30,7 +33,7 @@ export const CinematicFooter: React.FC = () => {
             </span>
           </div>
 
-          {/* Navigation Links: Clean mono caps */}
+          {/* Navigation Links: Clean mono caps with glassy hover effect */}
           <nav className="flex flex-wrap items-center gap-8 text-[11px] font-mono tracking-wider uppercase text-[#84907f]">
             <button
               onClick={() => scrollTo("about")}

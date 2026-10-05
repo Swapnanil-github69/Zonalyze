@@ -3,16 +3,23 @@ import { Wind, Building2, Mountain, Volume2 } from "lucide-react";
 
 export const IntroEditorialSection: React.FC = () => {
   return (
-    <section id="about" className="relative w-full py-20 bg-[#dde2e4] text-[#2d3329] border-b border-[#2d3329]">
-      <div className="w-full px-6 sm:px-12 space-y-12">
+    <section id="about" className="relative w-full py-20 bg-[#dde2e4] text-[#2d3329] border-b border-[#2d3329] overflow-hidden">
+      {/* Ambient background grid & light glow */}
+      <div className="absolute inset-0 topographic-grid-dark opacity-35 pointer-events-none" />
+      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-emerald-700/10 rounded-full liquid-caustic-blob pointer-events-none" />
+      <div className="absolute bottom-10 left-10 w-[450px] h-[450px] bg-[#84907f]/15 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-6s" }} />
+
+      <div className="relative w-full px-6 sm:px-12 space-y-12">
         
         {/* Top Header Row */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#2d3329] pb-4 text-[11px] font-mono tracking-wider uppercase">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#2d3329]/30 pb-4 text-[11px] font-mono tracking-wider uppercase">
           <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 bg-[#2d3329] inline-block" />
+            <span className="w-2 h-2 bg-[#2d3329] inline-block animate-pulse" />
             <span className="font-bold">SECTION 01 // SCOPE & ARCHITECTURE</span>
           </div>
-          <div>CATCHMENT STANDARD: 3,000M GEO-RADIAL</div>
+          <div className="px-2.5 py-1 glass-card-light text-[10px] font-bold">
+            CATCHMENT STANDARD: 3,000M GEO-RADIAL
+          </div>
         </div>
 
         {/* Two-Column Grid: Stamped Signage Headline & Utilitarian Body */}
@@ -36,12 +43,12 @@ export const IntroEditorialSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: 4 Sharp Field Channel Cards (0px radius, 1px border) */}
+          {/* Right Column: 4 Sharp Field Channel Cards with Glassmorphism */}
           <div className="lg:col-span-7">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#2d3329] border border-[#2d3329]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               
               {/* Channel 1: Atmosphere */}
-              <div className="p-6 bg-[#dde2e4] space-y-3">
+              <div className="p-6 glass-card-light space-y-3 transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono uppercase text-[#84907f]">[CH-01]</span>
                   <Wind className="w-4 h-4 text-[#2d3329]" />
@@ -55,7 +62,7 @@ export const IntroEditorialSection: React.FC = () => {
               </div>
 
               {/* Channel 2: Transit */}
-              <div className="p-6 bg-[#dde2e4] space-y-3">
+              <div className="p-6 glass-card-light space-y-3 transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono uppercase text-[#84907f]">[CH-02]</span>
                   <Building2 className="w-4 h-4 text-[#2d3329]" />
@@ -69,7 +76,7 @@ export const IntroEditorialSection: React.FC = () => {
               </div>
 
               {/* Channel 3: Acoustic buffer */}
-              <div className="p-6 bg-[#dde2e4] space-y-3">
+              <div className="p-6 glass-card-light space-y-3 transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono uppercase text-[#84907f]">[CH-03]</span>
                   <Volume2 className="w-4 h-4 text-[#2d3329]" />
@@ -83,7 +90,7 @@ export const IntroEditorialSection: React.FC = () => {
               </div>
 
               {/* Channel 4: Topography */}
-              <div className="p-6 bg-[#dde2e4] space-y-3">
+              <div className="p-6 glass-card-light space-y-3 transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono uppercase text-[#84907f]">[CH-04]</span>
                   <Mountain className="w-4 h-4 text-[#2d3329]" />
