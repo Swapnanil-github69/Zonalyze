@@ -4,6 +4,7 @@ import { CacheService } from "../services/cache.service.js";
 import { NominatimService } from "../services/nominatim.service.js";
 import { fetchAtmosphere } from "../services/openMeteoService.js";
 import { OverpassService } from "../services/overpass.service.js";
+import { parseElements } from "../services/overpassService.js";
 import { HeuristicService } from "../services/heuristic.service.js";
 import { GeminiService } from "../services/gemini.service.js";
 
@@ -73,6 +74,7 @@ export class InvestigateController {
         longitude,
         overpassElements
       );
+      const osmData = parseElements(latitude, longitude, overpassElements);
 
       // 5. Google Gemini Forensic Synthesis
       const aiReport = await GeminiService.generateDebrief({
@@ -108,6 +110,7 @@ export class InvestigateController {
             nearest_metro_name: infrastructure.nearest_metro_name ?? null,
             nearest_arterial_dist_m: infrastructure.nearest_arterial_dist_m,
           },
+          facilities: osmData.facilities,
           noiseProfile,
           aiReport,
         });
@@ -129,6 +132,7 @@ export class InvestigateController {
                 metro_stations: infrastructure.metro_stations ?? 0,
                 nearest_metro_dist_m: infrastructure.nearest_metro_dist_m ?? null,
               },
+              facilities: osmData.facilities,
               noiseProfile,
               aiReport,
               createdAt: new Date().toISOString(),

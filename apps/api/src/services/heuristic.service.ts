@@ -22,7 +22,12 @@ export class HeuristicService {
     let metro_stations = 0;
     let parks = 0;
 
-    const detectedHospitals: Array<{ name: string; distance: number; type: string }> = [];
+    const detectedHospitals: Array<{
+      name: string;
+      distance: number;
+      type: string;
+      coordinates?: [number, number];
+    }> = [];
     let nearestHospitalDist: number | null = null;
     let nearestHospitalName: string | null = null;
     let nearestRailwayDist: number | null = null;
@@ -62,6 +67,7 @@ export class HeuristicService {
           name: facilityName || fallback,
           distance: dist,
           type,
+          coordinates: [lon, lat],
         });
       } else if (tags.amenity === "pharmacy") {
         pharmacies++;

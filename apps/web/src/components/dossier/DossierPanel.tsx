@@ -11,12 +11,16 @@ import { DossierSkeleton } from "./DossierSkeleton";
 import { calculateLivabilityScore } from "../../utils/livabilityMetrics";
 import { X } from "lucide-react";
 
+import { SelectedFacility } from "./InfrastructureCard";
+
 interface DossierPanelProps {
   investigation: InvestigationResult | null;
   isOpen: boolean;
   isLoading?: boolean;
   stage?: AuditStage;
   selectedCoords?: { lat: number; lng: number } | null;
+  selectedFacility?: SelectedFacility | null;
+  onSelectFacility?: (facility: SelectedFacility) => void;
   onClose: () => void;
 }
 
@@ -26,6 +30,8 @@ export const DossierPanel: React.FC<DossierPanelProps> = ({
   isLoading = false,
   stage = "idle",
   selectedCoords,
+  selectedFacility,
+  onSelectFacility,
   onClose,
 }) => {
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -109,6 +115,9 @@ export const DossierPanel: React.FC<DossierPanelProps> = ({
               infrastructure={investigation.infrastructure}
               coordinates={investigation.location.coordinates}
               address={investigation.address}
+              facilities={investigation.facilities}
+              selectedFacility={selectedFacility}
+              onSelectFacility={onSelectFacility}
             />
 
             {/* 6. AI Forensic Debrief & Inspection Targets */}

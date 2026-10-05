@@ -43,7 +43,12 @@ export interface InfrastructureMetrics {
   parks: number;
   nearest_hospital_dist_m: number | null;
   nearest_hospital_name?: string | null;
-  nearby_hospitals?: Array<{ name: string; distance: number; type?: string }>;
+  nearby_hospitals?: Array<{
+    name: string;
+    distance: number;
+    type?: string;
+    coordinates?: [number, number];
+  }>;
   nearest_railway_dist_m: number | null;
   nearest_railway_name?: string | null;
   nearest_metro_dist_m?: number | null;

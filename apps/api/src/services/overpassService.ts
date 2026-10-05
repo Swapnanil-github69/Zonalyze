@@ -1,10 +1,16 @@
 import axios from "axios";
 import { calculateHaversineMeters } from "../utils/geoUtils.js";
 
-type Facility = {
+export type Facility = {
   name: string;
   distanceMeters: number;
+  coordinates: [number, number]; // [lon, lat]
 };
+
+export interface HotelFacility extends Facility {
+  stars?: number | null;
+  hotelType?: string;
+}
 
 export interface OSMResult {
   facilities: {
@@ -16,7 +22,7 @@ export interface OSMResult {
     store: Facility | null;
     park: Facility | null;
     airport: Facility | null;
-    hotels: Array<Facility & { stars?: number | null; hotelType?: string }>;
+    hotels: HotelFacility[];
   };
   noise: {
     bracket: "Low / Ambient" | "Moderate" | "Elevated";
@@ -26,20 +32,20 @@ export interface OSMResult {
   };
 }
 
-interface OverpassElement {
+export interface OverpassElement {
   lat?: number;
   lon?: number;
   center?: { lat: number; lon: number };
   tags?: Record<string, string>;
 }
 
-interface OverpassResponse {
+export interface OverpassResponse {
   elements?: OverpassElement[];
 }
 
 const OVERPASS_ENDPOINT = "https://overpass-api.de/api/interpreter";
 
-function createFallbackResult(confidence: string): OSMResult {
+export function createFallbackResult(confidence: string): OSMResult {
   return {
     facilities: {
       metro: null,
@@ -61,14 +67,21 @@ function createFallbackResult(confidence: string): OSMResult {
   };
 }
 
-function getFacility(tags: Record<string, string>, distanceMeters: number, fallbackName: string): Facility {
+export function getFacility(
+  tags: Record<string, string>,
+  distanceMeters: number,
+  fallbackName: string,
+  lon: number,
+  lat: number
+): Facility {
   return {
     name: tags.name?.trim() || fallbackName,
     distanceMeters,
+    coordinates: [lon, lat], // strictly [lon, lat]
   };
 }
 
-function updateNearest(
+export function updateNearest(
   current: Facility | null,
   candidate: Facility
 ): Facility {
@@ -165,11 +178,22 @@ out center;`;
       }
     );
     elements = response.data?.elements ?? [];
+    return parseElements(lat, lon, elements);
   } catch (error) {
     console.error("Overpass facility and noise query failed:", error);
     return createFallbackResult("Unavailable (Overpass request failed)");
   }
+}
 
+/**
+ * Parses raw Overpass elements into structured facilities with exact coordinates [lon, lat]
+ * and estimates noise exposure.
+ */
+export function parseElements(
+  centerLat: number,
+  centerLon: number,
+  elements: OverpassElement[]
+): OSMResult {
   const result = createFallbackResult(
     "Low (no railway or primary highway detected within query range)"
   );
@@ -178,16 +202,16 @@ out center;`;
   let highwayDistance: number | null = null;
 
   for (const element of elements) {
-    const latitude = element.lat ?? element.center?.lat;
-    const longitude = element.lon ?? element.center?.lon;
-    if (typeof latitude !== "number" || !Number.isFinite(latitude)) continue;
-    if (typeof longitude !== "number" || !Number.isFinite(longitude)) continue;
+    const elLat = element.lat ?? element.center?.lat;
+    const elLon = element.lon ?? element.center?.lon;
+    if (typeof elLat !== "number" || !Number.isFinite(elLat)) continue;
+    if (typeof elLon !== "number" || !Number.isFinite(elLon)) continue;
 
     const tags = element.tags ?? {};
-    const distanceMeters = calculateHaversineMeters(lat, lon, latitude, longitude);
+    const d = calculateHaversineMeters(centerLat, centerLon, elLat, elLon);
 
     if (tags.railway === "station") {
-      const station = getFacility(tags, distanceMeters, "Railway station");
+      const station = getFacility(tags, d, "Railway station", elLon, elLat);
       if (tags.station === "subway" || tags.subway === "yes") {
         result.facilities.metro = updateNearest(result.facilities.metro, station);
       } else {
@@ -198,13 +222,13 @@ out center;`;
     if (tags.highway === "bus_stop" || tags.amenity === "bus_station") {
       result.facilities.busStop = updateNearest(
         result.facilities.busStop,
-        getFacility(tags, distanceMeters, "Bus stop")
+        getFacility(tags, d, "Bus stop", elLon, elLat)
       );
     }
     if (tags.amenity === "taxi") {
       result.facilities.autoStand = updateNearest(
         result.facilities.autoStand,
-        getFacility(tags, distanceMeters, "Taxi stand")
+        getFacility(tags, d, "Taxi stand", elLon, elLat)
       );
     }
     if (
@@ -218,25 +242,31 @@ out center;`;
     ) {
       result.facilities.hospital = updateNearest(
         result.facilities.hospital,
-        getFacility(tags, distanceMeters, "Hospital / Clinic")
+        getFacility(tags, d, "Hospital / Clinic", elLon, elLat)
       );
     }
     if (tags.shop && /^(convenience|supermarket|general)$/.test(tags.shop)) {
       result.facilities.store = updateNearest(
         result.facilities.store,
-        getFacility(tags, distanceMeters, "Store")
+        getFacility(tags, d, "Store", elLon, elLat)
       );
     }
     if (tags.leisure === "park") {
       result.facilities.park = updateNearest(
         result.facilities.park,
-        getFacility(tags, distanceMeters, "Park")
+        getFacility(tags, d, "Park", elLon, elLat)
+      );
+    }
+    if (tags.aeroway === "aerodrome" || tags.amenity === "airport") {
+      result.facilities.airport = updateNearest(
+        result.facilities.airport,
+        getFacility(tags, d, "Airport", elLon, elLat)
       );
     }
     if (tags.tourism && /^(hotel|guest_house|hostel)$/.test(tags.tourism)) {
       const stars = tags.stars === undefined ? undefined : Number(tags.stars);
       hotels.push({
-        ...getFacility(tags, distanceMeters, "Hotel"),
+        ...getFacility(tags, d, "Hotel", elLon, elLat),
         ...(tags.stars !== undefined
           ? { stars: Number.isFinite(stars) ? stars : null }
           : {}),
@@ -246,11 +276,11 @@ out center;`;
 
     if (tags.railway === "rail") {
       railwayDistance =
-        railwayDistance === null ? distanceMeters : Math.min(railwayDistance, distanceMeters);
+        railwayDistance === null ? d : Math.min(railwayDistance, d);
     }
     if (/^(motorway|trunk|primary)$/.test(tags.highway ?? "")) {
       highwayDistance =
-        highwayDistance === null ? distanceMeters : Math.min(highwayDistance, distanceMeters);
+        highwayDistance === null ? d : Math.min(highwayDistance, d);
     }
   }
 

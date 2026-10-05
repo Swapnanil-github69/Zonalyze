@@ -14,6 +14,7 @@ export interface FacilityItem {
   name: string;
   type: string;
   distance_m: number;
+  coordinates?: [number, number]; // [lon, lat]
   count?: number;
 }
 
@@ -22,15 +23,16 @@ export interface HotelItem {
   name: string;
   stars: number;
   distance_m: number;
+  coordinates?: [number, number]; // [lon, lat]
   reviewsUrl: string;
 }
 
 export interface TransitFacilities {
-  metro: { count: number; nearest_dist_m: number | null; name?: string | null };
-  rail: { count: number; nearest_dist_m: number | null; name?: string | null };
-  bus: { count: number; nearest_dist_m: number | null; name?: string | null };
-  airport: { count: number; nearest_dist_m: number | null; name?: string | null };
-  autoToto?: { count: number; nearest_dist_m: number | null; name?: string | null };
+  metro: { count: number; nearest_dist_m: number | null; name?: string | null; coordinates?: [number, number] };
+  rail: { count: number; nearest_dist_m: number | null; name?: string | null; coordinates?: [number, number] };
+  bus: { count: number; nearest_dist_m: number | null; name?: string | null; coordinates?: [number, number] };
+  airport: { count: number; nearest_dist_m: number | null; name?: string | null; coordinates?: [number, number] };
+  autoToto?: { count: number; nearest_dist_m: number | null; name?: string | null; coordinates?: [number, number] };
 }
 
 export interface EssentialFacilities {
@@ -38,10 +40,11 @@ export interface EssentialFacilities {
     count: number;
     nearest_dist_m: number | null;
     name?: string | null;
-    nearby?: Array<{ name: string; distance: number; type?: string }>;
+    coordinates?: [number, number];
+    nearby?: Array<{ name: string; distance: number; type?: string; coordinates?: [number, number] }>;
   };
-  convenienceStores: { count: number; nearest_dist_m: number | null; name?: string | null };
-  parks: { count: number; nearest_dist_m: number | null; name?: string | null };
+  convenienceStores: { count: number; nearest_dist_m: number | null; name?: string | null; coordinates?: [number, number] };
+  parks: { count: number; nearest_dist_m: number | null; name?: string | null; coordinates?: [number, number] };
 }
 
 export interface DetailedFacilities {
@@ -58,7 +61,7 @@ export interface InfrastructureData {
   parks: number;
   nearest_hospital_dist_m: number | null;
   nearest_hospital_name?: string | null;
-  nearby_hospitals?: Array<{ name: string; distance: number; type?: string }>;
+  nearby_hospitals?: Array<{ name: string; distance: number; type?: string; coordinates?: [number, number] }>;
   nearest_railway_dist_m?: number | null;
   nearest_railway_name?: string | null;
   nearest_metro_dist_m?: number | null;
@@ -98,6 +101,23 @@ export interface LivabilityScoreData {
   };
 }
 
+export interface FacilitiesEntity {
+  name: string;
+  distanceMeters: number;
+  coordinates: [number, number]; // [lon, lat]
+}
+
+export interface FacilitiesData {
+  metro: FacilitiesEntity | null;
+  railway: FacilitiesEntity | null;
+  busStop: FacilitiesEntity | null;
+  hospital: FacilitiesEntity | null;
+  store: FacilitiesEntity | null;
+  park: FacilitiesEntity | null;
+  airport: FacilitiesEntity | null;
+  hotels: FacilitiesEntity[];
+}
+
 export interface InvestigationResult {
   _id: string;
   cached: boolean;
@@ -108,6 +128,7 @@ export interface InvestigationResult {
   address: string;
   environment: EnvironmentData;
   infrastructure: InfrastructureData;
+  facilities?: FacilitiesData;
   noiseProfile: NoiseProfileData;
   aiReport: AiReportData;
   livabilityScore?: LivabilityScoreData;
