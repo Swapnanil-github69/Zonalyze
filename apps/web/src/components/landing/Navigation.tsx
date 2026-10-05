@@ -62,17 +62,16 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
           scrolled ? "shadow-[0_20px_48px_rgba(0,0,0,0.8)]" : ""
         }`}
       >
-        {/* Brand: ZONALYZE with restrained sage location mark */}
+        {/* Brand: ZONALYZE with live emerald location mark */}
         <div
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="flex items-center space-x-2.5 cursor-pointer select-none group"
         >
-          <div className="w-5 h-5 rounded-full border border-[#B6C6A3]/40 bg-[#142629] flex items-center justify-center text-[#B6C6A3] group-hover:border-[#B6C6A3] transition-colors">
+          <div className="w-5 h-5 rounded-full border border-emerald-400/40 bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:border-emerald-300 transition-colors shadow-[0_0_8px_rgba(16,185,129,0.4)]">
             <Compass className="w-3 h-3" />
           </div>
           <span
-            style={{ fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif" }}
-            className="text-lg sm:text-xl font-normal tracking-tight text-[#F1F0E9] group-hover:text-white transition-colors leading-none"
+            className="text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-emerald-300 transition-colors leading-none"
           >
             ZONALYZE
           </span>
@@ -88,8 +87,8 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
                 onClick={() => scrollTo(link.id)}
                 className={`px-3 py-1 rounded-full text-xs lg:text-sm font-medium transition-colors cursor-pointer ${
                   isActive
-                    ? "text-[#F1F0E9] bg-[#142629] border border-[#192E31]"
-                    : "text-[#B8C5C2] hover:text-[#F1F0E9] hover:bg-[#142629]/50"
+                    ? "text-white bg-[#14262b] border border-[#21383e]"
+                    : "text-[#94a3b8] hover:text-white hover:bg-[#14262b]/50"
                 }`}
               >
                 {link.label}
@@ -98,23 +97,23 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
           })}
         </nav>
 
-        {/* Primary Action: Sage Accent Pill Button */}
+        {/* Primary Action: Emerald-Cyan Gradient Pill Button */}
         <div className="flex items-center space-x-2">
           <button
             onClick={onStartInvestigation}
-            className="inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold text-[#0B1719] bg-gradient-to-b from-[#DCE7CD] via-[#B6C6A3] to-[#98A885] shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_4px_16px_rgba(182,198,163,0.3)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer font-sans"
+            className="inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold text-[#071317] bg-gradient-to-r from-[#10b981] to-[#06b6d4] hover:from-[#34d399] hover:to-[#22d3ee] shadow-[0_0_18px_rgba(16,185,129,0.35)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer font-sans"
           >
             <span>Investigate a Location</span>
-            <ArrowRight className="w-3.5 h-3.5 text-[#0B1719]" />
+            <ArrowRight className="w-3.5 h-3.5 text-[#071317]" />
           </button>
 
           {/* Mobile menu toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 rounded-full md:hidden text-[#B8C5C2] hover:text-[#F1F0E9] hover:bg-[#142629]"
+            className="p-1.5 rounded-full md:hidden text-[#94a3b8] hover:text-white hover:bg-[#14262b]"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4 text-[#F1F0E9]" />}
+            {mobileMenuOpen ? <X className="w-4 h-4 text-white" /> : <Menu className="w-4 h-4 text-white" />}
           </button>
         </div>
       </div>

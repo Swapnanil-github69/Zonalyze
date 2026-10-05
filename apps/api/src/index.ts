@@ -13,6 +13,26 @@ app.use(express.json());
 app.use("/api", investigateRoutes);
 app.use("/api", chatRoutes);
 
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    name: "Zonalyze API Server",
+    status: "online",
+    healthCheck: "/api/health",
+    version: "1.0.0",
+  });
+});
+
+app.get("/api", (_req, res) => {
+  res.status(200).json({
+    status: "online",
+    endpoints: {
+      health: "/api/health",
+      investigate: "/api/investigate",
+      chat: "/api/chat",
+    },
+  });
+});
+
 app.get("/api/health", (_req, res) => {
   res.status(200).json({
     status: "healthy",
