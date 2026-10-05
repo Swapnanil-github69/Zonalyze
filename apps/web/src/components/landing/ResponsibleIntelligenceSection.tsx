@@ -27,12 +27,13 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
   ];
 
   return (
-    <section id="responsible" className="relative w-full py-20 sm:py-28 bg-[#ffffff] border-b border-[#dee2de]">
+    <section id="responsible" className="relative w-full py-20 sm:py-28 bg-[#0B1719] border-b border-[#192E31]">
       <div className="max-w-[1200px] mx-auto px-6 sm:px-8 space-y-12 sm:space-y-16 text-left">
         
         {/* Section Header */}
         <div className="max-w-2xl space-y-4">
-          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#646464]">
+          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#B6C6A3]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B6C6A3]" />
             <span>RESPONSIBLE EVIDENCE</span>
           </div>
 
@@ -42,12 +43,12 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
               lineHeight: 1.15,
               letterSpacing: "-0.02em",
             }}
-            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#2c2c2c]"
+            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#F1F0E9]"
           >
             Insight should show its working.
           </h2>
 
-          <p className="text-base text-[#444141] font-sans leading-relaxed">
+          <p className="text-base text-[#B8C5C2] font-sans leading-relaxed">
             ZONALYZE separates retrieved observations from interpretation. Sources, timestamps, coverage gaps, and uncertainty matter as much as the summary itself.
           </p>
         </div>
@@ -59,13 +60,13 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
             return (
               <div
                 key={item.id}
-                className="p-6 sm:p-8 rounded-2xl bg-[#fefffc] border border-[#dee2de] shadow-[0_1px_6px_rgba(0,0,0,0.02)] hover:border-[#b4b8b4] transition-all space-y-4"
+                className="p-6 sm:p-8 rounded-[24px] bg-[#102124] border border-[#192E31] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:border-[#B6C6A3]/40 transition-all space-y-4"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-9 h-9 rounded-xl border border-[#dee2de] bg-[#ffffff] flex items-center justify-center text-[#282834]">
-                    <IconComponent className="w-4 h-4 text-[#282834]" />
+                  <div className="w-9 h-9 rounded-xl border border-[#192E31] bg-[#142629] flex items-center justify-center text-[#B6C6A3]">
+                    <IconComponent className="w-4 h-4 text-[#B6C6A3]" />
                   </div>
-                  <span className="text-xs font-mono uppercase tracking-wider text-[#646464]">
+                  <span className="text-xs font-mono uppercase tracking-wider text-[#D1C6A5]">
                     {item.subtitle}
                   </span>
                 </div>
@@ -74,12 +75,12 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
                   style={{
                     fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
                   }}
-                  className="text-2xl font-normal text-[#171717]"
+                  className="text-2xl font-normal text-[#F1F0E9]"
                 >
                   {item.title}
                 </h3>
 
-                <p className="text-sm text-[#444141] leading-relaxed font-sans">
+                <p className="text-sm text-[#B8C5C2] leading-relaxed font-sans">
                   {item.description}
                 </p>
               </div>

@@ -12,44 +12,44 @@ export const CinematicFooter: React.FC = () => {
   };
 
   return (
-    <footer className="relative w-full bg-[#f9faf7] text-[#171717] py-14 sm:py-16 border-t border-[#dee2de] text-left font-sans">
+    <footer className="relative w-full bg-[#0B1719] text-[#B8C5C2] py-14 sm:py-16 border-t border-[#192E31] text-left font-sans">
       <div className="max-w-[1200px] mx-auto px-6 sm:px-8 space-y-8">
         
         {/* Top Footer Row */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-[#dee2de]">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-[#192E31]">
           {/* Brand */}
           <div
             onClick={() => scrollTo("top")}
             className="flex items-center space-x-2.5 cursor-pointer select-none group"
           >
-            <div className="w-5 h-5 rounded-full border border-[#282834] flex items-center justify-center text-[#282834] group-hover:border-[#41a1cf] group-hover:text-[#41a1cf] transition-colors">
-              <Compass className="w-3 h-3" />
+            <div className="w-6 h-6 rounded-full border border-[#192E31] bg-[#142629] flex items-center justify-center text-[#B6C6A3] group-hover:border-[#B6C6A3] transition-colors">
+              <Compass className="w-3.5 h-3.5" />
             </div>
             <span
               style={{ fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif" }}
-              className="text-xl sm:text-2xl font-normal tracking-tight text-[#171717]"
+              className="text-xl sm:text-2xl font-normal tracking-tight text-[#F1F0E9]"
             >
               ZONALYZE
             </span>
           </div>
 
           {/* Links: About, Method, Explore */}
-          <nav className="flex items-center space-x-6 text-sm text-[#444141]">
+          <nav className="flex items-center space-x-6 text-sm text-[#B8C5C2]">
             <button
               onClick={() => scrollTo("about")}
-              className="hover:text-[#171717] transition-colors cursor-pointer"
+              className="hover:text-[#F1F0E9] transition-colors cursor-pointer"
             >
               About
             </button>
             <button
               onClick={() => scrollTo("how-it-works")}
-              className="hover:text-[#171717] transition-colors cursor-pointer"
+              className="hover:text-[#F1F0E9] transition-colors cursor-pointer"
             >
               Method
             </button>
             <button
               onClick={() => scrollTo("preview")}
-              className="hover:text-[#171717] transition-colors cursor-pointer"
+              className="hover:text-[#F1F0E9] transition-colors cursor-pointer"
             >
               Explore
             </button>
@@ -57,12 +57,12 @@ export const CinematicFooter: React.FC = () => {
         </div>
 
         {/* Bottom Footer Note & Dynamic Copyright */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#646464] font-sans">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-[#829492] font-sans">
           <p className="max-w-xl leading-relaxed">
             A field guide to environmental and civic context. Data availability, resolution, and freshness vary by source and location.
           </p>
 
-          <div className="font-mono text-[11px] text-[#646464] whitespace-nowrap">
+          <div className="font-mono text-[11px] text-[#829492] whitespace-nowrap">
             © {new Date().getFullYear()} ZONALYZE. All rights reserved.
           </div>
         </div>

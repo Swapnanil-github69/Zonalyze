@@ -34,12 +34,13 @@ export const HowItWorksSection: React.FC = () => {
   ];
 
   return (
-    <section id="how-it-works" className="relative w-full py-20 sm:py-28 bg-[#fefffc] border-b border-[#dee2de]">
+    <section id="how-it-works" className="relative w-full py-20 sm:py-28 bg-[#0B1719] border-b border-[#192E31]">
       <div className="max-w-[1200px] mx-auto px-6 sm:px-8 space-y-12 sm:space-y-16 text-left">
         
         {/* Section Header */}
         <div className="max-w-2xl space-y-4">
-          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#646464]">
+          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#B6C6A3]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B6C6A3]" />
             <span>METHODOLOGY</span>
           </div>
 
@@ -49,32 +50,32 @@ export const HowItWorksSection: React.FC = () => {
               lineHeight: 1.15,
               letterSpacing: "-0.02em",
             }}
-            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#2c2c2c]"
+            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#F1F0E9]"
           >
             How ZONALYZE works.
           </h2>
 
-          <p className="text-base text-[#444141] font-sans leading-relaxed">
+          <p className="text-base text-[#B8C5C2] font-sans leading-relaxed">
             Our pipeline prioritizes empirical observations before generating narrative synthesis. We do not claim every data provider returns observations for every coordinate on earth.
           </p>
         </div>
 
-        {/* 4 Steps in Restrained Diagram Grid */}
+        {/* 4 Steps in Restrained Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {steps.map((step) => {
             const IconComponent = step.icon;
             return (
               <div
                 key={step.number}
-                className="p-6 rounded-2xl bg-[#ffffff] border border-[#dee2de] shadow-[0_1px_6px_rgba(0,0,0,0.02)] hover:border-[#b4b8b4] transition-all flex flex-col justify-between space-y-6"
+                className="p-6 rounded-[24px] bg-[#102124] border border-[#192E31] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:border-[#B6C6A3]/40 transition-all flex flex-col justify-between space-y-6"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm font-semibold text-[#282834]">
+                    <span className="font-mono text-xs font-bold text-[#B6C6A3] px-2.5 py-1 rounded-md bg-[#142629] border border-[#192E31]">
                       {step.number}
                     </span>
-                    <div className="w-8 h-8 rounded-lg border border-[#dee2de] flex items-center justify-center text-[#282834]">
-                      <IconComponent className="w-4 h-4 text-[#282834]" />
+                    <div className="w-8 h-8 rounded-lg border border-[#192E31] bg-[#142629] flex items-center justify-center text-[#B8C5C2]">
+                      <IconComponent className="w-4 h-4 text-[#B8C5C2]" />
                     </div>
                   </div>
 
@@ -82,17 +83,17 @@ export const HowItWorksSection: React.FC = () => {
                     style={{
                       fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
                     }}
-                    className="text-xl font-normal text-[#171717] leading-snug"
+                    className="text-xl font-normal text-[#F1F0E9] leading-snug"
                   >
                     {step.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-[#444141] leading-relaxed font-sans">
+                  <p className="text-xs sm:text-sm text-[#B8C5C2] leading-relaxed font-sans">
                     {step.description}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#dee2de] text-[11px] font-mono text-[#646464] leading-relaxed">
+                <div className="pt-3 border-t border-[#192E31] text-[11px] font-mono text-[#829492] leading-relaxed">
                   {step.clarification}
                 </div>
               </div>
