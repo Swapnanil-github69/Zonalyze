@@ -151,7 +151,10 @@ export async function fetchOSMData(lat: number, lon: number): Promise<OSMResult>
 (
   nwr["amenity"~"hospital|clinic|nursing_home"](around:3000, ${lat},${lon});
   nwr["healthcare"~"hospital|clinic|centre|nursing_home"](around:3000, ${lat},${lon});
-  nwr["railway"="station"](around:4000, ${lat},${lon});
+  nwr["station"="subway"](around:4000, ${lat},${lon});
+  nwr["railway"="subway"](around:4000, ${lat},${lon});
+  nwr["subway"="yes"](around:4000, ${lat},${lon});
+  nwr["railway"="station"]["station"!="subway"]["subway"!="yes"](around:4000, ${lat},${lon});
   nwr["highway"="bus_stop"](around:1200, ${lat},${lon});
   nwr["amenity"="bus_station"](around:2000, ${lat},${lon});
   nwr["amenity"="taxi"](around:1000, ${lat},${lon});
@@ -210,13 +213,17 @@ export function parseElements(
     const tags = element.tags ?? {};
     const d = calculateHaversineMeters(centerLat, centerLon, elLat, elLon);
 
-    if (tags.railway === "station") {
-      const station = getFacility(tags, d, "Railway station", elLon, elLat);
-      if (tags.station === "subway" || tags.subway === "yes") {
-        result.facilities.metro = updateNearest(result.facilities.metro, station);
-      } else {
-        result.facilities.railway = updateNearest(result.facilities.railway, station);
-      }
+    const isSubway =
+      tags.station === "subway" ||
+      tags.subway === "yes" ||
+      tags.railway === "subway";
+
+    if (isSubway) {
+      const metroStation = getFacility(tags, d, "Metro Station", elLon, elLat);
+      result.facilities.metro = updateNearest(result.facilities.metro, metroStation);
+    } else if (tags.railway === "station") {
+      const trainStation = getFacility(tags, d, "Railway Station", elLon, elLat);
+      result.facilities.railway = updateNearest(result.facilities.railway, trainStation);
     }
 
     if (tags.highway === "bus_stop" || tags.amenity === "bus_station") {

@@ -73,19 +73,13 @@ export class HeuristicService {
         pharmacies++;
       } else if (
         tags.station === "subway" ||
-        tags.station === "light_rail" ||
         tags.subway === "yes" ||
-        (tags.railway === "station" && (tags.subway === "yes" || tags.station === "subway"))
+        tags.railway === "subway"
       ) {
         metro_stations++;
-        railway_stations++;
         if (nearestMetroDist === null || dist < nearestMetroDist) {
           nearestMetroDist = dist;
           nearestMetroName = facilityName || "Metro Station";
-        }
-        if (nearestRailwayDist === null || dist < nearestRailwayDist) {
-          nearestRailwayDist = dist;
-          nearestRailwayName = facilityName || "Railway Station";
         }
       } else if (
         tags.railway === "station" ||

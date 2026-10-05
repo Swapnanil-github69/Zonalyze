@@ -4,13 +4,31 @@ import { SearchBar } from "../components/map/SearchBar";
 import { RadarScanner } from "../components/common/RadarScanner";
 import { DossierPanel } from "../components/dossier/DossierPanel";
 import { useInvestigation } from "../hooks/useInvestigation";
-import { FileText, ShieldAlert, Sparkles, ArrowLeft, Footprints, X, Loader2 } from "lucide-react";
-import { fetchWalkingRoute, RouteResult } from "../services/routeService";
+import {
+  FileText,
+  ShieldAlert,
+  Sparkles,
+  ArrowLeft,
+  Footprints,
+  X,
+  Loader2,
+  Car,
+  Bike,
+  Zap,
+} from "lucide-react";
+import { fetchFacilityRoute, RouteResult, TravelMode } from "../services/routeService";
 import { SelectedFacility } from "../components/dossier/InfrastructureCard";
 
 interface InvestigationMapPageProps {
   onBackToHome: () => void;
 }
+
+const TRAVEL_MODES: Array<{ mode: TravelMode; label: string; icon: React.FC<{ className?: string }> }> = [
+  { mode: "walk", label: "Walk", icon: Footprints },
+  { mode: "bicycle", label: "Cycling", icon: Bike },
+  { mode: "bike", label: "Motorcycle", icon: Zap },
+  { mode: "car", label: "Car", icon: Car },
+];
 
 export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBackToHome }) => {
   const {
@@ -26,6 +44,7 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
 
   const [selectedFacility, setSelectedFacility] = useState<SelectedFacility | null>(null);
   const [activeRoute, setActiveRoute] = useState<RouteResult | null>(null);
+  const [travelMode, setTravelMode] = useState<TravelMode>("walk");
   const [isLoadingRoute, setIsLoadingRoute] = useState<boolean>(false);
   const [routeNotice, setRouteNotice] = useState<string | null>(null);
 
@@ -36,17 +55,14 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
     stage === "synthesizing_ai";
 
   const handleCoordinateClick = (lat: number, lng: number) => {
-    // Clear any active pedestrian route when initiating a new pinpoint audit
+    // Clear any active route when initiating a new pinpoint audit
     setSelectedFacility(null);
     setActiveRoute(null);
     setRouteNotice(null);
     triggerInvestigation(lat, lng);
   };
 
-  const handleSelectFacility = async (facility: SelectedFacility) => {
-    setSelectedFacility(facility);
-    setRouteNotice(null);
-
+  const fetchRouteForFacility = async (facility: SelectedFacility, mode: TravelMode) => {
     const originLon = investigation?.location?.coordinates?.[0] ?? selectedCoords?.lng;
     const originLat = investigation?.location?.coordinates?.[1] ?? selectedCoords?.lat;
 
@@ -56,18 +72,31 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
     }
 
     setIsLoadingRoute(true);
+    setRouteNotice(null);
     try {
-      const route = await fetchWalkingRoute([originLon, originLat], facility.coordinates);
+      const route = await fetchFacilityRoute([originLon, originLat], facility.coordinates, mode);
       if (route) {
         setActiveRoute(route);
       } else {
-        setRouteNotice(`Could not resolve real-world street route to ${facility.name}.`);
+        setRouteNotice(`Could not resolve real-world ${mode} route to ${facility.name}.`);
       }
     } catch (err) {
-      console.error("Failed to fetch walking route:", err);
+      console.error("Failed to fetch route:", err);
       setRouteNotice("Failed to calculate street route.");
     } finally {
       setIsLoadingRoute(false);
+    }
+  };
+
+  const handleSelectFacility = async (facility: SelectedFacility) => {
+    setSelectedFacility(facility);
+    await fetchRouteForFacility(facility, travelMode);
+  };
+
+  const handleModeChange = async (mode: TravelMode) => {
+    setTravelMode(mode);
+    if (selectedFacility) {
+      await fetchRouteForFacility(selectedFacility, mode);
     }
   };
 
@@ -77,14 +106,18 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
     setRouteNotice(null);
   };
 
-  const formatDistance = (meters: number): string => {
-    if (meters >= 1000) return `${(meters / 1000).toFixed(1)} km`;
-    return `${meters}m`;
-  };
-
-  const formatDuration = (seconds: number): string => {
-    const mins = Math.max(1, Math.round(seconds / 60));
-    return `${mins} min walk`;
+  const getModeIcon = (mode: TravelMode) => {
+    switch (mode) {
+      case "car":
+        return <Car className="w-4 h-4 text-purple-400" />;
+      case "bike":
+        return <Zap className="w-4 h-4 text-amber-400" />;
+      case "bicycle":
+        return <Bike className="w-4 h-4 text-emerald-400" />;
+      case "walk":
+      default:
+        return <Footprints className="w-4 h-4 text-cyan-400" />;
+    }
   };
 
   return (
@@ -141,50 +174,72 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
         </div>
       </div>
 
-      {/* 3. Pedestrian Pathway Floating HUD overlay */}
+      {/* 3. Multi-Modal Street Pathway Floating HUD overlay */}
       {(selectedFacility || activeRoute || isLoadingRoute || routeNotice) && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-30 w-11/12 max-w-lg animate-in fade-in slide-in-from-top-3 duration-300">
-          <div className="glass-panel-elevated p-3 sm:p-3.5 rounded-2xl border border-cyan-500/50 shadow-2xl bg-slate-950/90 backdrop-blur-md flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="h-8 w-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0">
-                {isLoadingRoute ? (
-                  <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
-                ) : (
-                  <Footprints className="w-4 h-4 text-cyan-400" />
-                )}
-              </div>
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-white truncate max-w-[200px] sm:max-w-xs">
-                    {selectedFacility?.name || "Walking Route"}
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0">
-                    OSRM Street Route
-                  </span>
-                </div>
-                <div className="text-[11px] text-slate-300 font-mono flex items-center gap-2 mt-0.5">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-30 w-11/12 max-w-xl animate-in fade-in slide-in-from-top-3 duration-300">
+          <div className="glass-panel-elevated p-3 sm:p-3.5 rounded-2xl border border-cyan-500/50 shadow-2xl bg-slate-950/95 backdrop-blur-md flex flex-col gap-2.5">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="h-8 w-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0">
                   {isLoadingRoute ? (
-                    <span className="text-cyan-300 animate-pulse">Calculating street walking route...</span>
-                  ) : activeRoute ? (
-                    <>
-                      <span className="text-cyan-400 font-bold">{formatDistance(activeRoute.distanceMeters)}</span>
-                      <span className="text-slate-500">•</span>
-                      <span className="text-emerald-400 font-medium">{formatDuration(activeRoute.durationSeconds)}</span>
-                    </>
-                  ) : routeNotice ? (
-                    <span className="text-amber-300">{routeNotice}</span>
-                  ) : null}
+                    <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
+                  ) : (
+                    getModeIcon(travelMode)
+                  )}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-white truncate max-w-[200px] sm:max-w-xs">
+                      {selectedFacility?.name || "Street Route"}
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0">
+                      OSRM {travelMode.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-300 font-mono flex items-center gap-2 mt-0.5">
+                    {isLoadingRoute ? (
+                      <span className="text-cyan-300 animate-pulse">Calculating {travelMode} route...</span>
+                    ) : activeRoute ? (
+                      <>
+                        <span className="text-cyan-400 font-bold">{activeRoute.formattedDistance}</span>
+                        <span className="text-slate-500">•</span>
+                        <span className="text-emerald-400 font-medium">{activeRoute.formattedDuration}</span>
+                      </>
+                    ) : routeNotice ? (
+                      <span className="text-amber-300">{routeNotice}</span>
+                    ) : null}
+                  </div>
                 </div>
               </div>
+
+              <button
+                onClick={clearActiveRoute}
+                className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition shrink-0"
+                title="Clear Route"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <button
-              onClick={clearActiveRoute}
-              className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition shrink-0"
-              title="Clear Route"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            {/* Travel Mode Switcher Tabs */}
+            <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800/80">
+              {TRAVEL_MODES.map(({ mode, label, icon: Icon }) => (
+                <button
+                  key={mode}
+                  onClick={() => handleModeChange(mode)}
+                  disabled={isLoadingRoute}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg text-xs font-medium transition ${
+                    travelMode === mode
+                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  }`}
+                  title={`${label} mode`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span className="text-[11px] font-semibold">{label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}

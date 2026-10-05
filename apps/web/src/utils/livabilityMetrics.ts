@@ -136,17 +136,20 @@ export function buildDetailedFacilities(
 
   // Determine transit metrics
   const metroStations =
-    infra.metro_stations ??
-    (infra.railway_stations > 0 ? Math.max(1, Math.round(infra.railway_stations * 0.7)) : 0);
+    rawFacilities?.metro !== undefined
+      ? (rawFacilities.metro ? 1 : 0)
+      : (infra.metro_stations ?? 0);
   const railStations = infra.railway_stations ?? 0;
 
   const nearestMetro =
-    rawFacilities?.metro?.distanceMeters ??
-    infra.nearest_metro_dist_m ??
-    (infra.nearest_railway_dist_m ? Math.round(infra.nearest_railway_dist_m * 0.8) : null);
+    rawFacilities?.metro !== undefined
+      ? (rawFacilities.metro?.distanceMeters ?? null)
+      : (infra.nearest_metro_dist_m ?? null);
   const metroCoords: [number, number] | undefined =
     rawFacilities?.metro?.coordinates ||
-    (nearestMetro !== null ? computeOffsetCoords(coords, nearestMetro, 45) : undefined);
+    (nearestMetro !== null && infra.nearest_metro_name
+      ? computeOffsetCoords(coords, nearestMetro, 45)
+      : undefined);
 
   const nearestRail =
     rawFacilities?.railway?.distanceMeters ?? infra.nearest_railway_dist_m ?? null;
@@ -233,7 +236,7 @@ export function buildDetailedFacilities(
       metro: {
         count: metroStations,
         nearest_dist_m: nearestMetro,
-        name: rawFacilities?.metro?.name || infra.nearest_metro_name || (metroStations > 0 ? "Metro Station" : null),
+        name: rawFacilities?.metro?.name || (nearestMetro !== null ? (infra.nearest_metro_name || "Metro Station") : null),
         coordinates: metroCoords,
       },
       rail: {

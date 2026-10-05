@@ -89,6 +89,24 @@ export const MapView: React.FC<MapViewProps> = ({
       },
     });
 
+    const mode = activeRoute.mode || "walk";
+    let glowColor = "#06b6d4";
+    let coreColor = "#38bdf8";
+
+    if (mode === "car") {
+      glowColor = "#8b5cf6"; // Purple / Indigo
+      coreColor = "#a78bfa";
+    } else if (mode === "bike") {
+      glowColor = "#f59e0b"; // Amber / Orange
+      coreColor = "#fbbf24";
+    } else if (mode === "bicycle") {
+      glowColor = "#10b981"; // Emerald
+      coreColor = "#34d399";
+    } else {
+      glowColor = "#06b6d4"; // Cyan
+      coreColor = "#38bdf8";
+    }
+
     // 1. Outer Glowing Line Layer
     map.addLayer({
       id: glowLayerId,
@@ -99,14 +117,14 @@ export const MapView: React.FC<MapViewProps> = ({
         "line-cap": "round",
       },
       paint: {
-        "line-color": "#06b6d4", // Cyan glow
+        "line-color": glowColor,
         "line-width": 8,
         "line-opacity": 0.65,
         "line-blur": 3.5,
       },
     });
 
-    // 2. Core Street Route Line Layer
+    // 2. Core Route Line Layer
     map.addLayer({
       id: coreLayerId,
       type: "line",
@@ -116,13 +134,13 @@ export const MapView: React.FC<MapViewProps> = ({
         "line-cap": "round",
       },
       paint: {
-        "line-color": "#38bdf8", // Sky blue core
+        "line-color": coreColor,
         "line-width": 4,
         "line-opacity": 0.95,
       },
     });
 
-    // 3. Dashed Walking Flow Accent
+    // 3. Flow Accent (dashed for walk/bicycle, subtle solid inner highlight for car/bike)
     map.addLayer({
       id: pulseLayerId,
       type: "line",
@@ -133,9 +151,11 @@ export const MapView: React.FC<MapViewProps> = ({
       },
       paint: {
         "line-color": "#ffffff",
-        "line-width": 2,
-        "line-dasharray": [1, 2.5],
-        "line-opacity": 0.85,
+        "line-width": mode === "walk" || mode === "bicycle" ? 2 : 1.5,
+        ...(mode === "walk" || mode === "bicycle"
+          ? { "line-dasharray": [1, 2.5] }
+          : {}),
+        "line-opacity": 0.8,
       },
     });
 
