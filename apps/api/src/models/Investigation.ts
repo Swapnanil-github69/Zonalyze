@@ -18,6 +18,16 @@ export interface IInvestigation extends Document {
     pm10: number;
     aqi: number;
     historical_pm25: number[];
+    currentTemp?: number;
+    avgTempLastWeek?: number;
+    historicalTemp?: number[];
+  };
+  facilities?: Record<string, unknown>;
+  noise?: Record<string, unknown>;
+  aiDebrief?: {
+    summary: string;
+    observations: string[];
+    inspectionTargets: string[];
   };
   infrastructure: {
     hospitals: number;
@@ -26,8 +36,12 @@ export interface IInvestigation extends Document {
     metro_stations?: number;
     parks: number;
     nearest_hospital_dist_m: number | null;
+    nearest_hospital_name?: string | null;
+    nearby_hospitals?: Array<{ name: string; distance: number; type?: string }>;
     nearest_railway_dist_m: number | null;
+    nearest_railway_name?: string | null;
     nearest_metro_dist_m?: number | null;
+    nearest_metro_name?: string | null;
     nearest_arterial_dist_m: number | null;
   };
   noiseProfile: {
@@ -63,6 +77,16 @@ const InvestigationSchema = new Schema<IInvestigation>(
       pm10: { type: Number, required: true },
       aqi: { type: Number, required: true },
       historical_pm25: { type: [Number], default: [] },
+      currentTemp: { type: Number },
+      avgTempLastWeek: { type: Number },
+      historicalTemp: { type: [Number] },
+    },
+    facilities: { type: Schema.Types.Mixed },
+    noise: { type: Schema.Types.Mixed },
+    aiDebrief: {
+      summary: { type: String },
+      observations: { type: [String] },
+      inspectionTargets: { type: [String] },
     },
     infrastructure: {
       hospitals: { type: Number, default: 0 },
@@ -71,8 +95,18 @@ const InvestigationSchema = new Schema<IInvestigation>(
       metro_stations: { type: Number, default: 0 },
       parks: { type: Number, default: 0 },
       nearest_hospital_dist_m: { type: Number, default: null },
+      nearest_hospital_name: { type: String, default: null },
+      nearby_hospitals: [
+        {
+          name: { type: String },
+          distance: { type: Number },
+          type: { type: String },
+        },
+      ],
       nearest_railway_dist_m: { type: Number, default: null },
+      nearest_railway_name: { type: String, default: null },
       nearest_metro_dist_m: { type: Number, default: null },
+      nearest_metro_name: { type: String, default: null },
       nearest_arterial_dist_m: { type: Number, default: null },
     },
     noiseProfile: {

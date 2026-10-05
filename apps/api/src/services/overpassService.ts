@@ -134,9 +134,10 @@ export async function fetchOSMData(lat: number, lon: number): Promise<OSMResult>
     throw new RangeError("Latitude and longitude must be valid geographic coordinates.");
   }
 
-  const query = `[out:json][timeout:25];
+  const query = `[out:json][timeout:7];
 (
-  nwr["amenity"="hospital"](around:3000, ${lat},${lon});
+  nwr["amenity"~"hospital|clinic|nursing_home"](around:3000, ${lat},${lon});
+  nwr["healthcare"~"hospital|clinic|centre|nursing_home"](around:3000, ${lat},${lon});
   nwr["railway"="station"](around:4000, ${lat},${lon});
   nwr["highway"="bus_stop"](around:1200, ${lat},${lon});
   nwr["amenity"="bus_station"](around:2000, ${lat},${lon});
@@ -157,9 +158,10 @@ out center;`;
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent": "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
           Accept: "application/json",
         },
-        timeout: 30000,
+        timeout: 8000,
       }
     );
     elements = response.data?.elements ?? [];
@@ -205,10 +207,18 @@ out center;`;
         getFacility(tags, distanceMeters, "Taxi stand")
       );
     }
-    if (tags.amenity === "hospital") {
+    if (
+      tags.amenity === "hospital" ||
+      tags.amenity === "clinic" ||
+      tags.amenity === "nursing_home" ||
+      tags.healthcare === "hospital" ||
+      tags.healthcare === "clinic" ||
+      tags.healthcare === "centre" ||
+      tags.healthcare === "nursing_home"
+    ) {
       result.facilities.hospital = updateNearest(
         result.facilities.hospital,
-        getFacility(tags, distanceMeters, "Hospital")
+        getFacility(tags, distanceMeters, "Hospital / Clinic")
       );
     }
     if (tags.shop && /^(convenience|supermarket|general)$/.test(tags.shop)) {

@@ -1,8 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
-import { config } from "./config/env.js";
 import healthRoutes from "./routes/health.routes.js";
-import investigateRoutes from "./routes/investigate.routes.js";
+import investigateRoutes from "./routes/investigateRoutes.js";
 
 export function createApp(): Application {
   const app = express();

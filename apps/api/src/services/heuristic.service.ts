@@ -22,9 +22,13 @@ export class HeuristicService {
     let metro_stations = 0;
     let parks = 0;
 
+    const detectedHospitals: Array<{ name: string; distance: number; type: string }> = [];
     let nearestHospitalDist: number | null = null;
+    let nearestHospitalName: string | null = null;
     let nearestRailwayDist: number | null = null;
+    let nearestRailwayName: string | null = null;
     let nearestMetroDist: number | null = null;
+    let nearestMetroName: string | null = null;
     let nearestArterialDist: number | null = null;
 
     for (const el of elements) {
@@ -34,16 +38,31 @@ export class HeuristicService {
 
       const dist = calculateHaversineMeters(originLat, originLon, lat, lon);
       const tags = el.tags || {};
+      const facilityName = tags.name || tags["name:en"] || "";
 
-      if (
+      const isHealthcare =
         tags.amenity === "hospital" ||
+        tags.amenity === "clinic" ||
+        tags.amenity === "nursing_home" ||
         tags.healthcare === "hospital" ||
-        tags.building === "hospital"
-      ) {
-        hospitals++;
-        if (nearestHospitalDist === null || dist < nearestHospitalDist) {
-          nearestHospitalDist = dist;
-        }
+        tags.healthcare === "clinic" ||
+        tags.healthcare === "centre" ||
+        tags.healthcare === "nursing_home" ||
+        tags.building === "hospital";
+
+      if (isHealthcare) {
+        const type = tags.amenity || tags.healthcare || "medical";
+        const fallback =
+          tags.amenity === "nursing_home"
+            ? "Nursing Home"
+            : tags.amenity === "clinic"
+            ? "Clinic"
+            : "Hospital";
+        detectedHospitals.push({
+          name: facilityName || fallback,
+          distance: dist,
+          type,
+        });
       } else if (tags.amenity === "pharmacy") {
         pharmacies++;
       } else if (
@@ -56,9 +75,11 @@ export class HeuristicService {
         railway_stations++;
         if (nearestMetroDist === null || dist < nearestMetroDist) {
           nearestMetroDist = dist;
+          nearestMetroName = facilityName || "Metro Station";
         }
         if (nearestRailwayDist === null || dist < nearestRailwayDist) {
           nearestRailwayDist = dist;
+          nearestRailwayName = facilityName || "Railway Station";
         }
       } else if (
         tags.railway === "station" ||
@@ -68,6 +89,7 @@ export class HeuristicService {
         railway_stations++;
         if (nearestRailwayDist === null || dist < nearestRailwayDist) {
           nearestRailwayDist = dist;
+          nearestRailwayName = facilityName || "Railway Station";
         }
       } else if (tags.railway && ["rail", "subway", "light_rail"].includes(tags.railway)) {
         if (nearestRailwayDist === null || dist < nearestRailwayDist) {
@@ -80,6 +102,14 @@ export class HeuristicService {
       } else if (tags.leisure === "park") {
         parks++;
       }
+    }
+
+    // Sort detected healthcare facilities by proximity
+    detectedHospitals.sort((a, b) => a.distance - b.distance);
+    hospitals = detectedHospitals.length;
+    if (detectedHospitals.length > 0) {
+      nearestHospitalDist = detectedHospitals[0].distance;
+      nearestHospitalName = detectedHospitals[0].name;
     }
 
     const noiseProfile = estimateNoiseProfile({
@@ -95,8 +125,12 @@ export class HeuristicService {
         metro_stations,
         parks,
         nearest_hospital_dist_m: nearestHospitalDist,
+        nearest_hospital_name: nearestHospitalName,
+        nearby_hospitals: detectedHospitals.slice(0, 8),
         nearest_railway_dist_m: nearestRailwayDist,
+        nearest_railway_name: nearestRailwayName,
         nearest_metro_dist_m: nearestMetroDist,
+        nearest_metro_name: nearestMetroName,
         nearest_arterial_dist_m: nearestArterialDist,
       },
       noiseProfile,
