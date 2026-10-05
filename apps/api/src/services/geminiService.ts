@@ -173,33 +173,39 @@ Return JSON only, matching this exact schema:
 
 Use the display name, livability score, PM2.5, current temperature, noise bracket and nearest noise source, transit distances, and hospital distance as provided. Do not add fields. Inspection targets must be framed only as checks to perform, never as claims about conditions already present.`;
 
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3.8-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            summary: { type: Type.STRING },
-            observations: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
+  const models = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-3.7-flash", "gemini-flash-latest"];
+  for (const model of models) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              summary: { type: Type.STRING },
+              observations: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+              },
+              inspectionTargets: {
+                type: Type.ARRAY,
+                items: { type: Type.STRING },
+              },
             },
-            inspectionTargets: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-            },
+            required: ["summary", "observations", "inspectionTargets"],
           },
-          required: ["summary", "observations", "inspectionTargets"],
         },
-      },
-    });
+      });
 
-    return parseDebrief(response.text) ?? fallback;
-  } catch (error) {
-    console.error("Gemini debrief generation failed; returning telemetry-based fallback:", error);
-    return fallback;
+      const parsed = parseDebrief(response.text);
+      if (parsed) return parsed;
+    } catch (error) {
+      console.warn(`Model ${model} debrief failed, trying next candidate...`);
+    }
   }
+
+  console.warn("All Gemini candidate models failed; returning telemetry-based fallback.");
+  return fallback;
 }

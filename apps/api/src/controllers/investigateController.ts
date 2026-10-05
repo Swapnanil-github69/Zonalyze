@@ -79,8 +79,20 @@ export async function investigateLocation(req: Request, res: Response): Promise<
         metro_stations: osmData.facilities.metro ? 1 : 0,
         parks: osmData.facilities.park ? 1 : 0,
         nearest_hospital_dist_m: getFacilityDistance(osmData.facilities.hospital),
+        nearest_hospital_name: osmData.facilities.hospital?.name ?? null,
+        nearby_hospitals: osmData.facilities.hospital
+          ? [
+              {
+                name: osmData.facilities.hospital.name,
+                distance: osmData.facilities.hospital.distanceMeters,
+                type: "healthcare",
+              },
+            ]
+          : [],
         nearest_railway_dist_m: getFacilityDistance(osmData.facilities.railway),
+        nearest_railway_name: osmData.facilities.railway?.name ?? null,
         nearest_metro_dist_m: getFacilityDistance(osmData.facilities.metro),
+        nearest_metro_name: osmData.facilities.metro?.name ?? null,
         nearest_arterial_dist_m:
           osmData.noise.nearestSource === "Primary highway"
             ? osmData.noise.distanceMeters

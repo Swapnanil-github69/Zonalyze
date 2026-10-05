@@ -142,10 +142,12 @@ export function buildDetailedFacilities(
       metro: {
         count: metroStations,
         nearest_dist_m: nearestMetro,
+        name: infra.nearest_metro_name || (metroStations > 0 ? "Metro Station" : null),
       },
       rail: {
         count: railStations,
         nearest_dist_m: nearestRail,
+        name: infra.nearest_railway_name || (railStations > 0 ? "Railway Station" : null),
       },
       bus: {
         count: Math.max(4, Math.round(railStations * 3 + 2)),
@@ -158,12 +160,15 @@ export function buildDetailedFacilities(
       airport: {
         count: 1,
         nearest_dist_m: airportDistM,
+        name: "CCU International Airport",
       },
     },
     essentials: {
       hospitals: {
         count: infra.hospitals,
         nearest_dist_m: infra.nearest_hospital_dist_m,
+        name: infra.nearest_hospital_name || (infra.hospitals > 0 ? "Nearest Medical Facility" : null),
+        nearby: infra.nearby_hospitals || [],
       },
       convenienceStores: {
         count: Math.max(6, infra.pharmacies * 2 + 3),

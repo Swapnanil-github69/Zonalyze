@@ -36,8 +36,12 @@ export interface IInvestigation extends Document {
     metro_stations?: number;
     parks: number;
     nearest_hospital_dist_m: number | null;
+    nearest_hospital_name?: string | null;
+    nearby_hospitals?: Array<{ name: string; distance: number; type?: string }>;
     nearest_railway_dist_m: number | null;
+    nearest_railway_name?: string | null;
     nearest_metro_dist_m?: number | null;
+    nearest_metro_name?: string | null;
     nearest_arterial_dist_m: number | null;
   };
   noiseProfile: {
@@ -91,8 +95,18 @@ const InvestigationSchema = new Schema<IInvestigation>(
       metro_stations: { type: Number, default: 0 },
       parks: { type: Number, default: 0 },
       nearest_hospital_dist_m: { type: Number, default: null },
+      nearest_hospital_name: { type: String, default: null },
+      nearby_hospitals: [
+        {
+          name: { type: String },
+          distance: { type: Number },
+          type: { type: String },
+        },
+      ],
       nearest_railway_dist_m: { type: Number, default: null },
+      nearest_railway_name: { type: String, default: null },
       nearest_metro_dist_m: { type: Number, default: null },
+      nearest_metro_name: { type: String, default: null },
       nearest_arterial_dist_m: { type: Number, default: null },
     },
     noiseProfile: {

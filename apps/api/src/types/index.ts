@@ -42,8 +42,12 @@ export interface InfrastructureMetrics {
   metro_stations?: number;
   parks: number;
   nearest_hospital_dist_m: number | null;
+  nearest_hospital_name?: string | null;
+  nearby_hospitals?: Array<{ name: string; distance: number; type?: string }>;
   nearest_railway_dist_m: number | null;
+  nearest_railway_name?: string | null;
   nearest_metro_dist_m?: number | null;
+  nearest_metro_name?: string | null;
   nearest_arterial_dist_m: number | null;
 }
 

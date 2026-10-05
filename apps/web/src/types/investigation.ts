@@ -26,17 +26,22 @@ export interface HotelItem {
 }
 
 export interface TransitFacilities {
-  metro: { count: number; nearest_dist_m: number | null };
-  rail: { count: number; nearest_dist_m: number | null };
-  bus: { count: number; nearest_dist_m: number | null };
-  autoToto: { count: number; nearest_dist_m: number | null };
-  airport: { count: number; nearest_dist_m: number | null };
+  metro: { count: number; nearest_dist_m: number | null; name?: string | null };
+  rail: { count: number; nearest_dist_m: number | null; name?: string | null };
+  bus: { count: number; nearest_dist_m: number | null; name?: string | null };
+  autoToto: { count: number; nearest_dist_m: number | null; name?: string | null };
+  airport: { count: number; nearest_dist_m: number | null; name?: string | null };
 }
 
 export interface EssentialFacilities {
-  hospitals: { count: number; nearest_dist_m: number | null };
-  convenienceStores: { count: number; nearest_dist_m: number | null };
-  parks: { count: number; nearest_dist_m: number | null };
+  hospitals: {
+    count: number;
+    nearest_dist_m: number | null;
+    name?: string | null;
+    nearby?: Array<{ name: string; distance: number; type?: string }>;
+  };
+  convenienceStores: { count: number; nearest_dist_m: number | null; name?: string | null };
+  parks: { count: number; nearest_dist_m: number | null; name?: string | null };
 }
 
 export interface DetailedFacilities {
@@ -52,8 +57,12 @@ export interface InfrastructureData {
   metro_stations?: number;
   parks: number;
   nearest_hospital_dist_m: number | null;
+  nearest_hospital_name?: string | null;
+  nearby_hospitals?: Array<{ name: string; distance: number; type?: string }>;
   nearest_railway_dist_m?: number | null;
+  nearest_railway_name?: string | null;
   nearest_metro_dist_m?: number | null;
+  nearest_metro_name?: string | null;
   nearest_arterial_dist_m?: number | null;
   detailed?: DetailedFacilities;
 }

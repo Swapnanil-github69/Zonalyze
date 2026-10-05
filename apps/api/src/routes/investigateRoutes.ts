@@ -8,7 +8,7 @@ import { InvestigateController } from "../controllers/investigate.controller.js"
 
 const router = Router();
 
-router.post("/investigate", investigateLocation);
+router.post("/investigate", InvestigateController.investigateCoordinate);
 router.get("/investigations/recent", getRecentInvestigations);
 router.get("/investigations/:id", getInvestigationById);
 router.post("/investigate/chat", InvestigateController.chatAboutLocation);

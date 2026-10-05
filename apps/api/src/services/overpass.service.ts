@@ -20,9 +20,10 @@ export class OverpassService {
     const query = `
       [out:json][timeout:5];
       (
-        node["amenity"="hospital"](around:3000, ${lat}, ${lon});
-        way["amenity"="hospital"](around:3000, ${lat}, ${lon});
-        node["healthcare"="hospital"](around:3000, ${lat}, ${lon});
+        node["amenity"~"hospital|clinic|nursing_home"](around:3000, ${lat}, ${lon});
+        way["amenity"~"hospital|clinic|nursing_home"](around:3000, ${lat}, ${lon});
+        node["healthcare"~"hospital|clinic|centre|nursing_home"](around:3000, ${lat}, ${lon});
+        way["healthcare"~"hospital|clinic|centre|nursing_home"](around:3000, ${lat}, ${lon});
         node["amenity"="pharmacy"](around:1500, ${lat}, ${lon});
         node["railway"="station"](around:3000, ${lat}, ${lon});
         way["railway"="station"](around:3000, ${lat}, ${lon});
@@ -34,7 +35,7 @@ export class OverpassService {
         node["leisure"="park"](around:2000, ${lat}, ${lon});
         way["leisure"="park"](around:2000, ${lat}, ${lon});
       );
-      out center 120;
+      out center 150;
     `;
 
     // Race fast mirrors concurrently with a 3500ms timeout
@@ -85,25 +86,41 @@ export class OverpassService {
           "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
       };
 
-      const [hospRes, stationRes, parkRes] = await Promise.allSettled([
-        axios.get(`https://nominatim.openstreetmap.org/search?q=hospital&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 2500 }),
-        axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 2500 }),
-        axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 2500 }),
+      const [hospRes, clinicRes, nursingRes, stationRes, parkRes] = await Promise.allSettled([
+        axios.get(`https://nominatim.openstreetmap.org/search?q=hospital&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3000 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=clinic&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3000 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=nursing+home&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3000 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3000 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3000 }),
       ]);
 
       const elements: OverpassElement[] = [];
+      const seenOsmIds = new Set<number>();
 
-      if (hospRes.status === "fulfilled" && Array.isArray(hospRes.value.data)) {
-        for (const item of hospRes.value.data) {
+      const addHealthcare = (data: any[], defaultAmenity: string) => {
+        if (!Array.isArray(data)) return;
+        for (const item of data) {
+          const osmId = Number(item.osm_id) || Math.floor(Math.random() * 100000);
+          if (seenOsmIds.has(osmId)) continue;
+          seenOsmIds.add(osmId);
+
           elements.push({
             type: "node",
-            id: Number(item.osm_id) || Math.floor(Math.random() * 100000),
+            id: osmId,
             lat: parseFloat(item.lat),
             lon: parseFloat(item.lon),
-            tags: { amenity: "hospital", name: item.display_name?.split(",")[0] || "Hospital" },
+            tags: {
+              amenity: item.type === "clinic" ? "clinic" : item.type === "nursing_home" ? "nursing_home" : defaultAmenity,
+              healthcare: item.type || defaultAmenity,
+              name: item.name || item.display_name?.split(",")[0] || "Medical Facility",
+            },
           });
         }
-      }
+      };
+
+      if (hospRes.status === "fulfilled") addHealthcare(hospRes.value.data, "hospital");
+      if (clinicRes.status === "fulfilled") addHealthcare(clinicRes.value.data, "clinic");
+      if (nursingRes.status === "fulfilled") addHealthcare(nursingRes.value.data, "nursing_home");
 
       if (stationRes.status === "fulfilled" && Array.isArray(stationRes.value.data)) {
         for (const item of stationRes.value.data) {

@@ -5,9 +5,10 @@ import { calculateHaversineMeters } from "../utils/geoUtils.js";
 import { NominatimService } from "./nominatim.service.js";
 
 const CANDIDATE_MODELS = [
-  "gemini-3.8-flash",
-  "gemini-flash-latest",
   "gemini-3.5-flash",
+  "gemini-3.8-flash",
+  "gemini-3.7-flash",
+  "gemini-flash-latest",
 ];
 
 /**
@@ -272,11 +273,34 @@ INSTRUCTIONS:
       ?.replace(/\b(?:from\s+here|from\s+this\s+location|from\s+now)\b/gi, "")
       .trim();
 
-    // Extract city hint from address (e.g. "Park Street, Kolkata, West Bengal, India" -> "Kolkata")
-    const addressTokens = address.split(",").map((s: string) => s.trim()).filter(Boolean);
-    const cityHint = addressTokens.length >= 3 ? addressTokens[1] : (addressTokens[0] || "");
+    // Check if targetPlace is a generic inquiry for the nearest hospital/clinic
+    const isGenericHospitalQuery =
+      targetPlace &&
+      /^(?:the\s+)?(?:nearest\s+)?(?:hospital|clinic|nursing\s*home|doctor|medical\s*facility|medical\s*center)$/i.test(
+        targetPlace.trim()
+      );
 
-    if (targetPlace && coords.length === 2) {
+    if (isGenericHospitalQuery && infra.nearest_hospital_name) {
+      const distM = infra.nearest_hospital_dist_m ?? 50;
+      const distKm = (distM / 1000).toFixed(2);
+      const drivingKm = ((distM * 1.3) / 1000).toFixed(1);
+      distInfo = {
+        meters: distM,
+        km: distKm,
+        drivingKm,
+        name: infra.nearest_hospital_name,
+      };
+      supplementalGeoDistance = `
+SUPPLEMENTAL EXACT GEODETIC TELEMETRY:
+- Queried Destination: "${infra.nearest_hospital_name}" (Nearest Verified Healthcare Node)
+- Distance from Location: ${distM} meters (~${distKm} km)
+- Estimated Walking Time: ~${Math.max(1, Math.round(distM / 75))} minutes
+`;
+    } else if (targetPlace && coords.length === 2) {
+      // Extract city hint from address (e.g. "Park Street, Kolkata, West Bengal, India" -> "Kolkata")
+      const addressTokens = address.split(",").map((s: string) => s.trim()).filter(Boolean);
+      const cityHint = addressTokens.length >= 3 ? addressTokens[1] : (addressTokens[0] || "");
+
       const originLon = coords[0];
       const originLat = coords[1];
       try {
@@ -318,6 +342,14 @@ SUPPLEMENTAL EXACT GEODETIC TELEMETRY:
     const originLat = coords[1] ?? "N/A";
     const originLon = coords[0] ?? "N/A";
 
+    const nearbyHospSummary =
+      Array.isArray(infra.nearby_hospitals) && infra.nearby_hospitals.length > 0
+        ? infra.nearby_hospitals
+            .slice(0, 5)
+            .map((h: any) => `${h.name} (${h.distance}m, ${h.type || "healthcare"})`)
+            .join("; ")
+        : "";
+
     const systemInstruction = `
 You are Zonalyze's Advanced Location & Civic Intelligence Advisor.
 You are conversing with an investigator, prospective homebuyer, tenant, or citizen auditing this location:
@@ -326,8 +358,10 @@ Coordinates: [Latitude: ${originLat}, Longitude: ${originLon}]
 
 VERIFIED SENSOR & SATELLITE TELEMETRY (Immediate perimeter envelope):
 - Atmospheric Health: AQI ${env.aqi ?? "N/A"}, PM2.5: ${env.pm2_5 ?? "N/A"} µg/m³, PM10: ${env.pm10 ?? "N/A"} µg/m³.
-- Healthcare Facilities: ${infra.hospitals ?? 0} hospitals in immediate cluster (Nearest hospital: ${infra.nearest_hospital_dist_m ?? "outside immediate 3000m radius"}m).
-- Multi-Modal Transit: ${infra.metro_stations ?? 0} metro stations (Nearest metro: ${infra.nearest_metro_dist_m ?? "outside immediate 3000m radius"}m), ${infra.railway_stations ?? 0} rail platforms (Nearest rail: ${infra.nearest_railway_dist_m ?? "outside immediate radius"}m).
+- Healthcare Facilities: ${infra.hospitals ?? 0} healthcare facilities/hospitals in immediate cluster.
+  * Nearest Facility: "${infra.nearest_hospital_name || 'Nearest Local Medical Facility'}" located ${infra.nearest_hospital_dist_m ?? "outside immediate 3000m radius"}m from audited coordinates.
+${nearbyHospSummary ? `  * Top Detected Healthcare Options in Sector: ${nearbyHospSummary}` : ""}
+- Multi-Modal Transit: ${infra.metro_stations ?? 0} metro stations (Nearest metro: "${infra.nearest_metro_name || 'Metro'}" at ${infra.nearest_metro_dist_m ?? "outside immediate 3000m radius"}m), ${infra.railway_stations ?? 0} rail platforms (Nearest rail: "${infra.nearest_railway_name || 'Station'}" at ${infra.nearest_railway_dist_m ?? "outside immediate radius"}m).
 - Parks & Greenery: ${infra.parks ?? 0} parks in radial envelope.
 - Acoustic Decibel Proxy: ${noise.estimated_bracket ?? "Ambient"} bracket (${noise.distance_meters ? `${noise.distance_meters}m from ${noise.nearest_source_type}` : "no primary arterial highway corridor within 500m"}). Confidence: ${noise.confidence ?? "Verified"}.
 - Executive Debrief Summary: ${summary}
@@ -343,6 +377,13 @@ The user is completely free to ask ANY question regarding this location, neighbo
 
 RULES:
 - Answer the user's question directly, clearly, and helpfully (2 to 4 concise sentences).
+- CRITICAL HEALTHCARE GROUNDING RULE: When the user asks for the nearest hospital, clinic, or medical facility (e.g. "where is the nearest hospital", "nearest hospital", "which hospital is closest"), you MUST explicitly name the nearest facility detected in telemetry ("${infra.nearest_hospital_name || 'nearest medical center'}") and quote its exact distance (${infra.nearest_hospital_dist_m ? `${infra.nearest_hospital_dist_m}m` : 'nearby'}). You may also cite other detected facilities in the cluster if relevant. NEVER guess or invent random hospitals that are farther away.
+- CRITICAL NEARBY FACILITIES & AMENITIES GROUNDING RULE: When the user asks about nearby facilities, amenities, or services in general (e.g. "any nearby facilities", "what facilities are nearby", "nearby amenities", "what is near here"):
+  You MUST give a clear breakdown of the REAL facilities detected in telemetry:
+  1. Healthcare: Explicitly name "${infra.nearest_hospital_name || 'Nearest Local Medical Facility'}" and quote its exact distance (${infra.nearest_hospital_dist_m ? `${infra.nearest_hospital_dist_m}m` : 'nearby'}), plus any other detected hospitals in the cluster.
+  2. Rapid Transit & Rail: Explicitly name "${infra.nearest_metro_name || 'Nearest Metro Station'}" (${infra.nearest_metro_dist_m ? `${infra.nearest_metro_dist_m}m` : 'nearby'}) and "${infra.nearest_railway_name || 'Nearest Railway Station'}" (${infra.nearest_railway_dist_m ? `${infra.nearest_railway_dist_m}m` : 'nearby'}).
+  3. Greenery & Parks: Mention the ${infra.parks ?? 0} parks in the radial envelope.
+  NEVER quote generic placeholder numbers like 640m or omit facility names!
 - Integrate verified telemetry for air quality, acoustics, and immediate transit distances.
 - Integrate your broad geographic, civic, and urban knowledge of this specific city, district, and neighborhood for open-ended queries.
 - NEVER claim that you can only answer pre-set questions or that an inquiry is forbidden because it is outside the telemetry. Be a versatile, friendly, and expert location intelligence agent.
@@ -408,61 +449,110 @@ LANGUAGE & MULTILINGUAL OUTPUT:
       return `${targetPlace} (${distInfo.name.split(",")[0]}) is located approximately ${distInfo.km} km (${distInfo.meters.toLocaleString()} meters, straight-line distance) from ${locName}. Driving or transit distance is estimated around ${distInfo.drivingKm} km.`;
     }
 
-    // 2. Distance, proximity & landmark questions (BEFORE grocery/store so "KFC store" or "Apple store" doesn't hit grocery!)
+    // 2. Dedicated handler for general "nearby facilities", "amenities", "what is nearby"
+    if (
+      q.includes("facilit") ||
+      q.includes("amenit") ||
+      (q.includes("nearby") && !q.includes("hospital") && !q.includes("metro")) ||
+      q.includes("what is near") ||
+      q.includes("what's near")
+    ) {
+      const hosp = infra.nearest_hospital_name
+        ? `**${infra.nearest_hospital_name}** (${infra.nearest_hospital_dist_m ?? "nearby"}m away)`
+        : `${infra.nearest_hospital_dist_m ?? "nearby"}m away`;
+      const metro = infra.nearest_metro_name
+        ? `**${infra.nearest_metro_name}** (${infra.nearest_metro_dist_m ?? "nearby"}m away)`
+        : (infra.nearest_metro_dist_m ? `${infra.nearest_metro_dist_m}m away` : null);
+      const rail = infra.nearest_railway_name
+        ? `**${infra.nearest_railway_name}** (${infra.nearest_railway_dist_m ?? "nearby"}m away)`
+        : (infra.nearest_railway_dist_m ? `${infra.nearest_railway_dist_m}m away` : null);
+
+      let transitStr = "";
+      if (metro) transitStr = ` For rapid transit, ${metro} is your closest access point.`;
+      else if (rail) transitStr = ` For rail commute, ${rail} is your closest access point.`;
+
+      const otherHosp =
+        Array.isArray(infra.nearby_hospitals) && infra.nearby_hospitals.length > 1
+          ? ` Other nearby medical centers include ${infra.nearby_hospitals
+              .slice(1, 3)
+              .map((h: any) => `${h.name} (~${h.distance}m)`)
+              .join(", ")}.`
+          : "";
+
+      return `Key nearby facilities for ${locName} include verified healthcare via ${hosp} (${infra.hospitals ?? 1} healthcare centers in sector).${otherHosp}${transitStr} The surrounding quadrant also features ${infra.parks ?? 0} parks, local grocery markets, and pharmacies within walking reach.`;
+    }
+
+    // 3. Healthcare (BEFORE generic distance)
+    if (q.includes("hospital") || q.includes("health") || q.includes("medical") || q.includes("doctor") || q.includes("emergency") || q.includes("clinic") || q.includes("nursing home")) {
+      const hospName = infra.nearest_hospital_name ? `**${infra.nearest_hospital_name}**` : "a primary medical facility";
+      const hospDist = infra.nearest_hospital_dist_m ? `${infra.nearest_hospital_dist_m}m` : "outside immediate 3000m radius";
+      const otherHosp =
+        Array.isArray(infra.nearby_hospitals) && infra.nearby_hospitals.length > 1
+          ? ` Other nearby facilities include ${infra.nearby_hospitals
+              .slice(1, 4)
+              .map((h: any) => `${h.name} (~${h.distance}m)`)
+              .join(", ")}.`
+          : "";
+      return `The nearest medical facility is ${hospName}, situated approximately ${hospDist} from this location (${infra.hospitals || 1} healthcare facilities detected in the surrounding cluster).${otherHosp}`;
+    }
+
+    // 4. Public Transit (BEFORE generic distance)
+    if (q.includes("metro") || q.includes("train") || q.includes("transit") || q.includes("commute") || q.includes("rail") || q.includes("station") || q.includes("bus")) {
+      const metroName = infra.nearest_metro_name ? `**${infra.nearest_metro_name}**` : "the nearest metro station";
+      const metroDist = infra.nearest_metro_dist_m ? `${infra.nearest_metro_dist_m}m` : (infra.nearest_railway_dist_m ? `${infra.nearest_railway_dist_m}m (rail)` : "beyond walking distance");
+      return `Public transit connectivity features ${metroName} at ${metroDist}, with ${infra.metro_stations || infra.railway_stations || 0} active stations serving this quadrant.`;
+    }
+
+    // 5. Generic Distance, proximity & landmark questions
     if (q.includes("distance") || q.includes("how far") || q.includes("how close") || q.includes("nearest") || q.includes("where is")) {
       return `For destinations relative to ${locName}, commercial and retail outlets (including ${targetPlace || "requested facilities"}) are typically clustered within neighborhood commercial hubs and main access roads approximately 500m to 2.5 km away, with local transit and delivery services actively covering this sector.`;
     }
 
-    // 3. Safety & Security
+    // 6. Safety & Security
     if (q.includes("safe") || q.includes("crime") || q.includes("night") || q.includes("security") || q.includes("women")) {
       return `${locName} features an urban residential profile with active transit and road connectivity. Street lighting along primary corridors and proximity to civic amenities generally support pedestrian movement, though verifying perimeter illumination and evening activity during an on-site visit is recommended.`;
     }
 
-    // 4. Schools & Education
+    // 7. Schools & Education
     if (q.includes("school") || q.includes("college") || q.includes("education") || q.includes("university") || q.includes("kid")) {
       return `${locName} is situated within an established urban district offering access to primary and secondary educational institutions within the municipal zone. Direct commute routes connect to renowned regional schools and higher education campuses across the sector.`;
     }
 
-    // 5. Shopping, Groceries & Daily Needs
+    // 8. Shopping, Groceries & Daily Needs
     if (q.includes("shop") || q.includes("store") || q.includes("market") || q.includes("grocery") || q.includes("mall") || q.includes("supermarket")) {
       return `Daily essentials, local markets, and grocery convenience stores are typically clustered within neighborhood commercial corridors surrounding ${locName}, with major retail hubs and shopping centers accessible via adjacent arterial routes.`;
     }
 
-    // 6. Water, Flooding & Monsoon
+    // 9. Water, Flooding & Monsoon
     if (q.includes("flood") || q.includes("water") || q.includes("drainage") || q.includes("rain") || q.includes("monsoon") || q.includes("waterlog")) {
       return `Civic drainage infrastructure in ${locName} serves regular surface runoff. During extreme monsoon downpours, low-lying street junctions may experience temporary water accumulation, so inspecting street grading and stormwater drains on-site is advised.`;
     }
 
-    // 7. Real Estate, Renting & Investment Advice
+    // 10. Real Estate, Renting & Investment Advice
     if (q.includes("buy") || q.includes("rent") || q.includes("invest") || q.includes("worth") || q.includes("pros") || q.includes("cons") || q.includes("recommend")) {
       const transitDist = infra.nearest_metro_dist_m ? `${infra.nearest_metro_dist_m}m` : (infra.nearest_railway_dist_m ? `${infra.nearest_railway_dist_m}m` : "nearby");
       return `From an urban audit perspective, ${locName} benefits from rapid transit access (${transitDist}) and ${infra.hospitals ?? 0} healthcare facilities in its operational cluster. Key factors to weigh are the current European AQI (${env.aqi ?? "N/A"}) and ${noise.estimated_bracket || "Moderate"} acoustic exposure.`;
     }
 
-    // 8. Acoustic Noise
+    // 11. Acoustic Noise
     if (q.includes("noise") || q.includes("quiet") || q.includes("sound") || q.includes("traffic") || q.includes("loud")) {
       const dist = noise.distance_meters ? ` approximately ${noise.distance_meters}m away` : "";
       return `Acoustic exposure is rated as ${noise.estimated_bracket || "Ambient"}${noise.nearest_source_type ? ` with nearest ${noise.nearest_source_type}${dist}` : ""}. Facade soundproofing is recommended if facing major thoroughfares.`;
     }
 
-    // 9. Healthcare
-    if (q.includes("hospital") || q.includes("health") || q.includes("medical") || q.includes("doctor") || q.includes("emergency")) {
-      const hospDist = infra.nearest_hospital_dist_m ? `${infra.nearest_hospital_dist_m}m` : "outside immediate 3000m radius";
-      return `Emergency healthcare access is robust with the closest hospital located at ${hospDist}, alongside ${infra.hospitals || 0} medical facilities detected in the surrounding cluster.`;
-    }
-
-    // 10. Public Transit
-    if (q.includes("metro") || q.includes("train") || q.includes("transit") || q.includes("commute") || q.includes("rail") || q.includes("station") || q.includes("bus")) {
-      const metroDist = infra.nearest_metro_dist_m ? `${infra.nearest_metro_dist_m}m` : (infra.nearest_railway_dist_m ? `${infra.nearest_railway_dist_m}m (rail)` : "beyond walking distance");
-      return `Public transit connectivity features the nearest rapid transit/metro station at ${metroDist}, with ${infra.metro_stations || infra.railway_stations || 0} active stations serving this quadrant.`;
-    }
-
-    // 11. Air Quality & Pollution
+    // 12. Air Quality & Pollution
     if (q.includes("air") || q.includes("pollution") || q.includes("aqi") || q.includes("smell") || q.includes("breath")) {
       return `The current European AQI is recorded at ${env.aqi ?? "N/A"} with PM2.5 particulate loading at ${env.pm2_5 ?? "N/A"} µg/m³. Indoor HEPA filtration is advised during peak rush hours.`;
     }
 
-    // 12. General Comprehensive Overview
-    return `Telemetry audit for ${locName} records an AQI of ${env.aqi ?? "N/A"}, nearest emergency hospital at ${infra.nearest_hospital_dist_m ?? "N/A"}m, nearest rapid transit at ${infra.nearest_metro_dist_m ?? infra.nearest_railway_dist_m ?? "N/A"}m, and an overall ${noise.estimated_bracket || "Moderate"} acoustic exposure bracket. Feel free to ask about safety, schools, commute, or nearby destinations.`;
+    // 13. General Comprehensive Overview
+    const hospDesc = infra.nearest_hospital_name
+      ? `nearest medical facility is **${infra.nearest_hospital_name}** (${infra.nearest_hospital_dist_m ?? "nearby"}m)`
+      : `nearest emergency medical center at ${infra.nearest_hospital_dist_m ?? "N/A"}m`;
+    const transitDesc = infra.nearest_metro_name
+      ? `nearest rapid transit at **${infra.nearest_metro_name}** (${infra.nearest_metro_dist_m ?? "nearby"}m)`
+      : `nearest transit at ${infra.nearest_metro_dist_m ?? infra.nearest_railway_dist_m ?? "N/A"}m`;
+
+    return `Telemetry audit for ${locName} records an AQI of ${env.aqi ?? "N/A"}, ${hospDesc}, ${transitDesc}, and an overall ${noise.estimated_bracket || "Moderate"} acoustic exposure bracket. Feel free to ask about safety, schools, commute, or nearby destinations.`;
   }
 }
