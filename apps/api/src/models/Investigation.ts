@@ -18,6 +18,16 @@ export interface IInvestigation extends Document {
     pm10: number;
     aqi: number;
     historical_pm25: number[];
+    currentTemp?: number;
+    avgTempLastWeek?: number;
+    historicalTemp?: number[];
+  };
+  facilities?: Record<string, unknown>;
+  noise?: Record<string, unknown>;
+  aiDebrief?: {
+    summary: string;
+    observations: string[];
+    inspectionTargets: string[];
   };
   infrastructure: {
     hospitals: number;
@@ -63,6 +73,16 @@ const InvestigationSchema = new Schema<IInvestigation>(
       pm10: { type: Number, required: true },
       aqi: { type: Number, required: true },
       historical_pm25: { type: [Number], default: [] },
+      currentTemp: { type: Number },
+      avgTempLastWeek: { type: Number },
+      historicalTemp: { type: [Number] },
+    },
+    facilities: { type: Schema.Types.Mixed },
+    noise: { type: Schema.Types.Mixed },
+    aiDebrief: {
+      summary: { type: String },
+      observations: { type: [String] },
+      inspectionTargets: { type: [String] },
     },
     infrastructure: {
       hospitals: { type: Number, default: 0 },

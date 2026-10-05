@@ -55,7 +55,12 @@ function getMetrics(payload: {
     displayName: displayValue(
       typeof address === "string"
         ? address
-        : firstDefined(addressRecord.display_name, addressRecord.name, addressRecord.address)
+        : firstDefined(
+            addressRecord.displayName,
+            addressRecord.display_name,
+            addressRecord.name,
+            addressRecord.address
+          )
     ),
     livabilityScore: displayValue(payload.livabilityScore),
     pm25: displayValue(firstDefined(environment.pm2_5, environment.pm25)),
@@ -170,7 +175,7 @@ Use the display name, livability score, PM2.5, current temperature, noise bracke
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
