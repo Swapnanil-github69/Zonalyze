@@ -15,55 +15,54 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section id="hero" className="relative w-full pt-32 pb-16 sm:pt-40 sm:pb-24 overflow-hidden bg-[#0B1719]">
+    <section id="hero" className="relative w-full pt-32 pb-16 sm:pt-40 sm:pb-24 overflow-hidden bg-[#0B1316]">
       {/* Liquid Caustic Animated Background Blobs */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-[550px] h-[550px] bg-emerald-500/12 rounded-full liquid-caustic-blob pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-[600px] h-[500px] bg-[#41a1cf]/12 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-6s" }} />
-      <div className="absolute bottom-10 left-1/3 w-[450px] h-[450px] bg-[#B6C6A3]/10 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-12s" }} />
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-[550px] h-[550px] bg-emerald-500/10 rounded-full liquid-caustic-blob pointer-events-none" />
+      <div className="absolute top-1/3 right-10 w-[600px] h-[500px] bg-[#06b6d4]/10 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-6s" }} />
+      <div className="absolute bottom-10 left-1/3 w-[450px] h-[450px] bg-teal-500/8 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-12s" }} />
 
       <div className="relative max-w-[1200px] mx-auto px-6 sm:px-8 space-y-12 sm:space-y-16">
         
         {/* Editorial Text Block */}
         <div className="max-w-3xl text-left space-y-6">
           {/* Eyebrow */}
-          <div className="inline-flex items-center space-x-2 text-xs font-mono tracking-[0.2em] uppercase text-[#B6C6A3] bg-[#142629]/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]">
-            <Compass className="w-3.5 h-3.5 text-[#B6C6A3]" />
+          <div className="inline-flex items-center space-x-2 text-xs font-mono tracking-[0.2em] uppercase text-[#34d399] bg-[#0f2e29] px-3.5 py-1.5 rounded-full border border-[#10b981]/40 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+            <Compass className="w-3.5 h-3.5 text-[#34d399]" />
             <span>A FIELD GUIDE TO PLACE</span>
           </div>
 
           {/* Headline */}
           <h1
             style={{
-              fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
               lineHeight: 1.1,
-              letterSpacing: "-0.02em",
+              letterSpacing: "-0.025em",
             }}
-            className="text-4xl sm:text-5xl lg:text-[56px] font-normal text-[#F1F0E9]"
+            className="text-4xl sm:text-5xl lg:text-[58px] font-bold text-white"
           >
             Every place holds more than its coordinates.
           </h1>
 
           {/* Supporting Copy */}
-          <p className="text-base sm:text-lg text-[#B8C5C2] leading-relaxed font-sans max-w-2xl">
+          <p className="text-base sm:text-lg text-[#94a3b8] leading-relaxed font-sans max-w-2xl">
             ZONALYZE brings environmental observations, nearby infrastructure, and location context together — so you can explore what the evidence says, what it may suggest, and what remains unknown.
           </p>
 
-          {/* Actions: Liquid Glass Accent Pill CTA & Outlined Secondary Link */}
+          {/* Actions: Emerald-Cyan Gradient Pill CTA & Outlined Secondary Link */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
               onClick={onStartInvestigation}
-              className="inline-flex items-center space-x-2.5 px-7 py-3.5 rounded-full text-sm font-semibold text-[#0B1719] bg-gradient-to-b from-[#DCE7CD] via-[#B6C6A3] to-[#98A885] shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.8),0_10px_25px_rgba(182,198,163,0.35)] hover:shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.9),0_14px_30px_rgba(182,198,163,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer font-sans"
+              className="inline-flex items-center space-x-2.5 px-7 py-3.5 rounded-full text-sm font-bold text-[#071317] bg-gradient-to-r from-[#10b981] to-[#06b6d4] hover:from-[#34d399] hover:to-[#22d3ee] shadow-[0_0_24px_rgba(16,185,129,0.35)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer font-sans"
             >
               <span>Investigate a Location</span>
-              <ArrowRight className="w-4 h-4 text-[#0B1719]" />
+              <ArrowRight className="w-4 h-4 text-[#071317]" />
             </button>
 
             <button
               onClick={scrollToHowItWorks}
-              className="inline-flex items-center space-x-2 px-5 py-3.5 rounded-full text-sm font-medium text-[#B8C5C2] border border-white/[0.12] bg-[#142629]/50 backdrop-blur-xl hover:text-[#F1F0E9] hover:border-[#B6C6A3]/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all cursor-pointer font-sans"
+              className="inline-flex items-center space-x-2 px-5 py-3.5 rounded-full text-sm font-medium text-[#cbd5e1] border border-[#22373c] bg-[#132226]/50 backdrop-blur-xl hover:text-white hover:border-[#10b981]/60 transition-all cursor-pointer font-sans"
             >
               <span>How it works</span>
-              <span className="text-[#829492]">↓</span>
+              <span className="text-[#94a3b8]">↓</span>
             </button>
           </div>
         </div>
@@ -81,17 +80,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 className="w-full h-full object-cover object-center"
               />
               {/* Subtle fluid refractive glass gradient overlay */}
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-[#0B1719]/30 via-transparent to-white/[0.06]" />
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-[#0B1316]/30 via-transparent to-white/[0.06]" />
             </div>
 
             {/* Liquid Glass Telemetry Field Note Caption */}
-            <div className="px-6 py-4 bg-gradient-to-r from-[#102124]/90 via-[#142629]/80 to-[#102124]/90 backdrop-blur-2xl border-t border-white/[0.12] flex flex-wrap items-center justify-between gap-3 text-xs text-[#829492] font-sans shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]">
+            <div className="px-6 py-4 bg-gradient-to-r from-[#132226]/90 via-[#0e1a1d]/85 to-[#132226]/90 backdrop-blur-2xl border-t border-[#1f353b] flex flex-wrap items-center justify-between gap-3 text-xs text-[#94a3b8] font-sans shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]">
               <div className="flex items-center space-x-2.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#B6C6A3] shadow-[0_0_12px_rgba(182,198,163,0.95)] animate-pulse" />
-                <span className="text-[#F1F0E9] font-medium tracking-wide">Live Audit Console: Bangur, Kolkata Metropolitan Area</span>
+                <span className="px-2 py-0.5 rounded-md bg-[#0f2e29] border border-[#10b981]/40 text-[#34d399] font-mono text-[10px] font-bold">
+                  ⚡ CACHED (150m)
+                </span>
+                <span className="text-white font-medium tracking-wide">Bangur, South Dumdum, Kolkata Metropolitan Area</span>
               </div>
-              <div className="font-mono text-[11px] text-[#B8C5C2] bg-[#0B1719]/80 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/[0.1] shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]">
-                22.60995° N, 88.41794° E • AQI 83 (VERY POOR) • PM2.5 97.6 µg/m³
+              <div className="font-mono text-[11px] text-[#38bdf8] bg-[#0e1a1d] px-3.5 py-1 rounded-full border border-[#1f353b]">
+                22.60995° N, 88.41794° E • <span className="text-[#f87171]">AQI 83 (VERY POOR)</span> • PM2.5 97.6 µg/m³
               </div>
             </div>
           </div>

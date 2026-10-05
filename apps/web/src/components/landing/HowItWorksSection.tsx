@@ -34,13 +34,13 @@ export const HowItWorksSection: React.FC = () => {
   ];
 
   return (
-    <section id="how-it-works" className="relative w-full py-20 sm:py-28 bg-[#0B1719] border-b border-[#192E31]">
+    <section id="how-it-works" className="relative w-full py-20 sm:py-28 bg-[#0B1316] border-b border-[#1F353B]">
       <div className="max-w-[1200px] mx-auto px-6 sm:px-8 space-y-12 sm:space-y-16 text-left">
         
         {/* Section Header */}
         <div className="max-w-2xl space-y-4">
-          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#B6C6A3]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#B6C6A3]" />
+          <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-[0.2em] text-[#34D399]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#34D399]" />
             <span>METHODOLOGY</span>
           </div>
 
@@ -50,12 +50,12 @@ export const HowItWorksSection: React.FC = () => {
               lineHeight: 1.15,
               letterSpacing: "-0.02em",
             }}
-            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#F1F0E9]"
+            className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-white"
           >
             How ZONALYZE works.
           </h2>
 
-          <p className="text-base text-[#B8C5C2] font-sans leading-relaxed">
+          <p className="text-base text-[#94A3B8] font-sans leading-relaxed">
             Our pipeline prioritizes empirical observations before generating narrative synthesis. We do not claim every data provider returns observations for every coordinate on earth.
           </p>
         </div>
@@ -67,17 +67,17 @@ export const HowItWorksSection: React.FC = () => {
             return (
               <div
                 key={step.number}
-                className="glass-3d-card p-6 rounded-[24px] relative overflow-hidden flex flex-col justify-between space-y-6"
+                className="p-6 rounded-[24px] bg-[#132226] border border-[#1F353B] shadow-[0_12px_32px_rgba(0,0,0,0.35)] relative overflow-hidden flex flex-col justify-between space-y-6"
               >
                 {/* Specular top highlight */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#B6C6A3]/20 to-transparent pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#34D399]/20 to-transparent pointer-events-none" />
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-[#B6C6A3] px-2.5 py-1 rounded-md bg-[#142629] border border-[#192E31]">
+                    <span className="font-mono text-xs font-bold text-[#34D399] px-2.5 py-1 rounded-md bg-[#0E1A1D] border border-[#1F353B]">
                       {step.number}
                     </span>
-                    <div className="w-8 h-8 rounded-lg border border-[#192E31] bg-[#142629] flex items-center justify-center text-[#B8C5C2]">
-                      <IconComponent className="w-4 h-4 text-[#B8C5C2]" />
+                    <div className="w-8 h-8 rounded-lg border border-[#1F353B] bg-[#0E1A1D] flex items-center justify-center text-[#38BDF8]">
+                      <IconComponent className="w-4 h-4 text-[#38BDF8]" />
                     </div>
                   </div>
 
@@ -85,17 +85,17 @@ export const HowItWorksSection: React.FC = () => {
                     style={{
                       fontFamily: "'Fraunces', 'Cormorant Garamond', 'Instrument Serif', Georgia, serif",
                     }}
-                    className="text-xl font-normal text-[#F1F0E9] leading-snug"
+                    className="text-xl font-normal text-white leading-snug"
                   >
                     {step.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-[#B8C5C2] leading-relaxed font-sans">
+                  <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed font-sans">
                     {step.description}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#192E31] text-[11px] font-mono text-[#829492] leading-relaxed">
+                <div className="pt-3 border-t border-[#1F353B] text-[11px] font-mono text-[#64748B] leading-relaxed">
                   {step.clarification}
                 </div>
               </div>
