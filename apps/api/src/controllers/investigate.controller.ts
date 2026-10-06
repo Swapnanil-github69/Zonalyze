@@ -104,7 +104,7 @@ export class InvestigateController {
       );
       const osmData = parseElements(latitude, longitude, overpassElements);
 
-      // 5. Google Gemini Forensic Synthesis
+      // 5. Gemma 4 Forensic Synthesis
       const aiReport = await GeminiService.generateDebrief({
         address,
         coordinates: [longitude, latitude],

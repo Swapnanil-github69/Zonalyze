@@ -36,7 +36,7 @@ export const RadarScanner: React.FC<RadarScannerProps> = ({ stage, lat, lng }) =
       case "synthesizing_ai":
         return {
           icon: <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />,
-          title: "Forensic Synthesis (Gemini)",
+          title: "Forensic Synthesis (Gemma)",
           desc: "Generating empirical observations and site inspection targets...",
         };
       default:

@@ -315,7 +315,7 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
           <div>
             <div className="flex items-center space-x-1.5">
               <h4 className="text-xs font-bold text-white font-mono tracking-wide">
-                Ask Gemini Location AI
+                Ask Gemma Location AI
               </h4>
               <span className="text-[9px] font-mono text-cyan-300 bg-cyan-500/20 px-1.5 py-0.5 rounded border border-cyan-500/30">
                 Multilingual
@@ -449,7 +449,7 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                         <>
                           <Bot className="w-3 h-3 text-indigo-400" />
                           <span className="font-mono font-semibold text-indigo-300">
-                            Gemini Location Analyst ({selectedLang.label})
+                            Gemma Location Analyst ({selectedLang.label})
                           </span>
                         </>
                       ) : (
