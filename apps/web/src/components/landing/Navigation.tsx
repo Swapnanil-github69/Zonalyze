@@ -36,13 +36,13 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
       <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
         <div className="gic-nav-pill w-full max-w-4xl px-5 sm:px-6 py-2.5 flex items-center justify-between gap-4 pointer-events-auto shadow-[0_8px_30px_rgba(40,40,52,0.08)] border border-[#dee2de]">
           
-          {/* Brand Wordmark with subtle compass glyph */}
+          {/* Brand Wordmark with consistent Crosshair mark adapted to warm editorial palette */}
           <div
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="cursor-pointer select-none group flex items-center space-x-2.5"
           >
-            <div className="w-7 h-7 rounded-full bg-[#f9faf7] border border-[#dee2de] flex items-center justify-center text-[#282834] group-hover:scale-105 transition-transform duration-200">
-              <Compass className="w-3.5 h-3.5 text-[#41a1cf]" />
+            <div className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-[#f9faf7] border border-[#2c2c2c]/30 flex items-center justify-center text-[#2c2c2c] group-hover:scale-105 group-hover:border-[#41a1cf] group-hover:text-[#41a1cf] transition-all duration-200 shadow-sm">
+              <Crosshair className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2c2c2c] group-hover:text-[#41a1cf] transition-colors" />
             </div>
             <span className="font-editorial-serif text-xl sm:text-2xl text-[#2c2c2c] tracking-tight leading-none">
               Zonalyze
