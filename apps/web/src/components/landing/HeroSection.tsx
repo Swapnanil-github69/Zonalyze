@@ -67,21 +67,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         
         {/* Headline & Mission Lead */}
         <div className="space-y-4 text-left max-w-7xl">
-          {isLiterary ? (
-            <h1 className="font-editorial-serif font-normal text-4xl sm:text-5xl md:text-6xl lg:text-[62px] text-[#2c2c2c] tracking-[-0.035em] leading-[1.08]">
-              Geospatial evidence. <br />
-              Grounded telemetry.
-            </h1>
-          ) : (
-            <h1 className="font-space font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#e2ffcc] tracking-tight leading-[1.08] uppercase">
-              GEOSPATIAL EVIDENCE. <br />
-              GROUNDED TELEMETRY.
-            </h1>
-          )}
+          <h1 className={`font-editorial-serif font-normal text-4xl sm:text-5xl md:text-6xl lg:text-[62px] tracking-[-0.035em] leading-[1.08] ${
+            isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"
+          }`}>
+            Geospatial evidence. <br />
+            Grounded telemetry.
+          </h1>
 
           <p
-            className={`text-xs sm:text-sm leading-relaxed max-w-2xl ${
-              isLiterary ? "font-editorial-sans text-[#444141] font-normal text-[15px]" : "font-mono text-[#dde2e4] tracking-normal"
+            className={`text-xs sm:text-[15px] leading-relaxed max-w-2xl font-editorial-sans font-normal ${
+              isLiterary ? "text-[#444141]" : "text-[#dde2e4]"
             }`}
           >
             Zonalyze reads the ground truth beneath municipal coordinates. Atmospheric particulate measurements, acoustic transit corridor decay, and open infrastructure layers synthesized into an unembellished environmental field dossier.
@@ -97,10 +92,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Enter coordinates or locality (e.g. 22.57617, 88.35801)..."
-                  className={`w-full px-10 py-3 text-xs sm:text-sm transition-all ${
+                  className={`w-full px-10 py-3 text-xs sm:text-sm transition-all font-editorial-sans ${
                     isLiterary
-                      ? "rounded-[11px] border border-[#d8cfc7] bg-[#fbf9f6] text-[#2c2c2c] placeholder-[#8a7f77] focus:outline-none focus:border-[#b87c67] focus:bg-[#ffffff] font-editorial-sans shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]"
-                      : "glass-input font-mono text-[#dde2e4] placeholder-[#84907f] focus:outline-none focus:border-[#e2ffcc]"
+                      ? "rounded-[11px] border border-[#d8cfc7] bg-[#fbf9f6] text-[#2c2c2c] placeholder-[#8a7f77] focus:outline-none focus:border-[#b87c67] focus:bg-[#ffffff] shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]"
+                      : "glass-input text-[#dde2e4] placeholder-[#84907f] focus:outline-none focus:border-[#e2ffcc]"
                   }`}
                 />
               </div>
@@ -116,27 +111,27 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               ) : (
                 <button
                   type="submit"
-                  className="group inline-flex items-center justify-center px-6 py-3.5 bg-[#e2ffcc] text-[#161b13] font-mono font-bold text-xs uppercase tracking-wider transition-all duration-200 hover:bg-[#d5fca8] hover:shadow-[0_0_25px_rgba(226,255,204,0.4)] active:scale-95 cursor-pointer border border-[#e2ffcc] shrink-0"
+                  className="group inline-flex items-center justify-center px-6 py-3.5 bg-[#e2ffcc] text-[#161b13] font-editorial-sans font-medium text-xs sm:text-sm tracking-normal transition-all duration-200 hover:bg-[#d5fca8] hover:shadow-[0_0_25px_rgba(226,255,204,0.4)] active:scale-95 cursor-pointer border border-[#e2ffcc] shrink-0 rounded-lg"
                 >
-                  <span>INITIATE AUDIT</span>
+                  <span>Initiate Audit</span>
                   <ArrowUpRight className="w-4 h-4 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </button>
               )}
             </form>
 
             {/* Quick Coordinate Chips */}
-            <div className={`flex flex-wrap items-center gap-2 text-[11px] ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>
-              <span className={isLiterary ? "text-[#444141] font-medium" : "uppercase tracking-wider"}>
-                {isLiterary ? "Preset observations:" : "PRESET OBSERVATIONS:"}
+            <div className={`flex flex-wrap items-center gap-2 text-[11px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
+              <span className={`font-medium ${isLiterary ? "text-[#444141]" : "text-[#dde2e4]"}`}>
+                Preset observations:
               </span>
               {presetCoordinates.map((chip, idx) => (
                 <button
                   key={idx}
                   onClick={onStartInvestigation}
-                  className={`px-3 py-1 transition-all cursor-pointer ${
+                  className={`px-3 py-1 transition-all cursor-pointer font-editorial-sans text-xs ${
                     isLiterary
                       ? "gic-card bg-[#ffffff] border border-[#dee2de] hover:border-[#b87c67] text-[#444141] hover:text-[#8a4f38] rounded-md shadow-none"
-                      : "border border-[#84907f]/30 bg-[#2d3329]/40 backdrop-blur-md hover:border-[#e2ffcc] hover:text-[#e2ffcc] hover:bg-[#e2ffcc]/10 text-[#dde2e4]"
+                      : "border border-[#84907f]/30 bg-[#2d3329]/40 backdrop-blur-md hover:border-[#e2ffcc] hover:text-[#e2ffcc] hover:bg-[#e2ffcc]/10 text-[#dde2e4] rounded-md"
                   }`}
                 >
                   <MapPin className={`w-3 h-3 inline mr-1.5 ${isLiterary ? "text-[#9c583e]" : "text-[#e2ffcc]"}`} />
@@ -168,10 +163,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
             {/* Workstation Window Chrome Bar */}
             <div
-              className={`px-4 sm:px-5 py-3 border-b flex flex-wrap items-center justify-between gap-3 text-xs ${
+              className={`px-4 sm:px-5 py-3 border-b flex flex-wrap items-center justify-between gap-3 text-xs font-editorial-sans ${
                 isLiterary
-                  ? "border-[#dee2de] bg-[#f9faf7] font-editorial-sans text-[#444141]"
-                  : "border-[#84907f]/30 bg-[#161b13]/70 backdrop-blur-md font-mono text-[11px]"
+                  ? "border-[#dee2de] bg-[#f9faf7] text-[#444141]"
+                  : "border-[#84907f]/30 bg-[#161b13]/70 backdrop-blur-md text-[11px]"
               }`}
             >
               {/* Window Controls & Live Stream Badge */}
@@ -182,18 +177,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <div className={`w-2.5 h-2.5 rounded-full ${isLiterary ? "bg-[#646464]" : "bg-[#2d3329] border border-[#84907f]/40"}`} />
                 </div>
                 <div className={`h-3 w-px ${isLiterary ? "bg-[#dee2de]" : "bg-[#84907f]/40"}`} />
-                <div className={`flex items-center space-x-1.5 text-[11px] font-medium tracking-wide ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc] font-bold uppercase tracking-wider"}`}>
+                <div className={`flex items-center space-x-1.5 text-[11px] font-medium tracking-wide ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`}>
                   <span className={`w-2 h-2 rounded-full inline-block animate-pulse ${isLiterary ? "bg-[#41a1cf]" : "bg-[#e2ffcc]"}`} />
-                  <span>{isLiterary ? "Live telemetry channel" : "LIVE SENSORY STREAM"}</span>
+                  <span>{isLiterary ? "Live telemetry channel" : "Live sensory stream"}</span>
                 </div>
               </div>
 
               {/* Terminal Address Capsule */}
               <div
-                className={`hidden md:flex items-center space-x-2 px-3 py-1 text-[11px] ${
+                className={`hidden md:flex items-center space-x-2 px-3 py-1 text-[11px] font-editorial-sans ${
                   isLiterary
-                    ? "border border-[#dee2de] bg-[#ffffff] rounded-full text-[#646464] font-editorial-sans"
-                    : "border border-[#84907f]/30 bg-[#2d3329]/60 backdrop-blur-sm text-[10px] text-[#84907f] font-mono"
+                    ? "border border-[#dee2de] bg-[#ffffff] rounded-full text-[#646464]"
+                    : "border border-[#84907f]/30 bg-[#2d3329]/60 backdrop-blur-sm text-[#84907f] rounded-full"
                 }`}
               >
                 <Radio className={`w-3 h-3 ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`} />
@@ -201,7 +196,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
 
               {/* Location Tag */}
-              <span className={`text-[11px] ${isLiterary ? "text-[#2c2c2c] font-medium" : "text-[#dde2e4] text-[10px] uppercase tracking-wider"}`}>
+              <span className={`text-[11px] font-editorial-sans ${isLiterary ? "text-[#2c2c2c] font-medium" : "text-[#dde2e4]"}`}>
                 Tiretta Bazaar, Central Kolkata
               </span>
             </div>
@@ -218,20 +213,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
             {/* Bottom Telemetry Status Bar */}
             <div
-              className={`px-5 py-3.5 border-t flex flex-wrap items-center justify-between gap-3 text-xs ${
+              className={`px-5 py-3.5 border-t flex flex-wrap items-center justify-between gap-3 text-xs font-editorial-sans ${
                 isLiterary
-                  ? "border-[#dee2de] bg-[#f9faf7] font-editorial-sans text-[#646464]"
-                  : "border-[#84907f]/30 bg-[#161b13]/70 backdrop-blur-md font-mono text-[11px] text-[#84907f]"
+                  ? "border-[#dee2de] bg-[#f9faf7] text-[#646464]"
+                  : "border-[#84907f]/30 bg-[#161b13]/70 backdrop-blur-md text-[11px] text-[#84907f]"
               }`}
             >
               <div className="flex items-center space-x-4">
-                <span className={isLiterary ? "text-[#2c2c2c] font-medium" : ""}>[CACHE HIT: 150M]</span>
-                <span className={isLiterary ? "text-[#41a1cf] font-medium" : "text-[#e2ffcc] font-bold"}>AQI 101 (VERY POOR)</span>
+                <span className={isLiterary ? "text-[#2c2c2c] font-medium" : "text-[#dde2e4]"}>[CACHE HIT: 150M]</span>
+                <span className={`font-semibold ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`}>AQI 101 (VERY POOR)</span>
                 <span>PM2.5: 143 µg/m³</span>
                 <span>TEMP: 26.9°C</span>
               </div>
               <span className={isLiterary ? "text-[#2c2c2c]" : "text-[#dde2e4]"}>
-                {isLiterary ? "Zero fabricated estimates — field evidence only" : "ZERO FABRICATED ESTIMATES // GROUNDED EVIDENCE ONLY"}
+                {isLiterary ? "Zero fabricated estimates — field evidence only" : "Zero fabricated estimates — grounded evidence only"}
               </span>
             </div>
           </div>
@@ -239,15 +234,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
         {/* 3. Verified Ground-Truth Data Source Trust Ticker */}
         <div
-          className={`w-full py-3.5 px-5 flex flex-wrap items-center justify-between gap-3 text-xs tracking-wide ${
+          className={`w-full py-3.5 px-5 flex flex-wrap items-center justify-between gap-3 text-xs tracking-wide font-editorial-sans ${
             isLiterary
-              ? "gic-card bg-[#ffffff] border border-[#dee2de] text-[#646464] font-editorial-sans rounded-xl shadow-none"
-              : "glass-card border border-[#84907f]/25 text-[10px] font-mono text-[#84907f] uppercase tracking-wider"
+              ? "gic-card bg-[#ffffff] border border-[#dee2de] text-[#646464] rounded-xl shadow-none"
+              : "glass-card border border-[#84907f]/25 text-[11px] text-[#84907f]"
           }`}
         >
-          <div className={`flex items-center space-x-2 ${isLiterary ? "text-[#2c2c2c] font-medium" : "text-[#e2ffcc] font-bold"}`}>
+          <div className={`flex items-center space-x-2 font-medium ${isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"}`}>
             <ShieldCheck className={`w-4 h-4 ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`} />
-            <span>{isLiterary ? "Verified observation feeds:" : "VERIFIED OBSERVATION FEEDS:"}</span>
+            <span>{isLiterary ? "Verified observation feeds:" : "Verified observation feeds:"}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -263,7 +258,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       </div>
 
       {/* Scroll Cue Indicator */}
-      <div className={`w-full px-6 sm:px-12 flex justify-between items-center text-xs ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[10px] text-[#84907f]"}`}>
+      <div className={`w-full px-6 sm:px-12 flex justify-between items-center text-xs font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[11px] text-[#84907f]"}`}>
         <span>{isLiterary ? "Scroll to examine signals" : "[SCROLL TO AUDIT SIGNALS]"}</span>
         <button
           onClick={scrollToHowItWorks}

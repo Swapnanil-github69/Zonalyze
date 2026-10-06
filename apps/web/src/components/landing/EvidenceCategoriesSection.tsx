@@ -88,7 +88,7 @@ export const EvidenceCategoriesSection: React.FC = () => {
           className={`flex flex-wrap items-center justify-between gap-4 pb-4 text-xs tracking-wider uppercase border-b ${
             isLiterary
               ? "border-[#dee2de] font-editorial-sans text-[#646464]"
-              : "border-[#84907f]/30 font-mono text-[11px] text-[#84907f]"
+              : "border-[#84907f]/30 font-editorial-sans text-[11px] text-[#84907f]"
           }`}
         >
           <div className="flex items-center space-x-2">
@@ -104,24 +104,22 @@ export const EvidenceCategoriesSection: React.FC = () => {
                 : "px-2.5 py-1 glass-badge text-[10px] text-[#e2ffcc]"
             }`}
           >
-            {isLiterary ? "Four recognized telemetry channels" : "FOUR RECOGNIZED TELEMETRY CHANNELS"}
+            <span className="font-editorial-sans">
+              Four recognized telemetry channels
+            </span>
           </div>
         </div>
 
         <div className="max-w-4xl space-y-4 text-left">
-          {isLiterary ? (
-            <h2 className="font-editorial-serif font-normal text-3xl sm:text-5xl lg:text-[54px] text-[#2c2c2c] tracking-[-0.03em] leading-[1.1]">
-              The signals we examine.
-            </h2>
-          ) : (
-            <h2 className="font-display-stout text-5xl sm:text-7xl lg:text-[80px] text-[#e2ffcc] tracking-tight leading-[0.90] uppercase">
-              THE SIGNALS WE EXAMINE.
-            </h2>
-          )}
+          <h2 className={`font-editorial-serif font-normal text-3xl sm:text-5xl lg:text-[54px] tracking-[-0.03em] leading-[1.1] ${
+            isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"
+          }`}>
+            The signals we examine.
+          </h2>
 
           <p
-            className={`text-sm leading-relaxed max-w-2xl ${
-              isLiterary ? "font-editorial-sans text-[#444141] text-[15px]" : "font-mono text-xs sm:text-sm text-[#84907f]"
+            className={`text-sm sm:text-[15px] leading-relaxed max-w-2xl font-editorial-sans font-normal ${
+              isLiterary ? "text-[#444141]" : "text-[#84907f]"
             }`}
           >
             Each category represents a discrete empirical stream. Retrieved data is presented alongside its recorded timestamp, provider origin, and known spatial limitations.
@@ -149,10 +147,10 @@ export const EvidenceCategoriesSection: React.FC = () => {
                     }`}
                   >
                     <span
-                      className={`text-xs font-medium tracking-wide ${
+                      className={`text-xs font-editorial-sans font-semibold tracking-wide ${
                         isLiterary
-                          ? "font-editorial-sans text-[#41a1cf]"
-                          : "font-mono text-[11px] text-[#e2ffcc] font-bold tracking-wider"
+                          ? "text-[#41a1cf]"
+                          : "text-[#e2ffcc]"
                       }`}
                     >
                       [{cat.code}] // {cat.subtitle}
@@ -169,10 +167,10 @@ export const EvidenceCategoriesSection: React.FC = () => {
                   </div>
 
                   <h3
-                    className={`text-2xl sm:text-3xl tracking-wide pt-2 ${
+                    className={`text-2xl sm:text-3xl tracking-tight pt-2 font-editorial-serif font-normal ${
                       isLiterary
-                        ? "font-editorial-serif font-normal text-[#2c2c2c]"
-                        : "font-display-stout text-[#dde2e4] uppercase"
+                        ? "text-[#2c2c2c]"
+                        : "text-[#dde2e4]"
                     }`}
                   >
                     {cat.title}
@@ -180,12 +178,12 @@ export const EvidenceCategoriesSection: React.FC = () => {
                 </div>
 
                 {/* Observations list */}
-                <ul className="space-y-2.5 text-xs">
+                <ul className="space-y-2.5 text-xs font-editorial-sans">
                   {cat.observations.map((obs, idx) => (
                     <li
                       key={idx}
-                      className={`flex items-start space-x-3 ${
-                        isLiterary ? "font-editorial-sans text-[#444141] text-[13px]" : "font-mono text-[#dde2e4]/90"
+                      className={`flex items-start space-x-3 text-[13px] ${
+                        isLiterary ? "text-[#444141]" : "text-[#dde2e4]/90"
                       }`}
                     >
                       <span className={`font-bold mt-0.5 ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`}>
@@ -198,10 +196,10 @@ export const EvidenceCategoriesSection: React.FC = () => {
 
                 {/* Source & Transparency Note */}
                 <div
-                  className={`pt-4 border-t text-[11px] leading-relaxed uppercase ${
+                  className={`pt-4 border-t text-xs leading-relaxed font-editorial-sans ${
                     isLiterary
-                      ? "border-[#dee2de] font-editorial-sans text-[#646464] text-[10px]"
-                      : "border-[#84907f]/20 font-mono text-[10px] text-[#84907f]"
+                      ? "border-[#dee2de] text-[#646464] text-[10px]"
+                      : "border-[#84907f]/20 text-[11px] text-[#84907f]"
                   }`}
                 >
                   {cat.sourceNote}

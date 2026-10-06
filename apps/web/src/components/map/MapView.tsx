@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import maplibregl from "maplibre-gl";
-import { Layers, Compass, Globe, Moon, Sun, Crosshair, Radio } from "lucide-react";
+import { Compass, Globe, Moon, Sun, Crosshair, Radio } from "lucide-react";
 import { RouteResult } from "../../services/routeService";
 import { SelectedFacility } from "../dossier/InfrastructureCard";
 

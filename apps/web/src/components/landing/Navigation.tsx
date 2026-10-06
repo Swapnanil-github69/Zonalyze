@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, X, ArrowUpRight, Crosshair, Moon, BookOpen, Compass } from "lucide-react";
+import { Menu, X, ArrowUpRight, Crosshair, Moon, BookOpen } from "lucide-react";
 import { useLandingTheme } from "../../context/LandingThemeContext";
 
 interface NavigationProps {
@@ -150,18 +150,18 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-[#e2ffcc] flex items-center justify-center text-[#e2ffcc] group-hover:scale-105 transition-transform duration-200">
             <Crosshair className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#e2ffcc]" />
           </div>
-          <span className="font-display-stout text-3xl sm:text-4xl text-[#e2ffcc] tracking-wider leading-none">
-            ZONALYZE
+          <span className="font-editorial-serif text-2xl sm:text-3xl text-[#e2ffcc] tracking-tight leading-none font-normal">
+            Zonalyze
           </span>
         </div>
 
-        {/* Links: mono caps, clean and spaced */}
-        <nav className="hidden md:flex items-center space-x-8 text-xs font-mono tracking-wider">
+        {/* Links: refined editorial sans */}
+        <nav className="hidden md:flex items-center space-x-7 text-[14px] font-editorial-sans font-medium">
           {navLinks.map((link) => (
             <button
               key={link.id}
               onClick={() => scrollTo(link.id)}
-              className="text-[#84907f] hover:text-[#e2ffcc] transition-colors uppercase text-[11px] cursor-pointer font-medium tracking-widest"
+              className="text-[#84907f] hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
               {link.label}
             </button>
@@ -173,18 +173,18 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
           {/* Theme Switcher to Literary Journal */}
           <button
             onClick={toggleTheme}
-            className="px-2.5 py-1.5 border border-[#84907f]/40 bg-[#2d3329]/40 hover:border-[#e2ffcc] hover:text-[#e2ffcc] transition-all cursor-pointer flex items-center gap-1.5 text-[11px] font-mono text-[#dde2e4]"
+            className="px-2.5 py-1.5 border border-[#84907f]/40 bg-[#2d3329]/40 hover:border-[#e2ffcc] hover:text-[#e2ffcc] transition-all cursor-pointer flex items-center gap-1.5 text-xs font-editorial-sans text-[#dde2e4]"
             title="Switch to Literary Journal Style"
           >
             <BookOpen className="w-3.5 h-3.5 text-[#e2ffcc]" />
-            <span className="hidden sm:inline uppercase tracking-wider text-[10px]">Literary Mode</span>
+            <span className="hidden sm:inline text-[11px]">Literary Mode</span>
           </button>
 
           <button
             onClick={onStartInvestigation}
-            className="group relative inline-flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-[#e2ffcc] text-[#161b13] font-mono font-bold text-xs uppercase tracking-wider transition-all duration-200 hover:bg-[#d5fca8] hover:shadow-[0_0_20px_rgba(226,255,204,0.35)] active:scale-95 cursor-pointer border border-[#e2ffcc]"
+            className="group relative inline-flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-[#e2ffcc] text-[#161b13] font-editorial-sans font-medium text-xs sm:text-sm tracking-normal transition-all duration-200 hover:bg-[#d5fca8] hover:shadow-[0_0_20px_rgba(226,255,204,0.35)] active:scale-95 cursor-pointer border border-[#e2ffcc]"
           >
-            <span>INITIATE SURVEY</span>
+            <span>Initiate Survey</span>
             <ArrowUpRight className="w-3.5 h-3.5 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </button>
 
@@ -203,12 +203,12 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden mt-3 p-5 glass-panel border border-[#e2ffcc]/20 text-left space-y-4 shadow-2xl">
-          <div className="flex flex-col space-y-3 font-mono text-xs">
+          <div className="flex flex-col space-y-3 font-editorial-sans text-sm">
             {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => scrollTo(link.id)}
-                className="text-left text-[#84907f] hover:text-[#e2ffcc] uppercase tracking-wider py-1"
+                className="text-left text-[#84907f] hover:text-[#e2ffcc] py-1"
               >
                 {link.label}
               </button>
@@ -218,10 +218,10 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
           <div className="pt-3 border-t border-[#84907f]/30 flex flex-col gap-2">
             <button
               onClick={toggleTheme}
-              className="text-left text-xs font-mono text-[#e2ffcc] flex items-center gap-2 py-1"
+              className="text-left text-xs font-editorial-sans text-[#e2ffcc] flex items-center gap-2 py-1"
             >
               <BookOpen className="w-3.5 h-3.5" />
-              <span>SWITCH TO LITERARY JOURNAL</span>
+              <span>Switch to Literary Mode</span>
             </button>
 
             <button
@@ -229,9 +229,9 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
                 setMobileMenuOpen(false);
                 onStartInvestigation();
               }}
-              className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-[#e2ffcc] text-[#161b13] font-mono font-bold text-xs uppercase tracking-wider transition-all duration-200 hover:bg-[#d5fca8]"
+              className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-[#e2ffcc] text-[#161b13] font-editorial-sans font-medium text-xs sm:text-sm transition-all duration-200 hover:bg-[#d5fca8]"
             >
-              <span>INITIATE SURVEY</span>
+              <span>Initiate Survey</span>
               <ArrowUpRight className="w-3.5 h-3.5 ml-1.5" />
             </button>
           </div>
