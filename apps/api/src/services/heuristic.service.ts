@@ -109,7 +109,7 @@ export class HeuristicService {
         if (nearestArterialDist === null || dist < nearestArterialDist) {
           nearestArterialDist = dist;
         }
-      } else if (tags.leisure === "park") {
+      } else if (tags.leisure && /^(park|garden|recreation_ground|square)$/.test(tags.leisure)) {
         parks++;
       }
     }

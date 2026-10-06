@@ -202,10 +202,10 @@ Return JSON only, matching this exact schema:
 Use the display name, livability score, PM2.5, current temperature, noise bracket and nearest noise source, transit distances, and hospital distance as provided. Do not add fields. Inspection targets must be framed only as checks to perform, never as claims about conditions already present.`;
 
   const models = [
-    "gemma-2-9b-it",
-    "gemma-4-26b-a4b-it",
-    "gemini-2.5-flash-lite",
-    "gemini-flash-latest",
+    process.env.GEMMA_MODEL || "gemma-4-26b-a4b-it",
+    "gemma-4-31b-it",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
   ];
 
   for (const model of models) {
@@ -214,7 +214,7 @@ Use the display name, livability score, PM2.5, current temperature, noise bracke
       const config: any = isGemma
         ? {
             temperature: 0.3,
-            maxOutputTokens: 800,
+            maxOutputTokens: 2048,
           }
         : {
             responseMimeType: "application/json",

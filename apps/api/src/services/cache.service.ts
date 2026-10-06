@@ -1,4 +1,5 @@
 import { Investigation, IInvestigation } from "../models/Investigation.js";
+import { NON_COMMERCIAL_AIRPORT_BLACKLIST } from "./overpassService.js";
 
 /**
  * Contributor 2: Database Engineer
@@ -41,10 +42,11 @@ export function isInvestigationCorrupted(cached: any): boolean {
     cached.infrastructure?.nearest_metro_name ||
     ""
   ).toLowerCase();
+  const airportName = (cached.facilities?.airport?.name || "").toLowerCase();
   const hasAirport = Boolean(cached.facilities?.airport?.name);
 
   // Stale detection: if rail station has "metro" or "line 1" or "line 2" or "esplanade" or "central",
-  // or if airport is completely missing in an urban area, PURGE AND RE-RUN:
+  // or if airport is completely missing in an urban area or matched non-commercial airfield, PURGE AND RE-RUN:
   return (
     railName.includes("line 1") ||
     railName.includes("line 2") ||
@@ -53,6 +55,7 @@ export function isInvestigationCorrupted(cached: any): boolean {
     railName.includes("chandni chowk") ||
     railName.includes("metro") ||
     metroName.includes("kamarkundu") ||
+    NON_COMMERCIAL_AIRPORT_BLACKLIST.some((term) => airportName.includes(term)) ||
     !hasAirport
   );
 }

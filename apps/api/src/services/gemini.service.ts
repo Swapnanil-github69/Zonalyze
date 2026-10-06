@@ -81,11 +81,11 @@ INSTRUCTIONS:
 }
 
 const CANDIDATE_MODELS = [
-  "gemma-2-9b-it",
-  "gemma-4-26b-a4b-it",
+  process.env.GEMMA_MODEL || "gemma-4-26b-a4b-it",
+  "gemma-4-31b-it",
   "gemini-2.5-flash-lite",
-  "gemini-3.5-flash-lite",
-  "gemini-flash-latest",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
 ];
 
 /**
@@ -167,7 +167,7 @@ INSTRUCTIONS:
         const config: any = isGemma
           ? {
               temperature: 0.3,
-              maxOutputTokens: 1000,
+              maxOutputTokens: 2048,
             }
           : {
               responseMimeType: "application/json",
@@ -215,9 +215,13 @@ INSTRUCTIONS:
               },
             };
 
+        const promptToSend = isGemma
+          ? `${prompt}\n\nCRITICAL REQUIREMENT: Output your response ONLY as a valid JSON object matching the requested fields: {"summary": "...", "insights_in_brief": {"transit": "...", "healthcare": "...", "environment": "...", "acoustic": "..."}, "empirical_observations": ["..."], "site_inspection_targets": ["..."]}. Do not include markdown preamble, commentary, or conversational remarks.`
+          : prompt;
+
         const response = await client.models.generateContent({
           model,
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          contents: [{ role: "user", parts: [{ text: promptToSend }] }],
           config,
         });
 

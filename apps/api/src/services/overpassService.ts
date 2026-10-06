@@ -69,54 +69,69 @@ export function createFallbackResult(confidence: string): OSMResult {
   };
 }
 
-export const MAJOR_INDIAN_AIRPORTS = [
-  { name: "Netaji Subhash Chandra Bose Int'l Airport (CCU)", lat: 22.6547, lon: 88.4467 },
-  { name: "Kazi Nazrul Islam Airport (RDP)", lat: 23.6231, lon: 87.2417 },
-  { name: "Bagdogra International Airport (IXB)", lat: 26.6812, lon: 88.3286 },
-  { name: "Indira Gandhi International Airport (DEL)", lat: 28.5562, lon: 77.1000 },
-  { name: "Chhatrapati Shivaji Maharaj Int'l Airport (BOM)", lat: 19.0896, lon: 72.8656 },
-  { name: "Kempegowda International Airport (BLR)", lat: 13.1986, lon: 77.7066 },
-  { name: "Chaudhary Charan Singh Int'l Airport (LKO)", lat: 26.7606, lon: 80.8893 },
-  { name: "Sardar Vallabhbhai Patel Int'l Airport (AMD)", lat: 23.0772, lon: 72.6347 },
-  { name: "Rajiv Gandhi International Airport (HYD)", lat: 17.2403, lon: 78.4294 },
-  { name: "Chennai International Airport (MAA)", lat: 12.9941, lon: 80.1709 },
-  { name: "Cochin International Airport (COK)", lat: 10.1520, lon: 76.4019 },
-  { name: "Jayprakash Narayan Airport (PAT)", lat: 25.5913, lon: 85.0880 },
-  { name: "Biju Patnaik Airport (BBI)", lat: 20.2444, lon: 85.8178 },
-  { name: "Pune Airport (PNQ)", lat: 18.5822, lon: 73.9197 },
-  { name: "Goa Dabolim Airport (GOI)", lat: 15.3808, lon: 73.8313 },
-  { name: "Manohar International Airport (GOX)", lat: 15.7667, lon: 73.8667 },
-  { name: "Jaipur International Airport (JAI)", lat: 26.8242, lon: 75.8122 },
-  { name: "Shaheed Bhagat Singh Int'l Airport (IXC)", lat: 30.6735, lon: 76.7885 },
-  { name: "Lokpriya Gopinath Bordoloi Int'l Airport (GAU)", lat: 26.1061, lon: 91.5859 },
-  { name: "Lal Bahadur Shastri Int'l Airport (VNS)", lat: 25.4524, lon: 82.8593 },
-  { name: "Sheikh ul-Alam Int'l Airport (SXR)", lat: 33.9871, lon: 74.7741 },
-  { name: "Trivandrum International Airport (TRV)", lat: 8.4821, lon: 76.9200 },
-  { name: "Dr. Babasaheb Ambedkar Int'l Airport (NAG)", lat: 21.0922, lon: 79.0472 },
-  { name: "Devi Ahilya Bai Holkar Airport (IDR)", lat: 22.7217, lon: 75.8011 },
-  { name: "Coimbatore International Airport (CJB)", lat: 11.0299, lon: 77.0434 },
-  { name: "Visakhapatnam International Airport (VTZ)", lat: 17.7212, lon: 83.2245 },
-  { name: "Surat International Airport (STV)", lat: 21.1139, lon: 72.7419 },
-  { name: "Birsa Munda Airport (IXR)", lat: 23.3143, lon: 85.3217 },
-  { name: "Swami Vivekananda Airport (RPR)", lat: 21.1804, lon: 81.7388 },
-  { name: "Sri Guru Ram Dass Jee Int'l Airport (ATQ)", lat: 31.7096, lon: 74.7973 },
-  { name: "Calicut International Airport (CCJ)", lat: 11.1368, lon: 75.9553 },
-  { name: "Mangalore International Airport (IXE)", lat: 12.9613, lon: 74.8900 },
-  { name: "Madurai Airport (IXM)", lat: 9.8345, lon: 78.0934 },
-  { name: "Tiruchirappalli International Airport (TRZ)", lat: 10.7654, lon: 78.7097 },
-  { name: "Vijayawada International Airport (VGA)", lat: 16.5304, lon: 80.7968 },
-  { name: "Vadodara Airport (BDQ)", lat: 22.3362, lon: 73.2263 },
-  { name: "Raja Bhoj Airport (BHO)", lat: 23.2875, lon: 77.3378 },
-  { name: "Dehradun Jolly Grant Airport (DED)", lat: 30.1897, lon: 74.1803 },
-  { name: "Imphal Airport (IMF)", lat: 24.7600, lon: 93.8967 },
-  { name: "Agartala Maharaja Bir Bikram Airport (IXA)", lat: 23.8870, lon: 91.2405 }
+import { MAJOR_INDIAN_AIRPORTS, CommercialAirport } from "../data/indianAirports.js";
+export { MAJOR_INDIAN_AIRPORTS, CommercialAirport };
+
+export const NON_COMMERCIAL_AIRPORT_BLACKLIST = [
+  "behala",
+  "barrackpore",
+  "safdarjung",
+  "juhu",
+  "tambaram",
+  "dona paula",
+  "yelahanka",
+  "hakimpet",
+  "dundigal",
+  "hindon",
+  "flying club",
+  "air force",
+  "afs",
+  "airstrip",
+  "heliport",
+  "gliding"
 ];
+
+export function isTrueCommercialAirport(tags: Record<string, string> = {}): boolean {
+  const name = (tags.name || tags["name:en"] || "").trim().toLowerCase();
+  const iata = (tags.iata || tags["iata:code"] || "").trim().toUpperCase();
+  const aerodromeType = (tags["aerodrome:type"] || tags.aerodrome || "").toLowerCase();
+  const military = (tags.military || "").toLowerCase();
+
+  // 1. Check blacklist
+  if (NON_COMMERCIAL_AIRPORT_BLACKLIST.some((term) => name.includes(term))) {
+    return false;
+  }
+
+  // 2. Reject non-passenger types
+  if (
+    military === "airfield" ||
+    aerodromeType === "military" ||
+    aerodromeType === "flying_club" ||
+    aerodromeType === "private"
+  ) {
+    return false;
+  }
+
+  // 3. Must have a valid 3-letter passenger IATA code
+  if (!iata || iata.length !== 3 || !/^[A-Z]{3}$/.test(iata)) {
+    return false;
+  }
+
+  return true;
+}
+
+export const isCommercialPassengerAirport = isTrueCommercialAirport;
 
 export function resolveNearestAirport(lat: number, lon: number): Facility | null {
   let closest: Facility | null = null;
   let minDistance = Infinity;
 
   for (const ap of MAJOR_INDIAN_AIRPORTS) {
+    const apNameLower = ap.name.toLowerCase();
+    if (NON_COMMERCIAL_AIRPORT_BLACKLIST.some((term) => apNameLower.includes(term))) {
+      continue;
+    }
+
     const d = calculateHaversineMeters(lat, lon, ap.lat, ap.lon);
     if (d < minDistance && d <= 100000) { // within 100km
       minDistance = d;
@@ -155,7 +170,7 @@ export function buildPanIndiaOverpassQuery(lat: number, lon: number): string {
   // 4. Health & Urban Essentials
   nwr["amenity"~"hospital|clinic|pharmacy"](around:${HEALTH_RADIUS},${lat},${lon});
   nwr["shop"~"supermarket|convenience|chemist"](around:1500,${lat},${lon});
-  nwr["leisure"="park"](around:2000,${lat},${lon});
+  nwr["leisure"~"park|garden|recreation_ground|square"](around:2000,${lat},${lon});
 );
 out center body;
 >;
@@ -737,7 +752,7 @@ export function parseElements(
         getFacility(tags, d, "Store", elLon, elLat)
       );
     }
-    if (tags.leisure === "park") {
+    if (tags.leisure && /^(park|garden|recreation_ground|square)$/.test(tags.leisure)) {
       result.facilities.park = updateNearest(
         result.facilities.park,
         getFacility(tags, d, "Park", elLon, elLat)
@@ -751,21 +766,17 @@ export function parseElements(
         tags.aeroway === "disused" ||
         tags.aeroway === "abandoned";
 
-      if (!isDisused) {
+      if (!isDisused && isTrueCommercialAirport(tags)) {
         const rawName = tags.name || tags["name:en"] || "Airport";
         const iata = (tags.iata || tags["iata:code"] || tags["ref:iata"] || "").toUpperCase().trim();
-        const icao = (tags.icao || tags["icao:code"] || tags["ref:icao"] || "").toUpperCase().trim();
 
-        let formattedName = rawName;
-        if (iata && !rawName.includes(`(${iata})`)) {
-          formattedName = `${rawName} (${iata})`;
-        } else if (icao && !rawName.includes(`(${icao})`)) {
-          formattedName = `${rawName} (${icao})`;
-        }
+        const formattedName = rawName.toUpperCase().includes(iata)
+          ? rawName
+          : `${rawName} (${iata})`;
 
         const candidateAirport: Facility = {
           name: formattedName,
-          distanceMeters: d,
+          distanceMeters: Math.round(d),
           coordinates: [elLon, elLat],
         };
 
@@ -837,8 +848,13 @@ export function parseElements(
     result.facilities.railway = null;
   }
 
-  // Guarantee nearest airport is always populated locally in 0ms if not discovered via elements
-  if (!result.facilities.airport) {
+  // Guarantee nearest airport is always populated locally in 0ms and strictly commercial
+  if (
+    !result.facilities.airport ||
+    NON_COMMERCIAL_AIRPORT_BLACKLIST.some((term) =>
+      result.facilities.airport!.name.toLowerCase().includes(term)
+    )
+  ) {
     result.facilities.airport = resolveNearestAirport(centerLat, centerLon);
   }
 

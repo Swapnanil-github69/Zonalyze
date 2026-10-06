@@ -134,7 +134,17 @@ const MAJOR_INDIAN_AIRPORTS = [
   { name: "Surat International Airport (STV)", lat: 21.1139, lon: 72.7419 },
   { name: "Birsa Munda Airport (IXR)", lat: 23.3143, lon: 85.3217 },
   { name: "Swami Vivekananda Airport (RPR)", lat: 21.1804, lon: 81.7388 },
-  { name: "Sri Guru Ram Dass Jee Int'l Airport (ATQ)", lat: 31.7096, lon: 74.7973 }
+  { name: "Sri Guru Ram Dass Jee Int'l Airport (ATQ)", lat: 31.7096, lon: 74.7973 },
+  { name: "Calicut International Airport (CCJ)", lat: 11.1368, lon: 75.9553 },
+  { name: "Mangalore International Airport (IXE)", lat: 12.9613, lon: 74.8900 },
+  { name: "Madurai Airport (IXM)", lat: 9.8345, lon: 78.0934 },
+  { name: "Tiruchirappalli International Airport (TRZ)", lat: 10.7654, lon: 78.7097 },
+  { name: "Vijayawada International Airport (VGA)", lat: 16.5304, lon: 80.7968 },
+  { name: "Vadodara Airport (BDQ)", lat: 22.3362, lon: 73.2263 },
+  { name: "Raja Bhoj Airport (BHO)", lat: 23.2875, lon: 77.3378 },
+  { name: "Dehradun Jolly Grant Airport (DED)", lat: 30.1897, lon: 78.1803 },
+  { name: "Imphal Airport (IMF)", lat: 24.7600, lon: 93.8967 },
+  { name: "Agartala Maharaja Bir Bikram Airport (IXA)", lat: 23.8870, lon: 91.2405 }
 ];
 
 function resolveClientNearestAirport(lat: number, lon: number): { name: string; distanceMeters: number; coordinates: [number, number] } | null {

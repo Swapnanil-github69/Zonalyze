@@ -9,7 +9,8 @@
     "start": "node dist/index.js",
     "check:db": "tsx src/scripts/check-db.ts",
     "seed": "tsx src/scripts/seed-sample.ts",
-    "test:sync": "tsx src/scripts/test-sync.ts"
+    "test:sync": "tsx src/scripts/test-sync.ts",
+    "verify:models": "tsx src/scripts/verify-models.ts"
   },
   "dependencies": {
     "@google/genai": "^2.27.0",
