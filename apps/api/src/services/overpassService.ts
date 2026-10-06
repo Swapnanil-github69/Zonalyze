@@ -155,7 +155,7 @@ export function buildPanIndiaOverpassQuery(lat: number, lon: number): string {
   // 4. Health & Urban Essentials
   nwr["amenity"~"hospital|clinic|pharmacy"](around:${HEALTH_RADIUS},${lat},${lon});
   nwr["shop"~"supermarket|convenience|chemist"](around:1500,${lat},${lon});
-  nwr["leisure"="park"](around:2000,${lat},${lon});
+  nwr["leisure"~"park|garden|recreation_ground|square"](around:2000,${lat},${lon});
 );
 out center body;
 >;
@@ -737,7 +737,7 @@ export function parseElements(
         getFacility(tags, d, "Store", elLon, elLat)
       );
     }
-    if (tags.leisure === "park") {
+    if (tags.leisure && /^(park|garden|recreation_ground|square)$/.test(tags.leisure)) {
       result.facilities.park = updateNearest(
         result.facilities.park,
         getFacility(tags, d, "Park", elLon, elLat)
