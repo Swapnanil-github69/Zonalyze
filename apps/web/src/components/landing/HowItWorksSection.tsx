@@ -70,7 +70,7 @@ export const HowItWorksSection: React.FC = () => {
           <div className="flex items-center space-x-2">
             <span className={`w-2 h-2 inline-block ${isLiterary ? "bg-[#41a1cf] rounded-full" : "bg-[#e2ffcc] animate-pulse"}`} />
             <span className={`font-bold ${isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"}`}>
-              {isLiterary ? "Section 04 — Pipeline Specification" : "SECTION 04 // PIPELINE SPECIFICATION"}
+              {isLiterary ? "Pipeline Specification" : "PIPELINE SPECIFICATION"}
             </span>
           </div>
           <div
@@ -90,7 +90,7 @@ export const HowItWorksSection: React.FC = () => {
           <h2 className={`font-editorial-serif font-normal text-3xl sm:text-5xl lg:text-[54px] tracking-[-0.03em] leading-[1.1] ${
             isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"
           }`}>
-            Empirical methodology.
+            Methodology.
           </h2>
 
           <p
@@ -109,36 +109,21 @@ export const HowItWorksSection: React.FC = () => {
             return (
               <div
                 key={step.number}
-                className={`p-6 flex flex-col justify-between space-y-6 text-left transition-all duration-300 ${
+                className={`p-6 flex flex-col justify-between space-y-5 text-left transition-all duration-300 ${
                   isLiterary
                     ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-xl hover:border-[#b4b8b4]"
                     : "glass-card border border-[#84907f]/30 hover:border-[#e2ffcc]/40"
                 }`}
               >
-                <div className="space-y-4">
+                <div className="space-y-3.5">
                   <div
-                    className={`flex items-center justify-between pb-3 border-b ${
-                      isLiterary ? "border-[#dee2de]" : "border-[#84907f]/20"
+                    className={`w-8 h-8 flex items-center justify-center ${
+                      isLiterary
+                        ? "rounded-full bg-[#f9faf7] border border-[#dee2de] text-[#282834]"
+                        : "glass-badge text-[#e2ffcc] border border-[#e2ffcc]/40"
                     }`}
                   >
-                    <span
-                      className={`text-xs font-editorial-sans font-semibold tracking-wide ${
-                        isLiterary
-                          ? "text-[#41a1cf]"
-                          : "text-[#e2ffcc]"
-                      }`}
-                    >
-                      [STEP {step.number}]
-                    </span>
-                    <div
-                      className={`w-7 h-7 flex items-center justify-center ${
-                        isLiterary
-                          ? "rounded-full bg-[#f9faf7] border border-[#dee2de] text-[#282834]"
-                          : "glass-badge text-[#e2ffcc] border border-[#e2ffcc]/40"
-                      }`}
-                    >
-                      <IconComponent className="w-3.5 h-3.5" />
-                    </div>
+                    <IconComponent className="w-4 h-4" />
                   </div>
 
                   <h3
