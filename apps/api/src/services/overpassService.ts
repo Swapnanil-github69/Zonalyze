@@ -69,84 +69,234 @@ export function createFallbackResult(confidence: string): OSMResult {
   };
 }
 
+export const MAJOR_INDIAN_AIRPORTS = [
+  { name: "Netaji Subhash Chandra Bose Int'l Airport (CCU)", lat: 22.6547, lon: 88.4467 },
+  { name: "Kazi Nazrul Islam Airport (RDP)", lat: 23.6231, lon: 87.2417 },
+  { name: "Bagdogra International Airport (IXB)", lat: 26.6812, lon: 88.3286 },
+  { name: "Indira Gandhi International Airport (DEL)", lat: 28.5562, lon: 77.1000 },
+  { name: "Chhatrapati Shivaji Maharaj Int'l Airport (BOM)", lat: 19.0896, lon: 72.8656 },
+  { name: "Kempegowda International Airport (BLR)", lat: 13.1986, lon: 77.7066 },
+  { name: "Chaudhary Charan Singh Int'l Airport (LKO)", lat: 26.7606, lon: 80.8893 },
+  { name: "Sardar Vallabhbhai Patel Int'l Airport (AMD)", lat: 23.0772, lon: 72.6347 },
+  { name: "Rajiv Gandhi International Airport (HYD)", lat: 17.2403, lon: 78.4294 },
+  { name: "Chennai International Airport (MAA)", lat: 12.9941, lon: 80.1709 },
+  { name: "Cochin International Airport (COK)", lat: 10.1520, lon: 76.4019 },
+  { name: "Jayprakash Narayan Airport (PAT)", lat: 25.5913, lon: 85.0880 },
+  { name: "Biju Patnaik Airport (BBI)", lat: 20.2444, lon: 85.8178 },
+  { name: "Pune Airport (PNQ)", lat: 18.5822, lon: 73.9197 },
+  { name: "Goa Dabolim Airport (GOI)", lat: 15.3808, lon: 73.8313 },
+  { name: "Manohar International Airport (GOX)", lat: 15.7667, lon: 73.8667 },
+  { name: "Jaipur International Airport (JAI)", lat: 26.8242, lon: 75.8122 },
+  { name: "Shaheed Bhagat Singh Int'l Airport (IXC)", lat: 30.6735, lon: 76.7885 },
+  { name: "Lokpriya Gopinath Bordoloi Int'l Airport (GAU)", lat: 26.1061, lon: 91.5859 },
+  { name: "Lal Bahadur Shastri Int'l Airport (VNS)", lat: 25.4524, lon: 82.8593 },
+  { name: "Sheikh ul-Alam Int'l Airport (SXR)", lat: 33.9871, lon: 74.7741 },
+  { name: "Trivandrum International Airport (TRV)", lat: 8.4821, lon: 76.9200 },
+  { name: "Dr. Babasaheb Ambedkar Int'l Airport (NAG)", lat: 21.0922, lon: 79.0472 },
+  { name: "Devi Ahilya Bai Holkar Airport (IDR)", lat: 22.7217, lon: 75.8011 },
+  { name: "Coimbatore International Airport (CJB)", lat: 11.0299, lon: 77.0434 },
+  { name: "Visakhapatnam International Airport (VTZ)", lat: 17.7212, lon: 83.2245 },
+  { name: "Surat International Airport (STV)", lat: 21.1139, lon: 72.7419 },
+  { name: "Birsa Munda Airport (IXR)", lat: 23.3143, lon: 85.3217 },
+  { name: "Swami Vivekananda Airport (RPR)", lat: 21.1804, lon: 81.7388 },
+  { name: "Sri Guru Ram Dass Jee Int'l Airport (ATQ)", lat: 31.7096, lon: 74.7973 },
+  { name: "Calicut International Airport (CCJ)", lat: 11.1368, lon: 75.9553 },
+  { name: "Mangalore International Airport (IXE)", lat: 12.9613, lon: 74.8900 },
+  { name: "Madurai Airport (IXM)", lat: 9.8345, lon: 78.0934 },
+  { name: "Tiruchirappalli International Airport (TRZ)", lat: 10.7654, lon: 78.7097 },
+  { name: "Vijayawada International Airport (VGA)", lat: 16.5304, lon: 80.7968 },
+  { name: "Vadodara Airport (BDQ)", lat: 22.3362, lon: 73.2263 },
+  { name: "Raja Bhoj Airport (BHO)", lat: 23.2875, lon: 77.3378 },
+  { name: "Dehradun Jolly Grant Airport (DED)", lat: 30.1897, lon: 74.1803 },
+  { name: "Imphal Airport (IMF)", lat: 24.7600, lon: 93.8967 },
+  { name: "Agartala Maharaja Bir Bikram Airport (IXA)", lat: 23.8870, lon: 91.2405 }
+];
+
+export function resolveNearestAirport(lat: number, lon: number): Facility | null {
+  let closest: Facility | null = null;
+  let minDistance = Infinity;
+
+  for (const ap of MAJOR_INDIAN_AIRPORTS) {
+    const d = calculateHaversineMeters(lat, lon, ap.lat, ap.lon);
+    if (d < minDistance && d <= 100000) { // within 100km
+      minDistance = d;
+      closest = {
+        name: ap.name,
+        distanceMeters: Math.round(d),
+        coordinates: [ap.lon, ap.lat],
+      };
+    }
+  }
+  return closest;
+}
+
+export function buildPanIndiaOverpassQuery(lat: number, lon: number): string {
+  const TRANSIT_RADIUS = 3000;    // 3 km for urban rail & rapid transit
+  const BUS_RADIUS = 1200;        // 1.2 km for buses & shared mobility
+  const HOTEL_RADIUS = 3500;      // 3.5 km for hospitality
+  const HEALTH_RADIUS = 2500;     // 2.5 km for clinics and hospitals
+
+  return `
+[out:json][timeout:25];
+(
+  // 1. Rapid Transit & Heavy Rail
+  nwr["railway"~"station|subway|subway_entrance|halt"](around:${TRANSIT_RADIUS},${lat},${lon});
+  nwr["station"~"subway|light_rail"](around:${TRANSIT_RADIUS},${lat},${lon});
+  nwr["subway"="yes"](around:${TRANSIT_RADIUS},${lat},${lon});
+
+  // 2. Bus Stops & Terminals
+  nwr["highway"="bus_stop"](around:${BUS_RADIUS},${lat},${lon});
+  nwr["amenity"="bus_station"](around:${BUS_RADIUS},${lat},${lon});
+  nwr["public_transport"~"platform|stop_position"]["bus"="yes"](around:${BUS_RADIUS},${lat},${lon});
+
+  // 3. Accommodations (Hotels, Guest Houses, Homestays, Lodges, Dhabas with stays)
+  nwr["tourism"~"hotel|guest_house|hostel|motel|chalet"](around:${HOTEL_RADIUS},${lat},${lon});
+
+  // 4. Health & Urban Essentials
+  nwr["amenity"~"hospital|clinic|pharmacy"](around:${HEALTH_RADIUS},${lat},${lon});
+  nwr["shop"~"supermarket|convenience|chemist"](around:1500,${lat},${lon});
+  nwr["leisure"="park"](around:2000,${lat},${lon});
+);
+out center body;
+>;
+out skel qt;
+`;
+}
+
 export function classifyStation(tags: Record<string, string> = {}): "metro" | "railway" | "ignore" {
-  const name = (tags.name || "").toLowerCase();
+  const name = (tags.name || tags["name:en"] || "").toLowerCase().trim();
   const station = (tags.station || "").toLowerCase();
   const subway = (tags.subway || "").toLowerCase();
   const railway = (tags.railway || "").toLowerCase();
   const network = (tags.network || "").toLowerCase();
   const operator = (tags.operator || "").toLowerCase();
   const usage = (tags.usage || "").toLowerCase();
+  const line = (tags.line || "").toLowerCase();
 
-  // 1. HARD DISQUALIFIERS: Regardless of elevation, viaducts, bridges, or layers,
-  // these attributes belong exclusively to Indian Railways / heavy rail.
-  const isHeavyRail =
+  // 1. HARD DISQUALIFIERS: Attributes belonging to Indian Railways / heavy rail across all 18 zones & divisions
+  const isHeavyRailUsage =
     usage === "main" ||
     usage === "branch" ||
-    network.includes("eastern railway") ||
-    network.includes("south eastern railway") ||
-    network.includes("indian railway") ||
-    network.includes("suburban") ||
-    network === "ir" ||
-    operator.includes("eastern railway") ||
-    operator.includes("south eastern railway") ||
-    operator.includes("indian railway") ||
-    operator === "ir" ||
-    name.includes("kamarkundu") ||
-    name.includes("singur") ||
+    usage === "suburban" ||
+    usage === "freight";
+
+  const IR_ZONE_REGEX = /\b(indian railways?|northern railway|north eastern railway|north western railway|north central railway|eastern railway|east central railway|east coast railway|western railway|west central railway|central railway|southern railway|south western railway|south central railway|south eastern railway|south east central railway|northeast frontier railway|konkan railway|ir|nr|ner|nwr|ncr|er|ecr|ecor|wr|wcr|cr|sr|swr|scr|ser|secr|nfr|kr|krcl)\b/i;
+
+  const matchesIRZone =
+    (IR_ZONE_REGEX.test(network) || IR_ZONE_REGEX.test(operator)) &&
+    !network.includes("metro") &&
+    !operator.includes("metro");
+
+  const isHeavyRailName =
     name.includes("junction") ||
-    name.includes("jn") ||
-    name.includes("halt");
+    /\bjn\b/.test(name) ||
+    /\bhalt\b/.test(name) ||
+    /\bcabin\b/.test(name) ||
+    /\bcantt\b/.test(name) ||
+    name.includes("cantonment") ||
+    name.includes("terminal") ||
+    name.includes("terminus") ||
+    name.includes("railway station") ||
+    name.includes("rly stn") ||
+    name.includes("kamarkundu") ||
+    name.includes("singur");
+
+  const isHeavyRail = isHeavyRailUsage || matchesIRZone || isHeavyRailName;
 
   if (isHeavyRail) {
     return "railway";
   }
 
-  // 2. EXPLICIT METRO / RAPID TRANSIT TAGS
-  // Do NOT rely on "bridge", "viaduct", or "layer" to identify a metro!
+  // 2. UNIVERSAL PAN-INDIA METRO / RAPID TRANSIT OPERATORS & INFRASTRUCTURE
+  const PAN_INDIA_METRO_SYSTEMS = [
+    // Delhi & NCR
+    "dmrc", "delhi metro", "rapid metro", "noida metro", "nmrc", "ncrtc", "rrts", "namo bharat",
+    // Karnataka
+    "bmrcl", "namma metro", "bangalore metro", "bengaluru metro",
+    // Maharashtra
+    "mmrda", "mmmocl", "mmopl", "mumbai metro", "maha mumbai metro", "pune metro", "nagpur metro", "maha metro", "mahametro",
+    // Tamil Nadu
+    "cmrl", "chennai metro",
+    // Uttar Pradesh
+    "upmrc", "lmrc", "lucknow metro", "kanpur metro", "agra metro", "meerut metro",
+    // Gujarat
+    "gmrc", "gujarat metro", "ahmedabad metro", "surat metro", "mega",
+    // Kerala
+    "kmrl", "kochi metro",
+    // Telangana & AP
+    "hmrl", "hyderabad metro", "l&t metro", "vizag metro",
+    // West Bengal
+    "kolkata metro", "kmrc", "metro railway kolkata", "metro railway",
+    // Rajasthan
+    "jmrc", "jaipur metro",
+    // Bihar, MP, Punjab, Haryana, Uttarakhand
+    "patna metro", "bhopal metro", "indore metro", "bhoj metro"
+  ];
+
+  const isMetroOperatorOrNetwork = PAN_INDIA_METRO_SYSTEMS.some((sys) =>
+    network.includes(sys) || operator.includes(sys) || line.includes(sys)
+  );
+
   const isSubwayInfrastructure =
     station === "subway" ||
+    station === "light_rail" ||
     subway === "yes" ||
     railway === "subway" ||
     railway === "subway_entrance" ||
     tags.light_rail === "yes";
 
-  const isMetroOperator =
-    network === "kolkata metro" ||
-    network.includes("metro rail") ||
-    network === "kmrc" ||
-    operator.includes("kolkata metro") ||
-    operator.includes("kmrc");
-
   const isMetroNamed =
     name.includes("metro station") ||
-    name.endsWith(" metro");
+    name.endsWith(" metro") ||
+    /\bmetro\b/.test(name) ||
+    name.startsWith("metro ");
 
-  const knownMetroStops = [
-    "sovabazar",
-    "sutanuti",
-    "phoolbagan",
-    "esplanade",
-    "chandni chowk",
-    "central park",
-    "karunamoyee",
-    "city centre",
-    "bengal chemical",
-    "salt lake stadium",
-    "kalighat",
-    "park street",
-    "rabindra sarobar",
-    "dakshineswar",
-    "baranagar",
-    "noapara",
+  // Famous metro stations that may only be tagged by name without the "metro" suffix
+  const PAN_INDIA_METRO_STATION_NAMES = [
+    // Kolkata Metro (Line 1, Line 2, Line 3, Line 6)
+    "central", "esplanade", "chandni chowk", "shyambazar", "girish park",
+    "sovabazar", "sutanuti", "mahatma gandhi road", "mg road", "park street",
+    "maidan", "rabindra sadan", "netaji bhavan", "jatin das park", "kalighat",
+    "rabindra sarobar", "mahanayak uttam kumar", "tollygunge", "netaji",
+    "masterda surya sen", "gitanjali", "kavi nazrul", "shahid khudiram",
+    "kavi subhash", "city centre", "salt lake sector", "sector v", "karunamoyee",
+    "central park", "bengal chemical", "salt lake stadium", "sealdah metro",
+    "howrah metro", "dakshineswar", "baranagar", "noapara", "taratala",
+    "majherhat metro", "joka", "phoolbagan",
+    // Delhi Metro & NCR
+    "rajiv chowk", "kashmere gate", "central secretariat", "barakhamba road",
+    "patel chowk", "vishwa vidyalaya", "chawri bazar", "hauz khas", "aiims",
+    "ina", "samaypur badli", "millennium city centre", "huda city centre",
+    // Bengaluru Namma Metro
+    "indiranagar", "cubbon park", "vidhana soudha", "trinity", "halasuru",
+    "jayanagar", "lalbagh", "south end circle", "banashankari",
+    // Mumbai Metro
+    "ghatkopar", "versova", "dn nagar", "marol naka", "saki naka",
+    "jagruthi nagar", "asalpha", "magathane", "dindoshi", "pahadi goregaon",
+    // Hyderabad Metro
+    "ameerpet", "hitec city", "miyapur", "durgam cheruvu", "jubilee hills",
+    "raidurg", "kukatpally", "parade ground",
+    // Chennai Metro
+    "thousand lights", "ag-dms", "lic", "high court", "guindy metro",
+    "nehru park", "shenoy nagar", "anna nagar",
+    // Ahmedabad, Jaipur, Kochi, Lucknow
+    "motera stadium", "kankaria east", "mansarovar", "chandpole",
+    "aluva", "edapally", "maharajas college", "hazratganj", "charbagh metro"
   ];
-  const isKnownMetro = knownMetroStops.some((km) => name.includes(km));
 
-  if (isSubwayInfrastructure || isMetroOperator || isMetroNamed || isKnownMetro) {
+  const isKnownMetroStationName = PAN_INDIA_METRO_STATION_NAMES.some((stn) =>
+    name === stn ||
+    name.startsWith(`${stn} `) ||
+    name.endsWith(` ${stn}`) ||
+    name.includes(`${stn} metro`) ||
+    name.includes(`${stn} station`)
+  );
+
+  if (isMetroOperatorOrNetwork || isSubwayInfrastructure || isMetroNamed || isKnownMetroStationName) {
     return "metro";
   }
 
-  // 3. DEFAULT: Any other railway station is standard heavy rail
+  // 3. DEFAULT: Standard heavy railway station
   if (railway === "station" || railway === "halt" || tags.public_transport === "station") {
     return "railway";
   }
@@ -253,17 +403,20 @@ async function fallbackWithNominatimFacilities(
   try {
     const delta = 0.027; // ~3km
     const viewbox = `${(lon - delta).toFixed(4)},${(lat + delta).toFixed(4)},${(lon + delta).toFixed(4)},${(lat - delta).toFixed(4)}`;
+    const airportDelta = 0.65; // ~70km
+    const airportViewbox = `${(lon - airportDelta).toFixed(4)},${(lat + airportDelta).toFixed(4)},${(lon + airportDelta).toFixed(4)},${(lat - airportDelta).toFixed(4)}`;
     const headers = {
-      "User-Agent": "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
+      "User-Agent": "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
     };
 
-    const [hospRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes] = await Promise.allSettled([
+    const [hospRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes, airportRes] = await Promise.allSettled([
       axios.get(`https://nominatim.openstreetmap.org/search?q=hospital+clinic&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=15&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=bus+stop&format=json&limit=8&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=hotel&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=guest+house&format=json&limit=5&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
+      axios.get(`https://nominatim.openstreetmap.org/search?q=airport&format=json&limit=5&viewbox=${airportViewbox}&bounded=1`, { headers, timeout: 4000 }),
     ]);
 
     const elements: OverpassElement[] = [];
@@ -343,6 +496,20 @@ async function fallbackWithNominatimFacilities(
       }
     }
 
+    if (airportRes.status === "fulfilled" && Array.isArray(airportRes.value.data)) {
+      for (const item of airportRes.value.data) {
+        const name = (item.name || item.display_name?.split(",")[0] || "Airport").trim();
+        elements.push({
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon),
+          tags: {
+            aeroway: "aerodrome",
+            name,
+          },
+        });
+      }
+    }
+
     if (elements.length > 0) {
       return parseElements(lat, lon, elements);
     }
@@ -350,7 +517,9 @@ async function fallbackWithNominatimFacilities(
     console.warn("Nominatim fallback for facilities encountered error:", err.message);
   }
 
-  return createFallbackResult("Unavailable (Overpass and Nominatim failed)");
+  const fallback = createFallbackResult("Unavailable (Overpass and Nominatim failed)");
+  fallback.facilities.airport = resolveNearestAirport(lat, lon);
+  return fallback;
 }
 
 /**
@@ -376,36 +545,7 @@ export async function fetchOSMData(lat: number, lon: number): Promise<OSMResult>
     return cached.data;
   }
 
-  const query = `[out:json][timeout:10];
-(
-  // Metro Stations & Entrances
-  nwr["station"="subway"](around:${TRANSIT_RADIUS},${lat},${lon});
-  nwr["railway"="subway_entrance"](around:${TRANSIT_RADIUS},${lat},${lon});
-  nwr["subway"="yes"](around:${TRANSIT_RADIUS},${lat},${lon});
-  nwr["railway"="subway"](around:${TRANSIT_RADIUS},${lat},${lon});
-  nwr["network"~"Kolkata Metro|KMRC|Metro Rail",i](around:${TRANSIT_RADIUS},${lat},${lon});
-
-  // Heavy Railway (Indian Railways)
-  nwr["railway"="station"](around:${TRANSIT_RADIUS},${lat},${lon});
-  nwr["railway"="halt"](around:${TRANSIT_RADIUS},${lat},${lon});
-
-  // Bus Stops & Platforms
-  nwr["highway"="bus_stop"](around:${BUS_RADIUS},${lat},${lon});
-  nwr["public_transport"="platform"]["bus"="yes"](around:${BUS_RADIUS},${lat},${lon});
-
-  // Accommodations (Hotels, Guest Houses, Hostels, Motels)
-  nwr["tourism"~"hotel|guest_house|hostel|motel"](around:${HOTEL_RADIUS},${lat},${lon});
-
-  // Health & Essentials
-  nwr["amenity"~"hospital|clinic|pharmacy"](around:2000,${lat},${lon});
-  nwr["healthcare"~"hospital|clinic|centre"](around:2000,${lat},${lon});
-  nwr["amenity"="bus_station"](around:2000,${lat},${lon});
-  nwr["amenity"="taxi"](around:1000,${lat},${lon});
-  nwr["leisure"="park"](around:1500,${lat},${lon});
-  way["railway"="rail"](around:1500,${lat},${lon});
-  way["highway"~"motorway|trunk|primary"](around:1000,${lat},${lon});
-);
-out center body qt;`;
+  const query = buildPanIndiaOverpassQuery(lat, lon);
 
   const fetchFromEndpoint = async (endpoint: string): Promise<OverpassElement[]> => {
     const response = await axios.post<OverpassResponse>(
@@ -414,10 +554,10 @@ out center body qt;`;
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent": "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
+          "User-Agent": "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
           Accept: "application/json",
         },
-        timeout: 3800,
+        timeout: 4500,
       }
     );
     if (response.data && Array.isArray(response.data.elements) && response.data.elements.length > 0) {
@@ -477,6 +617,9 @@ export function parseElements(
   const result = createFallbackResult(
     "Low (no railway or primary highway detected within query range)"
   );
+  // Instant 0ms local lookup for nearest commercial/regional airport (zero Overpass network dependency)
+  result.facilities.airport = resolveNearestAirport(centerLat, centerLon);
+
   const hotels: OSMResult["facilities"]["hotels"] = [];
   let railwayDistance: number | null = null;
   let highwayDistance: number | null = null;
@@ -495,17 +638,27 @@ export function parseElements(
     const stationClass = classifyStation(tags);
 
     if (stationClass === "metro") {
-      const metroStation = getFacility(tags, d, "Metro Station", elLon, elLat);
+      const rawName = tags.name?.trim() || "Metro Station";
+      const displayName = rawName.toLowerCase() === "central" ? "Central Metro Station" : rawName;
+      const metroStation = getFacility(tags, d, displayName, elLon, elLat);
+      if (rawName.toLowerCase() === "central") {
+        metroStation.name = "Central Metro Station";
+      }
       result.facilities.metro = updateNearest(result.facilities.metro, metroStation);
     } else if (stationClass === "railway") {
-      const trainStation = getFacility(tags, d, "Railway Station", elLon, elLat);
-      result.facilities.railway = updateNearest(result.facilities.railway, trainStation);
+      const cleanName = (tags.name || "").trim().toLowerCase();
+      // Ensure "Central" in Kolkata is never assigned to heavy rail
+      if (cleanName !== "central") {
+        const trainStation = getFacility(tags, d, "Railway Station", elLon, elLat);
+        result.facilities.railway = updateNearest(result.facilities.railway, trainStation);
+      }
     }
 
     if (
       tags.highway === "bus_stop" ||
       tags.amenity === "bus_station" ||
-      (tags.public_transport === "platform" && tags.bus === "yes")
+      (tags.public_transport === "platform" && tags.bus === "yes") ||
+      (tags.public_transport === "stop_position" && tags.bus === "yes")
     ) {
       busStopsCount++;
       let routes = 1;
@@ -545,7 +698,7 @@ export function parseElements(
         getFacility(tags, d, "Hospital / Clinic", elLon, elLat)
       );
     }
-    if (tags.shop && /^(convenience|supermarket|general)$/.test(tags.shop)) {
+    if (tags.shop && /^(convenience|supermarket|general|chemist)$/.test(tags.shop)) {
       result.facilities.store = updateNearest(
         result.facilities.store,
         getFacility(tags, d, "Store", elLon, elLat)
@@ -558,18 +711,41 @@ export function parseElements(
       );
     }
     if (tags.aeroway === "aerodrome" || tags.amenity === "airport") {
-      result.facilities.airport = updateNearest(
-        result.facilities.airport,
-        getFacility(tags, d, "Airport", elLon, elLat)
-      );
+      const isDisused =
+        tags["disused:aeroway"] ||
+        tags["abandoned:aeroway"] ||
+        tags.abandoned === "yes" ||
+        tags.aeroway === "disused" ||
+        tags.aeroway === "abandoned";
+
+      if (!isDisused) {
+        const rawName = tags.name || tags["name:en"] || "Airport";
+        const iata = (tags.iata || tags["iata:code"] || tags["ref:iata"] || "").toUpperCase().trim();
+        const icao = (tags.icao || tags["icao:code"] || tags["ref:icao"] || "").toUpperCase().trim();
+
+        let formattedName = rawName;
+        if (iata && !rawName.includes(`(${iata})`)) {
+          formattedName = `${rawName} (${iata})`;
+        } else if (icao && !rawName.includes(`(${icao})`)) {
+          formattedName = `${rawName} (${icao})`;
+        }
+
+        const candidateAirport: Facility = {
+          name: formattedName,
+          distanceMeters: d,
+          coordinates: [elLon, elLat],
+        };
+
+        result.facilities.airport = updateNearest(result.facilities.airport, candidateAirport);
+      }
     }
-    if (tags.tourism && /^(hotel|guest_house|hostel|motel)$/.test(tags.tourism)) {
+    if (tags.tourism && /^(hotel|guest_house|hostel|motel|chalet)$/.test(tags.tourism)) {
       const parsedStars = tags.stars !== undefined ? Number(tags.stars) : undefined;
       const stars = Number.isFinite(parsedStars) ? parsedStars : undefined;
       const hotelType = tags.tourism;
       const fallbackName = `${hotelType.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}`;
       const name = tags.name?.trim() || fallbackName;
-      const reviewUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${elLat},${elLon}`)}`;
+      const reviewUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${elLat.toFixed(5)},${elLon.toFixed(5)}`)}`;
 
       hotels.push({
         name,
@@ -611,14 +787,21 @@ export function parseElements(
     );
   }
 
-  // Cross-assignment safety check: if railway picked the exact same location as metro, clear false railway
+  // Cross-assignment safety check: if railway picked the exact same location as metro, or railway was falsely assigned "Central", clear false railway
   if (
     result.facilities.railway &&
-    result.facilities.metro &&
-    Math.abs(result.facilities.railway.distanceMeters - result.facilities.metro.distanceMeters) < 20 &&
-    result.facilities.railway.name.toLowerCase() === result.facilities.metro.name.toLowerCase()
+    (
+      (result.facilities.metro && Math.abs(result.facilities.railway.distanceMeters - result.facilities.metro.distanceMeters) < 50) ||
+      (result.facilities.metro && result.facilities.railway.name.toLowerCase() === result.facilities.metro.name.toLowerCase()) ||
+      result.facilities.railway.name.toLowerCase().trim() === "central"
+    )
   ) {
     result.facilities.railway = null;
+  }
+
+  // Guarantee nearest airport is always populated locally in 0ms if not discovered via elements
+  if (!result.facilities.airport) {
+    result.facilities.airport = resolveNearestAirport(centerLat, centerLon);
   }
 
   result.facilities.hotels = uniqueHotels.slice(0, 8);

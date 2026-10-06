@@ -273,9 +273,21 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
                     <span className="truncate pr-2 font-medium" title={h.name}>
                       {h.name}
                     </span>
-                    <span className="text-rose-300 font-mono text-[10px] shrink-0 font-bold bg-rose-500/10 px-1.5 py-0.5 rounded">
-                      {formatDistance(h.distance)}
-                    </span>
+                    <div className="flex items-center space-x-1 shrink-0">
+                      <span className="text-rose-300 font-mono text-[10px] font-bold bg-rose-500/10 px-1.5 py-0.5 rounded">
+                        {formatDistance(h.distance)}
+                      </span>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${h.name} ${h.coordinates ? `${h.coordinates[1]},${h.coordinates[0]}` : ''}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-cyan-400 hover:text-cyan-300 p-1 hover:bg-cyan-500/20 rounded transition"
+                        title={`View reviews for ${h.name} on Google Maps`}
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
                   </div>
                 ))}
               </div>

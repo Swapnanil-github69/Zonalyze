@@ -1,7 +1,7 @@
 import axios from "axios";
 import { config } from "../config/env.js";
 import { OverpassResponse, OverpassElement } from "../types/index.js";
-import { isMetroStation } from "./overpassService.js";
+import { isMetroStation, buildPanIndiaOverpassQuery } from "./overpassService.js";
 
 /**
  * Contributor 1: Backend Lead
@@ -18,45 +18,7 @@ export class OverpassService {
     lat: number,
     lon: number
   ): Promise<OverpassElement[]> {
-    const TRANSIT_RADIUS = 2500; // 2.5 km for rail and metro
-    const BUS_RADIUS = 1000;     // 1.0 km for bus stops
-    const HOTEL_RADIUS = 3000;   // 3 km to ensure hotels are found in all sectors
-
-    const query = `
-      [out:json][timeout:25];
-      (
-        // Metro Stations & Entrances
-        nwr["station"="subway"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
-        nwr["railway"="subway_entrance"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
-        nwr["subway"="yes"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
-        nwr["railway"="subway"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
-        nwr["network"~"Kolkata Metro|KMRC|Metro Rail",i](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
-
-        // Heavy Railway (Indian Railways)
-        nwr["railway"="station"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
-        nwr["railway"="halt"](around:${TRANSIT_RADIUS}, ${lat}, ${lon});
-
-        // Bus Stops & Platforms
-        nwr["highway"="bus_stop"](around:${BUS_RADIUS}, ${lat}, ${lon});
-        nwr["public_transport"="platform"]["bus"="yes"](around:${BUS_RADIUS}, ${lat}, ${lon});
-
-        // Accommodations (Hotels, Guest Houses, Hostels, Motels)
-        nwr["tourism"~"hotel|guest_house|hostel|motel"](around:${HOTEL_RADIUS}, ${lat}, ${lon});
-
-        // Health & Essentials
-        nwr["amenity"~"hospital|clinic|pharmacy|nursing_home"](around:2000, ${lat}, ${lon});
-        nwr["healthcare"~"hospital|clinic|centre|nursing_home"](around:2000, ${lat}, ${lon});
-        nwr["amenity"="bus_station"](around:2000, ${lat}, ${lon});
-        nwr["amenity"="taxi"](around:1000, ${lat}, ${lon});
-        nwr["shop"~"convenience|supermarket|general"](around:1000, ${lat}, ${lon});
-        nwr["leisure"="park"](around:1500, ${lat}, ${lon});
-        way["railway"="rail"](around:1500, ${lat}, ${lon});
-        way["highway"~"motorway|trunk|primary"](around:1000, ${lat}, ${lon});
-      );
-      out center body;
-      >;
-      out skel qt;
-    `;
+    const query = buildPanIndiaOverpassQuery(lat, lon);
 
     // Race fast mirrors concurrently with a 9000ms timeout
     const fetchFromEndpoint = async (endpoint: string): Promise<OverpassElement[]> => {
@@ -68,7 +30,7 @@ export class OverpassService {
             "Content-Type": "application/x-www-form-urlencoded",
             "User-Agent":
               config.nominatimUserAgent ||
-              "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
+              "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
             Accept: "application/json",
           },
           timeout: 9000,
@@ -105,7 +67,7 @@ export class OverpassService {
       const headers = {
         "User-Agent":
           config.nominatimUserAgent ||
-          "Zonalyze-Location-Auditor/1.0 (contact: info@zonalyze.local)",
+          "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
       };
 
       const [hospRes, clinicRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes] = await Promise.allSettled([

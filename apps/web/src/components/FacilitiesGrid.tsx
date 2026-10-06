@@ -178,17 +178,17 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
       <div
         onClick={() =>
           handleCardClick(
-            airport.name || "CCU International Airport",
+            airport.name || "Airport",
             airport.coordinates,
             airport.nearest_dist_m,
             "airport"
           )
         }
         className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-          isSelected(airport.name || "CCU International Airport")
+          isSelected(airport.name || "Airport")
             ? "bg-cyan-950/50 border-cyan-400 ring-1 ring-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
             : "bg-slate-900/80 border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80"
-        }`}
+        } ${airport.nearest_dist_m === null ? "opacity-70 cursor-default" : ""}`}
       >
         <div className="flex items-center justify-between">
           <span className="text-xs text-slate-300 font-medium group-hover:text-purple-300 transition">
@@ -200,13 +200,19 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
           <div className="text-sm font-bold text-white font-mono">
             {formatDistance(airport.nearest_dist_m)}
           </div>
-          <div
-            className="text-[10px] text-purple-300 font-medium truncate mt-0.5"
-            title={airport.name || "Airport"}
-          >
-            {airport.name || "CCU International Airport"}
+          {airport.name && (
+            <div
+              className="text-[10px] text-purple-300 font-medium truncate mt-0.5"
+              title={airport.name}
+            >
+              {airport.name}
+            </div>
+          )}
+          <div className="text-[10px] text-slate-400 mt-0.5">
+            {airport.nearest_dist_m !== null
+              ? "Commercial / Regional terminal"
+              : "No airport within 70km"}
           </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">Regional terminal</div>
         </div>
       </div>
     </div>

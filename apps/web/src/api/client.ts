@@ -41,32 +41,134 @@ function normalizeInvestigationResult(
   };
 }
 
-const KNOWN_METRO_STOPS = [
-  "sovabazar", "sutanuti", "phoolbagan", "esplanade", "chandni chowk",
-  "central", "shyambazar", "girish park", "mahatma gandhi road", "mg road",
-  "park street", "maidan", "rabindra sadan", "netaji bhavan", "jatin das park",
-  "kalighat", "rabindra sarobar", "mahanayak uttam kumar", "tollygunge",
-  "netaji", "masterda surya sen", "gitanjali", "kavi nazrul", "shahid khudiram",
-  "kavi subhash", "city centre", "salt lake sector", "sector v", "karunamoyee",
-  "central park", "bengal chemical", "salt lake stadium", "sealdah metro",
-  "howrah metro", "dakshineswar", "baranagar", "noapara", "dum dum metro",
-  "taratala", "majherhat metro", "joka"
+const PAN_INDIA_METRO_SYSTEMS = [
+  // Delhi & NCR
+  "dmrc", "delhi metro", "rapid metro", "noida metro", "nmrc", "ncrtc", "rrts", "namo bharat",
+  // Karnataka
+  "bmrcl", "namma metro", "bangalore metro", "bengaluru metro",
+  // Maharashtra
+  "mmrda", "mmmocl", "mmopl", "mumbai metro", "maha mumbai metro", "pune metro", "nagpur metro", "maha metro", "mahametro",
+  // Tamil Nadu
+  "cmrl", "chennai metro",
+  // Uttar Pradesh
+  "upmrc", "lmrc", "lucknow metro", "kanpur metro", "agra metro", "meerut metro",
+  // Gujarat
+  "gmrc", "gujarat metro", "ahmedabad metro", "surat metro", "mega",
+  // Kerala
+  "kmrl", "kochi metro",
+  // Telangana & AP
+  "hmrl", "hyderabad metro", "l&t metro", "vizag metro",
+  // West Bengal
+  "kolkata metro", "kmrc", "metro railway kolkata",
+  // Rajasthan
+  "jmrc", "jaipur metro",
+  // Bihar, MP, Punjab, Haryana, Uttarakhand
+  "patna metro", "bhopal metro", "indore metro", "bhoj metro"
 ];
 
-function isClientMetroName(name: string): boolean {
-  const clean = name.toLowerCase().replace(/[^a-z0-9\s]/g, " ").trim();
-  if (/\b(metro|subway)\b/i.test(clean)) return true;
-  if (KNOWN_METRO_STOPS.some((km) => clean.includes(km))) {
-    if (
-      !clean.includes("ahiritola") &&
-      !clean.includes("railway station") &&
-      !clean.includes("junction") &&
-      !clean.includes("jn")
-    ) {
-      return true;
+const IR_HEAVY_RAIL_IDENTIFIERS = [
+  "junction", "jn", "halt", "cabin", "cantt", "cantonment",
+  "terminal", "terminus", "railway station", "rly stn",
+  "singur", "kamarkundu"
+];
+
+const PAN_INDIA_METRO_STATION_NAMES = [
+  // Kolkata Metro (Line 1, Line 2, Line 3, Line 6)
+  "central", "esplanade", "chandni chowk", "shyambazar", "girish park",
+  "sovabazar", "sutanuti", "mahatma gandhi road", "mg road", "park street",
+  "maidan", "rabindra sadan", "netaji bhavan", "jatin das park", "kalighat",
+  "rabindra sarobar", "mahanayak uttam kumar", "tollygunge", "netaji",
+  "masterda surya sen", "gitanjali", "kavi nazrul", "shahid khudiram",
+  "kavi subhash", "city centre", "salt lake sector", "sector v", "karunamoyee",
+  "central park", "bengal chemical", "salt lake stadium", "sealdah metro",
+  "howrah metro", "dakshineswar", "baranagar", "noapara", "taratala",
+  "majherhat metro", "joka", "phoolbagan",
+  // Delhi Metro & NCR
+  "rajiv chowk", "kashmere gate", "central secretariat", "barakhamba road",
+  "patel chowk", "vishwa vidyalaya", "chawri bazar", "hauz khas", "aiims",
+  "ina", "samaypur badli", "millennium city centre", "huda city centre",
+  // Bengaluru Namma Metro
+  "indiranagar", "cubbon park", "vidhana soudha", "trinity", "halasuru",
+  "jayanagar", "lalbagh", "south end circle", "banashankari",
+  // Mumbai Metro
+  "ghatkopar", "versova", "dn nagar", "marol naka", "saki naka",
+  "jagruthi nagar", "asalpha", "magathane", "dindoshi", "pahadi goregaon",
+  // Hyderabad Metro
+  "ameerpet", "hitec city", "miyapur", "durgam cheruvu", "jubilee hills",
+  "raidurg", "kukatpally", "parade ground",
+  // Chennai Metro
+  "thousand lights", "ag-dms", "lic", "high court", "guindy metro",
+  "nehru park", "shenoy nagar", "anna nagar",
+  // Ahmedabad, Jaipur, Kochi, Lucknow
+  "motera stadium", "kankaria east", "mansarovar", "chandpole",
+  "aluva", "edapally", "maharajas college", "hazratganj", "charbagh metro"
+];
+
+const MAJOR_INDIAN_AIRPORTS = [
+  { name: "Netaji Subhash Chandra Bose Int'l Airport (CCU)", lat: 22.6547, lon: 88.4467 },
+  { name: "Kazi Nazrul Islam Airport (RDP)", lat: 23.6231, lon: 87.2417 },
+  { name: "Bagdogra International Airport (IXB)", lat: 26.6812, lon: 88.3286 },
+  { name: "Indira Gandhi International Airport (DEL)", lat: 28.5562, lon: 77.1000 },
+  { name: "Chhatrapati Shivaji Maharaj Int'l Airport (BOM)", lat: 19.0896, lon: 72.8656 },
+  { name: "Kempegowda International Airport (BLR)", lat: 13.1986, lon: 77.7066 },
+  { name: "Chaudhary Charan Singh Int'l Airport (LKO)", lat: 26.7606, lon: 80.8893 },
+  { name: "Sardar Vallabhbhai Patel Int'l Airport (AMD)", lat: 23.0772, lon: 72.6347 },
+  { name: "Rajiv Gandhi International Airport (HYD)", lat: 17.2403, lon: 78.4294 },
+  { name: "Chennai International Airport (MAA)", lat: 12.9941, lon: 80.1709 },
+  { name: "Cochin International Airport (COK)", lat: 10.1520, lon: 76.4019 },
+  { name: "Jayprakash Narayan Airport (PAT)", lat: 25.5913, lon: 85.0880 },
+  { name: "Biju Patnaik Airport (BBI)", lat: 20.2444, lon: 85.8178 },
+  { name: "Pune Airport (PNQ)", lat: 18.5822, lon: 73.9197 },
+  { name: "Goa Dabolim Airport (GOI)", lat: 15.3808, lon: 73.8313 },
+  { name: "Manohar International Airport (GOX)", lat: 15.7667, lon: 73.8667 },
+  { name: "Jaipur International Airport (JAI)", lat: 26.8242, lon: 75.8122 },
+  { name: "Shaheed Bhagat Singh Int'l Airport (IXC)", lat: 30.6735, lon: 76.7885 },
+  { name: "Lokpriya Gopinath Bordoloi Int'l Airport (GAU)", lat: 26.1061, lon: 91.5859 },
+  { name: "Lal Bahadur Shastri Int'l Airport (VNS)", lat: 25.4524, lon: 82.8593 },
+  { name: "Sheikh ul-Alam Int'l Airport (SXR)", lat: 33.9871, lon: 74.7741 },
+  { name: "Trivandrum International Airport (TRV)", lat: 8.4821, lon: 76.9200 },
+  { name: "Dr. Babasaheb Ambedkar Int'l Airport (NAG)", lat: 21.0922, lon: 79.0472 },
+  { name: "Devi Ahilya Bai Holkar Airport (IDR)", lat: 22.7217, lon: 75.8011 },
+  { name: "Coimbatore International Airport (CJB)", lat: 11.0299, lon: 77.0434 },
+  { name: "Visakhapatnam International Airport (VTZ)", lat: 17.7212, lon: 83.2245 },
+  { name: "Surat International Airport (STV)", lat: 21.1139, lon: 72.7419 },
+  { name: "Birsa Munda Airport (IXR)", lat: 23.3143, lon: 85.3217 },
+  { name: "Swami Vivekananda Airport (RPR)", lat: 21.1804, lon: 81.7388 },
+  { name: "Sri Guru Ram Dass Jee Int'l Airport (ATQ)", lat: 31.7096, lon: 74.7973 }
+];
+
+function resolveClientNearestAirport(lat: number, lon: number): { name: string; distanceMeters: number; coordinates: [number, number] } | null {
+  let closest: { name: string; distanceMeters: number; coordinates: [number, number] } | null = null;
+  let minDistance = Infinity;
+
+  for (const ap of MAJOR_INDIAN_AIRPORTS) {
+    const dLat = (ap.lat - lat) * 111000;
+    const dLon = (ap.lon - lon) * 111000 * Math.cos((lat * Math.PI) / 180);
+    const d = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+    if (d < minDistance && d <= 100000) {
+      minDistance = d;
+      closest = {
+        name: ap.name,
+        distanceMeters: d,
+        coordinates: [ap.lon, ap.lat],
+      };
     }
   }
-  return false;
+  return closest;
+}
+
+export function isClientMetroName(name: string): boolean {
+  const clean = name.toLowerCase().replace(/[^a-z0-9\s]/g, " ").trim();
+  const isHeavyRail = IR_HEAVY_RAIL_IDENTIFIERS.some((id) =>
+    clean.includes(id) || new RegExp(`\\b${id}\\b`).test(clean)
+  );
+  if (isHeavyRail) return false;
+
+  if (/\b(metro|subway|rapid transit|light rail)\b/i.test(clean)) return true;
+  if (PAN_INDIA_METRO_SYSTEMS.some((sys) => clean.includes(sys))) return true;
+  return PAN_INDIA_METRO_STATION_NAMES.some((stn) =>
+    clean === stn || clean.startsWith(`${stn} `) || clean.endsWith(` ${stn}`)
+  );
 }
 
 /**
@@ -103,6 +205,14 @@ async function fallbackClientInvestigation(
   let nearestMetroDistM: number | null = null;
   let nearestMetroCoords: [number, number] | null = null;
 
+  let nearestBusName: string | null = null;
+  let nearestBusDistM: number | null = null;
+  let nearestBusCoords: [number, number] | null = null;
+
+  let nearestAirportName: string | null = null;
+  let nearestAirportDistM: number | null = null;
+  let nearestAirportCoords: [number, number] | null = null;
+
   const fallbackHotels: Array<{
     name: string;
     distanceMeters: number;
@@ -113,6 +223,8 @@ async function fallbackClientInvestigation(
   }> = [];
 
   const viewbox = `${(longitude - 0.025).toFixed(4)},${(latitude + 0.025).toFixed(4)},${(longitude + 0.025).toFixed(4)},${(latitude - 0.025).toFixed(4)}`;
+  const airportDelta = 0.65; // ~70km
+  const airportViewbox = `${(longitude - airportDelta).toFixed(4)},${(latitude + airportDelta).toFixed(4)},${(longitude + airportDelta).toFixed(4)},${(latitude - airportDelta).toFixed(4)}`;
 
   await Promise.all([
     axios
@@ -244,7 +356,61 @@ async function fallbackClientInvestigation(
         }
       })
       .catch(() => {}),
+    axios
+      .get(
+        `https://nominatim.openstreetmap.org/search?q=bus+stop&format=json&limit=5&viewbox=${viewbox}&bounded=1`,
+        { timeout: 5000 }
+      )
+      .then((busRes) => {
+        if (Array.isArray(busRes.data) && busRes.data.length > 0) {
+          const item = busRes.data[0];
+          const bLat = parseFloat(item.lat);
+          const bLon = parseFloat(item.lon);
+          const dLat = (bLat - latitude) * 111000;
+          const dLon = (bLon - longitude) * 111000 * Math.cos((latitude * Math.PI) / 180);
+          nearestBusDistM = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+          nearestBusName = (item.name || item.display_name?.split(",")[0] || "Bus Stop").trim();
+          nearestBusCoords = [bLon, bLat];
+        }
+      })
+      .catch(() => {}),
+    axios
+      .get(
+        `https://nominatim.openstreetmap.org/search?q=airport&format=json&limit=5&viewbox=${airportViewbox}&bounded=1`,
+        { timeout: 5000 }
+      )
+      .then((airRes) => {
+        if (Array.isArray(airRes.data) && airRes.data.length > 0) {
+          for (const item of airRes.data) {
+            const aName = (item.name || item.display_name?.split(",")[0] || "Airport").trim();
+            const aLat = parseFloat(item.lat);
+            const aLon = parseFloat(item.lon);
+            const dLat = (aLat - latitude) * 111000;
+            const dLon = (aLon - longitude) * 111000 * Math.cos((latitude * Math.PI) / 180);
+            const dist = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+            if (nearestAirportDistM === null || dist < nearestAirportDistM) {
+              nearestAirportDistM = dist;
+              nearestAirportName = aName;
+              nearestAirportCoords = [aLon, aLat];
+            }
+          }
+        }
+      })
+      .catch(() => {}),
   ]);
+
+  if (nearestAirportDistM === null) {
+    const localAp = resolveClientNearestAirport(latitude, longitude);
+    if (localAp) {
+      nearestAirportName = localAp.name;
+      nearestAirportDistM = localAp.distanceMeters;
+      nearestAirportCoords = localAp.coordinates;
+    }
+  }
+
+  if (typeof nearestMetroName === "string" && (nearestMetroName as string).toLowerCase().trim() === "central") {
+    nearestMetroName = "Central Metro Station";
+  }
 
   return {
     _id: "client-telemetry-" + Date.now(),
@@ -293,10 +459,19 @@ async function fallbackClientInvestigation(
         distanceMeters: nearestHospitalDistM,
         coordinates: (nearbyHospitals[0]?.coordinates as [number, number]) || [longitude, latitude],
       } : null,
-      busStop: null,
+      busStop: nearestBusDistM !== null ? {
+        name: nearestBusName || "Bus Stop",
+        distanceMeters: nearestBusDistM,
+        coordinates: nearestBusCoords || [longitude, latitude],
+        routesCount: 2,
+      } : null,
       store: null,
       park: null,
-      airport: null,
+      airport: nearestAirportDistM !== null ? {
+        name: nearestAirportName || "Airport",
+        distanceMeters: nearestAirportDistM,
+        coordinates: nearestAirportCoords || [longitude, latitude],
+      } : null,
       hotels: fallbackHotels,
     },
     noiseProfile: {
