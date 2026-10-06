@@ -173,7 +173,25 @@ export function classifyStation(tags: Record<string, string> = {}): "metro" | "r
   const usage = (tags.usage || "").toLowerCase();
   const line = (tags.line || "").toLowerCase();
 
-  // 1. HARD DISQUALIFIERS: Attributes belonging to Indian Railways / heavy rail across all 18 zones & divisions
+  // 1. HARD DISQUALIFIERS & RAPID TRANSIT OVERRIDES
+  // Kamarkundu and Singur are strictly heavy rail junctions
+  if (name.includes("kamarkundu") || name.includes("singur")) {
+    return "railway";
+  }
+
+  // Rapid transit stations must NEVER be classified as heavy rail, even if operated by an IR zone
+  const isExplicitMetroIndicator =
+    /\bline\s*[0-9]+/i.test(name) ||
+    name.includes("esplanade") ||
+    name.includes("chandni chowk") ||
+    name.includes("central") ||
+    name.includes("metro") ||
+    station === "subway" ||
+    subway === "yes" ||
+    railway === "subway" ||
+    railway === "subway_entrance" ||
+    tags.light_rail === "yes";
+
   const isHeavyRailUsage =
     usage === "main" ||
     usage === "branch" ||
@@ -197,11 +215,9 @@ export function classifyStation(tags: Record<string, string> = {}): "metro" | "r
     name.includes("terminal") ||
     name.includes("terminus") ||
     name.includes("railway station") ||
-    name.includes("rly stn") ||
-    name.includes("kamarkundu") ||
-    name.includes("singur");
+    name.includes("rly stn");
 
-  const isHeavyRail = isHeavyRailUsage || matchesIRZone || isHeavyRailName;
+  const isHeavyRail = (isHeavyRailUsage || matchesIRZone || isHeavyRailName) && !isExplicitMetroIndicator;
 
   if (isHeavyRail) {
     return "railway";
@@ -249,7 +265,11 @@ export function classifyStation(tags: Record<string, string> = {}): "metro" | "r
     name.includes("metro station") ||
     name.endsWith(" metro") ||
     /\bmetro\b/.test(name) ||
-    name.startsWith("metro ");
+    name.startsWith("metro ") ||
+    /\bline\s*[0-9]+/i.test(name) ||
+    name.includes("esplanade") ||
+    name.includes("chandni chowk") ||
+    name.includes("central");
 
   // Famous metro stations that may only be tagged by name without the "metro" suffix
   const PAN_INDIA_METRO_STATION_NAMES = [
@@ -287,12 +307,14 @@ export function classifyStation(tags: Record<string, string> = {}): "metro" | "r
   const isKnownMetroStationName = PAN_INDIA_METRO_STATION_NAMES.some((stn) =>
     name === stn ||
     name.startsWith(`${stn} `) ||
+    name.startsWith(`${stn}(`) ||
     name.endsWith(` ${stn}`) ||
     name.includes(`${stn} metro`) ||
-    name.includes(`${stn} station`)
+    name.includes(`${stn} station`) ||
+    name.includes(`${stn} (`)
   );
 
-  if (isMetroOperatorOrNetwork || isSubwayInfrastructure || isMetroNamed || isKnownMetroStationName) {
+  if (isExplicitMetroIndicator || isMetroOperatorOrNetwork || isSubwayInfrastructure || isMetroNamed || isKnownMetroStationName) {
     return "metro";
   }
 
@@ -639,16 +661,27 @@ export function parseElements(
 
     if (stationClass === "metro") {
       const rawName = tags.name?.trim() || "Metro Station";
-      const displayName = rawName.toLowerCase() === "central" ? "Central Metro Station" : rawName;
-      const metroStation = getFacility(tags, d, displayName, elLon, elLat);
+      let displayName = rawName;
       if (rawName.toLowerCase() === "central") {
-        metroStation.name = "Central Metro Station";
+        displayName = "Central Metro Station";
+      } else if (rawName.toLowerCase() === "esplanade") {
+        displayName = "Esplanade Metro Station";
       }
+      const metroStation = getFacility(tags, d, displayName, elLon, elLat);
+      metroStation.name = displayName;
       result.facilities.metro = updateNearest(result.facilities.metro, metroStation);
     } else if (stationClass === "railway") {
       const cleanName = (tags.name || "").trim().toLowerCase();
-      // Ensure "Central" in Kolkata is never assigned to heavy rail
-      if (cleanName !== "central") {
+      // Ensure "Central", "Esplanade", "Chandni Chowk", "Line 1", "Line 2", "Metro" are NEVER assigned to heavy rail!
+      const isMetroContaminated =
+        cleanName === "central" ||
+        cleanName.includes("esplanade") ||
+        cleanName.includes("chandni chowk") ||
+        cleanName.includes("line 1") ||
+        cleanName.includes("line 2") ||
+        cleanName.includes("metro");
+
+      if (!isMetroContaminated) {
         const trainStation = getFacility(tags, d, "Railway Station", elLon, elLat);
         result.facilities.railway = updateNearest(result.facilities.railway, trainStation);
       }
@@ -787,13 +820,18 @@ export function parseElements(
     );
   }
 
-  // Cross-assignment safety check: if railway picked the exact same location as metro, or railway was falsely assigned "Central", clear false railway
+  // Cross-assignment safety check: if railway picked the exact same location as metro, or railway was falsely assigned a rapid transit station, clear false railway
   if (
     result.facilities.railway &&
     (
       (result.facilities.metro && Math.abs(result.facilities.railway.distanceMeters - result.facilities.metro.distanceMeters) < 50) ||
       (result.facilities.metro && result.facilities.railway.name.toLowerCase() === result.facilities.metro.name.toLowerCase()) ||
-      result.facilities.railway.name.toLowerCase().trim() === "central"
+      result.facilities.railway.name.toLowerCase().includes("central") ||
+      result.facilities.railway.name.toLowerCase().includes("esplanade") ||
+      result.facilities.railway.name.toLowerCase().includes("chandni chowk") ||
+      result.facilities.railway.name.toLowerCase().includes("line 1") ||
+      result.facilities.railway.name.toLowerCase().includes("line 2") ||
+      result.facilities.railway.name.toLowerCase().includes("metro")
     )
   ) {
     result.facilities.railway = null;

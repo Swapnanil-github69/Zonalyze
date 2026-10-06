@@ -9,7 +9,7 @@ export function useInvestigation() {
   const [error, setError] = useState<string | null>(null);
   const [isDossierOpen, setIsDossierOpen] = useState<boolean>(false);
 
-  const triggerInvestigation = useCallback(async (lat: number, lng: number) => {
+  const triggerInvestigation = useCallback(async (lat: number, lng: number, refresh = false) => {
     setSelectedCoords({ lat, lng });
     setError(null);
     setInvestigation(null);
@@ -22,7 +22,7 @@ export function useInvestigation() {
     const stageTimer3 = setTimeout(() => setStage("synthesizing_ai"), 2200);
 
     try {
-      const result = await investigateCoordinates(lat, lng);
+      const result = await investigateCoordinates(lat, lng, refresh);
       clearTimeout(stageTimer1);
       clearTimeout(stageTimer2);
       clearTimeout(stageTimer3);

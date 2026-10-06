@@ -505,15 +505,18 @@ async function fallbackClientInvestigation(
 
 export async function investigateCoordinates(
   latitude: number,
-  longitude: number
+  longitude: number,
+  refresh: boolean = false
 ): Promise<InvestigationResult> {
   try {
+    const url = refresh ? "/investigate?refresh=true" : "/investigate";
     const response = await apiClient.post<
       | ApiInvestigationResult
       | { success: boolean; cached: boolean; data: ApiInvestigationResult }
-    >("/investigate", {
+    >(url, {
       latitude,
       longitude,
+      refresh,
     });
     if ("data" in response.data && "success" in response.data) {
       return {
