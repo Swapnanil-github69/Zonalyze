@@ -4,9 +4,87 @@ import { AiDebrief } from "../types/index.js";
 import { calculateHaversineMeters } from "../utils/geoUtils.js";
 import { NominatimService } from "./nominatim.service.js";
 
+const apiKey = process.env.GEMMA_API_KEY || process.env.GEMINI_API_KEY || "";
+const gemmaAi = new GoogleGenAI({ apiKey });
+
+export const GEMMA_MODEL_NAME = process.env.GEMMA_MODEL || "gemma-4-26b-a4b-it";
+
+export interface UrbanAuditPayload {
+  address?: { displayName?: string; suburb?: string; city?: string; state?: string };
+  coordinates?: [number, number];
+  facilities?: {
+    metro?: { name: string; distanceMeters: number } | null;
+    railway?: { name: string; distanceMeters: number } | null;
+    busStop?: { name: string; distanceMeters: number } | null;
+    airport?: { name: string; distanceMeters: number } | null;
+    hospital?: { name: string; distanceMeters: number } | null;
+  };
+}
+
+/**
+ * Generates an automated forensic urban intelligence debrief using Gemma 4.
+ */
+export async function generateGemmaDebrief(context: UrbanAuditPayload): Promise<string> {
+  const metroText = context.facilities?.metro
+    ? `${context.facilities.metro.name} (${context.facilities.metro.distanceMeters}m)`
+    : "None within 3 km envelope";
+  const railText = context.facilities?.railway
+    ? `${context.facilities.railway.name} (${context.facilities.railway.distanceMeters}m)`
+    : "None within 3 km envelope";
+  const busText = context.facilities?.busStop
+    ? `${context.facilities.busStop.name} (${context.facilities.busStop.distanceMeters}m)`
+    : "None detected nearby";
+  const airportText = context.facilities?.airport
+    ? `${context.facilities.airport.name} (${context.facilities.airport.distanceMeters}m)`
+    : "None within 100 km";
+
+  const prompt = `
+[SYSTEM DIRECTIVE: URBAN INTELLIGENCE AGENT (GEMMA 4)]
+You are the Zonalyze Urban Intelligence Engine powered exclusively by Gemma 4.
+Analyze the following audited location telemetry:
+
+- Locality: ${context.address?.displayName || "Target Area"}
+- Coordinates: [Lat: ${context.coordinates?.[1]}, Lon: ${context.coordinates?.[0]}]
+- Rapid Transit (Metro): ${metroText}
+- Heavy Rail (Indian Railways): ${railText}
+- Nearest Bus Stop: ${busText}
+- Nearest Commercial Airport: ${airportText}
+
+INSTRUCTIONS:
+1. Provide a sharp, 3-paragraph urban mobility & livability debrief.
+2. In paragraph 1, directly assess the immediate transit accessibility (Metro vs Rail vs Bus).
+3. In paragraph 2, evaluate regional connectivity, freight/highway proximity, and airport access.
+4. In paragraph 3, highlight any mobility bottlenecks or urban advantages.
+5. Format in clean Markdown without conversational greetings.
+`;
+
+  try {
+    const response = await gemmaAi.models.generateContent({
+      model: GEMMA_MODEL_NAME,
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: {
+        temperature: 0.6,
+        maxOutputTokens: 700,
+      },
+    });
+
+    const replyText =
+      response.text ||
+      response.candidates?.[0]?.content?.parts?.find((p: any) => !p.thought && p.text)?.text ||
+      response.candidates?.[0]?.content?.parts?.slice(-1)[0]?.text;
+
+    return replyText || response.text || "Urban audit completed. Telemetry mapped successfully.";
+  } catch (error: any) {
+    console.error("[GemmaService] Debrief generation error:", error);
+    return "Automated Gemma 4 debrief temporarily unavailable. Proximity telemetry remains fully active.";
+  }
+}
+
 const CANDIDATE_MODELS = [
+  "gemma-2-9b-it",
+  "gemma-4-26b-a4b-it",
+  "gemini-2.5-flash-lite",
   "gemini-3.5-flash-lite",
-  "gemini-3.5-flash",
   "gemini-flash-latest",
 ];
 
@@ -85,59 +163,86 @@ INSTRUCTIONS:
 
     for (const model of CANDIDATE_MODELS) {
       try {
+        const isGemma = model.startsWith("gemma-");
+        const config: any = isGemma
+          ? {
+              temperature: 0.3,
+              maxOutputTokens: 1000,
+            }
+          : {
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  summary: {
+                    type: Type.STRING,
+                    description: "Executive 2-3 sentence forensic synthesis of the location's livability metrics.",
+                  },
+                  insights_in_brief: {
+                    type: Type.OBJECT,
+                    properties: {
+                      transit: {
+                        type: Type.STRING,
+                        description: "Concise 1-sentence insight on rapid transit/rail proximity.",
+                      },
+                      healthcare: {
+                        type: Type.STRING,
+                        description: "Concise 1-sentence insight on hospital count and emergency access distance.",
+                      },
+                      environment: {
+                        type: Type.STRING,
+                        description: "Concise 1-sentence insight on air quality index and PM2.5 exposure.",
+                      },
+                      acoustic: {
+                        type: Type.STRING,
+                        description: "Concise 1-sentence insight on noise bracket, highway/road proximity, and sound profile.",
+                      },
+                    },
+                    required: ["transit", "healthcare", "environment", "acoustic"],
+                  },
+                  empirical_observations: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING },
+                    description: "3 to 4 direct, verifiable facts derived strictly from the telemetry.",
+                  },
+                  site_inspection_targets: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING },
+                    description: "3 to 4 actionable physical verification items for an investigator on site.",
+                  },
+                },
+                required: ["summary", "insights_in_brief", "empirical_observations", "site_inspection_targets"],
+              },
+            };
+
         const response = await client.models.generateContent({
           model,
-          contents: prompt,
-          config: {
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: Type.OBJECT,
-              properties: {
-                summary: {
-                  type: Type.STRING,
-                  description: "Executive 2-3 sentence forensic synthesis of the location's livability metrics.",
-                },
-                insights_in_brief: {
-                  type: Type.OBJECT,
-                  properties: {
-                    transit: {
-                      type: Type.STRING,
-                      description: "Concise 1-sentence insight on rapid transit/rail proximity.",
-                    },
-                    healthcare: {
-                      type: Type.STRING,
-                      description: "Concise 1-sentence insight on hospital count and emergency access distance.",
-                    },
-                    environment: {
-                      type: Type.STRING,
-                      description: "Concise 1-sentence insight on air quality index and PM2.5 exposure.",
-                    },
-                    acoustic: {
-                      type: Type.STRING,
-                      description: "Concise 1-sentence insight on noise bracket, highway/road proximity, and sound profile.",
-                    },
-                  },
-                  required: ["transit", "healthcare", "environment", "acoustic"],
-                },
-                empirical_observations: {
-                  type: Type.ARRAY,
-                  items: { type: Type.STRING },
-                  description: "3 to 4 direct, verifiable facts derived strictly from the telemetry.",
-                },
-                site_inspection_targets: {
-                  type: Type.ARRAY,
-                  items: { type: Type.STRING },
-                  description: "3 to 4 actionable physical verification items for an investigator on site.",
-                },
-              },
-              required: ["summary", "insights_in_brief", "empirical_observations", "site_inspection_targets"],
-            },
-          },
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          config,
         });
 
-        if (response.text) {
-          const parsed = JSON.parse(response.text) as AiDebrief;
-          return parsed;
+        const rawText =
+          response.text ||
+          response.candidates?.[0]?.content?.parts?.find((p: any) => !p.thought && p.text)?.text ||
+          response.candidates?.[0]?.content?.parts?.slice(-1)[0]?.text;
+
+        if (rawText) {
+          let cleanText = rawText.trim();
+          if (cleanText.includes("```json")) {
+            cleanText = cleanText.split("```json")[1].split("```")[0].trim();
+          } else if (cleanText.includes("```")) {
+            cleanText = cleanText.split("```")[1].split("```")[0].trim();
+          } else {
+            const firstBrace = cleanText.indexOf("{");
+            const lastBrace = cleanText.lastIndexOf("}");
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+              cleanText = cleanText.substring(firstBrace, lastBrace + 1);
+            }
+          }
+          const parsed = JSON.parse(cleanText) as AiDebrief;
+          if (parsed && parsed.summary && parsed.empirical_observations) {
+            return parsed;
+          }
         }
       } catch (error: any) {
         console.warn(`⚠️ Model ${model} debrief failed (${error.status || error.message?.substring(0, 60)}), evaluating failover...`);
@@ -411,16 +516,32 @@ LANGUAGE & MULTILINGUAL OUTPUT:
     // Try candidate models in order of priority to ensure active quota and uptime
     for (const model of CANDIDATE_MODELS) {
       try {
+        const isGemma = model.startsWith("gemma-");
+        const modelContents = isGemma
+          ? [
+              {
+                role: "user" as const,
+                parts: [{ text: `${systemInstruction}\n\nUser Question: ${question}` }],
+              },
+            ]
+          : contents;
+        const modelConfig: any = isGemma
+          ? { temperature: 0.7, maxOutputTokens: 600 }
+          : { systemInstruction };
+
         const response = await client.models.generateContent({
           model,
-          contents,
-          config: {
-            systemInstruction,
-          },
+          contents: modelContents,
+          config: modelConfig,
         });
 
-        if (response.text?.trim()) {
-          return response.text.trim();
+        const text =
+          response.text?.trim() ||
+          response.candidates?.[0]?.content?.parts?.find((p: any) => !p.thought && p.text)?.text?.trim() ||
+          response.candidates?.[0]?.content?.parts?.slice(-1)[0]?.text?.trim();
+
+        if (text) {
+          return text;
         }
       } catch (error: any) {
         console.warn(`⚠️ Model ${model} chat failed (${error.status || error.message?.substring(0, 60)}), trying next candidate...`);
