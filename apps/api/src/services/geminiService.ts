@@ -2,6 +2,12 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+export {
+  GEMMA_MODEL_NAME,
+  UrbanAuditPayload,
+  generateGemmaDebrief,
+} from "./gemini.service.js";
+
 export interface AIDebriefResult {
   summary: string;
   observations: string[];
@@ -134,22 +140,34 @@ function createFallback(metrics: Record<string, string>): AIDebriefResult {
 function parseDebrief(text: string | undefined): AIDebriefResult | null {
   if (!text) return null;
   try {
-    const parsed: unknown = JSON.parse(text);
+    let cleanText = text.trim();
+    if (cleanText.includes("```json")) {
+      cleanText = cleanText.split("```json")[1].split("```")[0].trim();
+    } else if (cleanText.includes("```")) {
+      cleanText = cleanText.split("```")[1].split("```")[0].trim();
+    } else {
+      const firstBrace = cleanText.indexOf("{");
+      const lastBrace = cleanText.lastIndexOf("}");
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        cleanText = cleanText.substring(firstBrace, lastBrace + 1);
+      }
+    }
+
+    const parsed: unknown = JSON.parse(cleanText);
     const result = asRecord(parsed);
     if (
       typeof result.summary === "string" &&
       Array.isArray(result.observations) &&
       result.observations.length >= 3 &&
-      result.observations.length <= 4 &&
       result.observations.every((item) => typeof item === "string") &&
       Array.isArray(result.inspectionTargets) &&
-      result.inspectionTargets.length === 3 &&
+      result.inspectionTargets.length >= 3 &&
       result.inspectionTargets.every((item) => typeof item === "string")
     ) {
       return {
         summary: result.summary,
-        observations: result.observations,
-        inspectionTargets: result.inspectionTargets,
+        observations: result.observations.slice(0, 4),
+        inspectionTargets: result.inspectionTargets.slice(0, 3),
       };
     }
   } catch {
@@ -183,41 +201,60 @@ Return JSON only, matching this exact schema:
 
 Use the display name, livability score, PM2.5, current temperature, noise bracket and nearest noise source, transit distances, and hospital distance as provided. Do not add fields. Inspection targets must be framed only as checks to perform, never as claims about conditions already present.`;
 
-  const models = ["gemini-3.1-flash-lite", "gemini-3.8-flash", "gemini-2.5-flash", "gemini-flash-latest"];
+  const models = [
+    "gemma-2-9b-it",
+    "gemma-4-26b-a4b-it",
+    "gemini-2.5-flash-lite",
+    "gemini-flash-latest",
+  ];
+
   for (const model of models) {
     try {
+      const isGemma = model.startsWith("gemma-");
+      const config: any = isGemma
+        ? {
+            temperature: 0.3,
+            maxOutputTokens: 800,
+          }
+        : {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                summary: { type: Type.STRING },
+                observations: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                },
+                inspectionTargets: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                },
+              },
+              required: ["summary", "observations", "inspectionTargets"],
+            },
+          };
+
       const generatePromise = ai.models.generateContent({
         model,
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              summary: { type: Type.STRING },
-              observations: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-              },
-              inspectionTargets: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-              },
-            },
-            required: ["summary", "observations", "inspectionTargets"],
-          },
-        },
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        config,
       });
 
-      // Cap AI debrief to 3 seconds max so user is never blocked
-      const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+      // Cap AI debrief to 4 seconds max so user is never blocked
+      const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000));
       const response = await Promise.race([generatePromise, timeoutPromise]);
       if (!response) {
-        console.warn(`Model ${model} debrief timed out after 3s, proceeding to fallback...`);
+        console.warn(`Model ${model} debrief timed out after 4s, proceeding to fallback...`);
         break;
       }
 
-      const parsed = parseDebrief(response.text);
+      const extractedText =
+        response.text ||
+        response.candidates?.[0]?.content?.parts?.find((p: any) => !p.thought && p.text)?.text ||
+        response.candidates?.[0]?.content?.parts?.slice(-1)[0]?.text;
+
+      const parsed = parseDebrief(extractedText);
       if (parsed) return parsed;
     } catch (error: any) {
       console.warn(`Model ${model} debrief failed: ${error?.message || error}, trying next candidate...`);
