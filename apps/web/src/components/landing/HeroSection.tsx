@@ -91,15 +91,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           <div className="pt-2 max-w-3xl space-y-3">
             <form onSubmit={handleQuickAudit} className="flex flex-col sm:flex-row items-stretch gap-2.5">
               <div className="relative flex-1">
-                <Search className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`} />
+                <Search className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isLiterary ? "text-[#8a7f77]" : "text-[#84907f]"}`} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Enter coordinates or locality (e.g. 22.57617, 88.35801)..."
-                  className={`w-full px-10 py-3.5 text-xs sm:text-sm transition-all ${
+                  className={`w-full px-10 py-3 text-xs sm:text-sm transition-all ${
                     isLiterary
-                      ? "gic-input text-[#2c2c2c] placeholder-[#646464] border-b-2 border-[#2c2c2c] bg-[#f9faf7]"
+                      ? "rounded-[11px] border border-[#d8cfc7] bg-[#fbf9f6] text-[#2c2c2c] placeholder-[#8a7f77] focus:outline-none focus:border-[#b87c67] focus:bg-[#ffffff] font-editorial-sans shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]"
                       : "glass-input font-mono text-[#dde2e4] placeholder-[#84907f] focus:outline-none focus:border-[#e2ffcc]"
                   }`}
                 />
@@ -108,12 +108,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               {isLiterary ? (
                 <button
                   type="submit"
-                  className="gic-btn-primary py-3.5 px-6 font-editorial-sans text-sm font-medium tracking-normal shrink-0 justify-center"
+                  className="group inline-flex items-center justify-center gap-2 py-3 px-5 sm:px-6 rounded-[11px] border border-[#b87c67] bg-[#fdfbf9] text-[#8a4f38] font-editorial-sans font-medium text-xs sm:text-[13px] tracking-normal shrink-0 transition-all duration-200 hover:bg-[#faeee7] hover:border-[#7c442f] hover:text-[#5c2a1a] active:scale-[0.99] cursor-pointer shadow-[0_1px_2px_rgba(138,79,56,0.05)]"
                 >
                   <span>Initiate Audit</span>
-                  <div className="w-4 h-4 rounded-full border border-[#41a1cf] flex items-center justify-center text-[#41a1cf]">
-                    <ArrowUpRight className="w-2.5 h-2.5" />
-                  </div>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-[#8a4f38] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#5c2a1a] shrink-0" />
                 </button>
               ) : (
                 <button
@@ -137,11 +135,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   onClick={onStartInvestigation}
                   className={`px-3 py-1 transition-all cursor-pointer ${
                     isLiterary
-                      ? "gic-card bg-[#ffffff] border border-[#dee2de] hover:border-[#41a1cf] text-[#444141] hover:text-[#41a1cf] rounded-md shadow-none"
+                      ? "gic-card bg-[#ffffff] border border-[#dee2de] hover:border-[#b87c67] text-[#444141] hover:text-[#8a4f38] rounded-md shadow-none"
                       : "border border-[#84907f]/30 bg-[#2d3329]/40 backdrop-blur-md hover:border-[#e2ffcc] hover:text-[#e2ffcc] hover:bg-[#e2ffcc]/10 text-[#dde2e4]"
                   }`}
                 >
-                  <MapPin className={`w-3 h-3 inline mr-1.5 ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`} />
+                  <MapPin className={`w-3 h-3 inline mr-1.5 ${isLiterary ? "text-[#9c583e]" : "text-[#e2ffcc]"}`} />
                   <span>{chip.label}</span>
                 </button>
               ))}
