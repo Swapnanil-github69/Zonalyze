@@ -85,17 +85,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           {/* 1. Interactive Quick-Audit Coordinate Input Bar */}
           <div className="pt-2 max-w-3xl space-y-3">
             <form onSubmit={handleQuickAudit} className="flex flex-col sm:flex-row items-stretch gap-2.5">
-              <div className="relative flex-1">
-                <Search className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${isLiterary ? "text-[#8a7f77]" : "text-[#84907f]"}`} />
+              <div className="relative flex-1 flex items-center">
+                <Search
+                  className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 z-10 pointer-events-none ${
+                    isLiterary ? "text-[#8a7f77]" : "text-[#e2ffcc]"
+                  }`}
+                />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Enter coordinates or locality (e.g. 22.57617, 88.35801)..."
-                  className={`w-full px-10 py-3 text-xs sm:text-sm transition-all font-editorial-sans ${
+                  className={`w-full pl-10 pr-4 py-3 text-xs sm:text-sm transition-all font-editorial-sans ${
                     isLiterary
                       ? "rounded-[11px] border border-[#d8cfc7] bg-[#fbf9f6] text-[#2c2c2c] placeholder-[#8a7f77] focus:outline-none focus:border-[#b87c67] focus:bg-[#ffffff] shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]"
-                      : "glass-input text-[#dde2e4] placeholder-[#84907f] focus:outline-none focus:border-[#e2ffcc]"
+                      : "glass-input text-[#dde2e4] placeholder-[#84907f] focus:outline-none focus:border-[#e2ffcc] rounded-lg border border-[#84907f]/40"
                   }`}
                 />
               </div>
@@ -258,15 +262,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       </div>
 
       {/* Scroll Cue Indicator */}
-      <div className={`w-full px-6 sm:px-12 flex justify-between items-center text-xs font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[11px] text-[#84907f]"}`}>
-        <span>{isLiterary ? "Scroll to examine signals" : "[SCROLL TO AUDIT SIGNALS]"}</span>
+      <div className={`w-full px-6 sm:px-12 flex justify-end items-center text-xs font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[11px] text-[#84907f]"}`}>
         <button
           onClick={scrollToHowItWorks}
           className={`flex items-center space-x-2 transition-colors cursor-pointer ${
             isLiterary ? "hover:text-[#171717] text-[#444141]" : "hover:text-[#e2ffcc]"
           }`}
         >
-          <span>{isLiterary ? "Methodology" : "SEC 01 // METHODOLOGY"}</span>
+          <span>{isLiterary ? "Methodology" : "METHODOLOGY"}</span>
           <ArrowDown className={`w-3.5 h-3.5 ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`} />
         </button>
       </div>

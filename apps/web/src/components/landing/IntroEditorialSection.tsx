@@ -38,7 +38,7 @@ export const IntroEditorialSection: React.FC = () => {
         >
           <div className="flex items-center space-x-2">
             <span className={`w-2 h-2 inline-block ${isLiterary ? "bg-[#41a1cf] rounded-full" : "bg-[#2d3329] animate-pulse"}`} />
-            <span className="font-bold">{isLiterary ? "Section 01 — Scope & Architecture" : "SECTION 01 // SCOPE & ARCHITECTURE"}</span>
+            <span className="font-bold">{isLiterary ? "Scope & Architecture" : "SCOPE & ARCHITECTURE"}</span>
           </div>
           <div
             className={`px-3 py-1 font-medium ${
@@ -104,10 +104,7 @@ export const IntroEditorialSection: React.FC = () => {
                     : "glass-card-light"
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <span className={`text-xs font-editorial-sans font-medium ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
-                    [CH-01]
-                  </span>
+                <div className="flex items-center justify-end">
                   <Wind className={`w-4 h-4 ${isLiterary ? "text-[#41a1cf]" : "text-[#2d3329]"}`} />
                 </div>
                 <h3 className={`text-xl sm:text-2xl tracking-tight font-editorial-serif font-normal ${
@@ -130,10 +127,7 @@ export const IntroEditorialSection: React.FC = () => {
                     : "glass-card-light"
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <span className={`text-xs font-editorial-sans font-medium ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
-                    [CH-02]
-                  </span>
+                <div className="flex items-center justify-end">
                   <Building2 className={`w-4 h-4 ${isLiterary ? "text-[#41a1cf]" : "text-[#2d3329]"}`} />
                 </div>
                 <h3 className={`text-xl sm:text-2xl tracking-tight font-editorial-serif font-normal ${
@@ -156,10 +150,7 @@ export const IntroEditorialSection: React.FC = () => {
                     : "glass-card-light"
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <span className={`text-xs font-editorial-sans font-medium ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
-                    [CH-03]
-                  </span>
+                <div className="flex items-center justify-end">
                   <Volume2 className={`w-4 h-4 ${isLiterary ? "text-[#41a1cf]" : "text-[#2d3329]"}`} />
                 </div>
                 <h3 className={`text-xl sm:text-2xl tracking-tight font-editorial-serif font-normal ${
@@ -182,10 +173,7 @@ export const IntroEditorialSection: React.FC = () => {
                     : "glass-card-light"
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <span className={`text-xs font-editorial-sans font-medium ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
-                    [CH-04]
-                  </span>
+                <div className="flex items-center justify-end">
                   <Mountain className={`w-4 h-4 ${isLiterary ? "text-[#41a1cf]" : "text-[#2d3329]"}`} />
                 </div>
                 <h3 className={`text-xl sm:text-2xl tracking-tight font-editorial-serif font-normal ${
