@@ -57,6 +57,8 @@ export default {
         cormorant: ["'Cormorant Garamond'", "'Fraunces'", "'DM Serif Display'", "Georgia", "serif"],
         sans: ["'Inter'", "'Manrope'", "system-ui", "-apple-system", "sans-serif"],
         mono: ["'IBM Plex Mono'", "'JetBrains Mono'", "monospace"],
+        space: ["'Space Grotesk'", "sans-serif"],
+        outfit: ["'Outfit'", "sans-serif"],
       },
     },
   },

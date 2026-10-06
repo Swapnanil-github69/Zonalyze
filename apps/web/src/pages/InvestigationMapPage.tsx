@@ -134,10 +134,10 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
       />
 
       {/* 2. Top Navigation Bar: Back to Home + Search Bar */}
-      <div className="fixed top-6 left-6 z-30 flex items-center space-x-3">
+      <div className="fixed top-5 left-5 z-30 flex items-center gap-2.5 max-w-[calc(100vw-2.5rem)]">
         <button
           onClick={onBackToHome}
-          className="group glass-panel-elevated hover:bg-[#081426] text-white px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center space-x-2 border border-slate-700/60 hover:border-slate-500 hover:scale-105 active:scale-95 transition-all duration-200 backdrop-blur-md"
+          className="group glass-panel-elevated hover:bg-[#081426] text-white px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center space-x-2 border border-slate-700/70 hover:border-cyan-500/50 hover:scale-[1.02] active:scale-95 transition-all duration-200 backdrop-blur-md shrink-0 bg-slate-950/75"
           title="Back to ZONALYZE Landing Page"
         >
           <ArrowLeft className="w-4 h-4 text-slate-300 group-hover:-translate-x-1 transition duration-200" />
@@ -145,13 +145,13 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
             ZONALYZE
           </span>
         </button>
-      </div>
 
-      {/* Geocoding Search Bar */}
-      <SearchBar
-        onSearchCoordinates={handleCoordinateClick}
-        isLoading={isLoading}
-      />
+        {/* Geocoding Search Bar */}
+        <SearchBar
+          onSearchCoordinates={handleCoordinateClick}
+          isLoading={isLoading}
+        />
+      </div>
 
       {/* Brand Watermark Overlay */}
       <div className="absolute top-6 right-6 z-20 pointer-events-none hidden md:flex">

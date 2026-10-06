@@ -1,148 +1,277 @@
-import React from "react";
-import { Crosshair, ArrowDown } from "lucide-react";
+import React, { useState } from "react";
+import { ArrowDown, ArrowUpRight, Search, MapPin, Radio, ShieldCheck } from "lucide-react";
+import { useLandingTheme } from "../../context/LandingThemeContext";
 
 interface HeroSectionProps {
   onStartInvestigation: () => void;
-  onExploreCapabilities?: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onStartInvestigation,
 }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const { theme } = useLandingTheme();
+  const isLiterary = theme === "literary";
+
   const scrollToHowItWorks = () => {
     const el = document.getElementById("how-it-works");
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleQuickAudit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onStartInvestigation();
+  };
+
+  const presetCoordinates = [
+    { label: "Tiretta, Kolkata", coords: "22.57617° N, 88.35801° E" },
+    { label: "Lake Town, Bangur", coords: "22.60995° N, 88.41794° E" },
+    { label: "Connaught Place, Delhi", coords: "28.6315° N, 77.2167° E" },
+  ];
+
+  const trustSources = [
+    "OPEN-METEO WMO ARRAYS",
+    "OPENSTREETMAP SPATIAL REGISTRY",
+    "WHO 2021 AIR QUALITY GUIDELINE",
+    "NASA SRTM ELEVATION MODEL",
+    "OVERPASS IN-SITU RETRIEVAL",
+  ];
+
   return (
-    <section id="hero" className="relative w-full min-h-[90vh] pt-32 pb-20 bg-[#161b13] border-b border-[#84907f]/30 overflow-hidden flex flex-col justify-between">
-      
-      {/* Animated Liquid Caustic Background Blobs */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-[550px] h-[550px] bg-[#e2ffcc]/5 rounded-full liquid-caustic-blob pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-[600px] h-[500px] bg-[#84907f]/8 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-6s" }} />
-      <div className="absolute bottom-10 left-1/3 w-[450px] h-[450px] bg-emerald-500/5 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-12s" }} />
-
-      {/* Topographic grid overlay */}
-      <div className="absolute inset-0 topographic-grid opacity-40 pointer-events-none" />
-
-      {/* Top Field Survey Meta Bar */}
-      <div className="relative z-10 w-full px-6 sm:px-12 pt-2">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#84907f]/25 pb-4 text-[11px] font-mono tracking-wider text-[#84907f]">
-          <div className="flex items-center space-x-3">
-            <span className="w-2 h-2 bg-[#e2ffcc] inline-block" />
-            <span className="text-[#e2ffcc] font-bold">SYSTEM ACTIVE</span>
-            <span>// LOG: 2026.10</span>
-            <span className="hidden md:inline">// CATCHMENT: 3,000M RADIUS</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="hidden sm:inline">PROJECTION: EPSG:4326</span>
-            <span className="text-[#dde2e4]">DATUM: WGS 84</span>
-          </div>
-        </div>
-      </div>
+    <section
+      id="hero"
+      className={`relative w-full min-h-[90vh] pt-28 sm:pt-32 pb-16 overflow-hidden flex flex-col justify-between transition-colors duration-500 ${
+        isLiterary
+          ? "bg-[#fefffc] border-b border-[#dee2de] text-[#444141]"
+          : "bg-[#161b13] border-b border-[#84907f]/30 text-[#dde2e4]"
+      }`}
+    >
+      {/* Background Lighting Layers */}
+      {isLiterary ? (
+        <>
+          <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-[650px] h-[650px] bg-[#41a1cf]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/3 right-10 w-[550px] h-[550px] bg-[#dee2de]/40 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute inset-0 topographic-grid-dark opacity-15 pointer-events-none" />
+        </>
+      ) : (
+        <>
+          <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-[550px] h-[550px] bg-[#e2ffcc]/5 rounded-full liquid-caustic-blob pointer-events-none" />
+          <div className="absolute top-1/3 right-10 w-[600px] h-[500px] bg-[#84907f]/8 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-6s" }} />
+          <div className="absolute bottom-10 left-1/3 w-[450px] h-[450px] bg-emerald-500/5 rounded-full liquid-caustic-blob pointer-events-none" style={{ animationDelay: "-12s" }} />
+          <div className="absolute inset-0 topographic-grid opacity-40 pointer-events-none" />
+        </>
+      )}
 
       {/* Main Hero Container */}
-      <div className="w-full px-6 sm:px-12 py-10 sm:py-14 space-y-10">
+      <div className="w-full px-6 sm:px-12 py-8 sm:py-10 space-y-8">
         
-        {/* Massive Landscape-Blocking Display Headline */}
+        {/* Headline & Mission Lead */}
         <div className="space-y-4 text-left max-w-7xl">
-          <div className="flex items-center space-x-4">
-            {/* San Rita Circular Icon Badge */}
-            <div className="sr-badge-circle">
-              <Crosshair className="w-5 h-5 text-[#e2ffcc]" />
-            </div>
-            <span className="text-xs uppercase tracking-widest text-[#84907f] font-mono">
-              [ ALP.FIELD.GUIDE // VOL. 04 ]
-            </span>
-          </div>
-
-          <h1 className="font-display-stout text-5xl sm:text-7xl md:text-8xl lg:text-[110px] xl:text-[132px] text-[#e2ffcc] tracking-tight leading-[0.90] uppercase">
-            GEOSPATIAL EVIDENCE. <br />
-            GROUNDED TELEMETRY.
+          <h1 className={`font-editorial-serif font-normal text-4xl sm:text-5xl md:text-6xl lg:text-[62px] tracking-[-0.035em] leading-[1.08] ${
+            isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"
+          }`}>
+            Geospatial evidence. <br />
+            Grounded telemetry.
           </h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-4 items-end">
-            <p className="lg:col-span-7 font-mono text-xs sm:text-sm text-[#dde2e4] leading-relaxed max-w-2xl tracking-normal">
-              Zonalyze reads the ground truth beneath municipal coordinates. Atmospheric particulate measurements, acoustic transit corridor decay, and open infrastructure layers synthesized into an unembellished environmental field dossier.
-            </p>
+          <p
+            className={`text-xs sm:text-[15px] leading-relaxed max-w-2xl font-editorial-sans font-normal ${
+              isLiterary ? "text-[#444141]" : "text-[#dde2e4]"
+            }`}
+          >
+            Zonalyze reads the ground truth beneath municipal coordinates. Atmospheric particulate measurements, acoustic transit corridor decay, and open infrastructure layers synthesized into an unembellished environmental field dossier.
+          </p>
 
-            {/* Outlined Action Buttons */}
-            <div className="lg:col-span-5 flex flex-wrap items-center gap-4">
-              <button
-                onClick={onStartInvestigation}
-                className="sr-btn-mint text-xs py-3.5 px-6"
-              >
-                <span>[ INITIATE SURVEY RECORD ]</span>
-              </button>
+          {/* 1. Interactive Quick-Audit Coordinate Input Bar */}
+          <div className="pt-2 max-w-3xl space-y-3">
+            <form onSubmit={handleQuickAudit} className="flex flex-col sm:flex-row items-stretch gap-2.5">
+              <div className="relative flex-1 flex items-center">
+                <Search
+                  className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 z-10 pointer-events-none ${
+                    isLiterary ? "text-[#8a7f77]" : "text-[#e2ffcc]"
+                  }`}
+                />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Enter coordinates or locality (e.g. 22.57617, 88.35801)..."
+                  className={`w-full pl-10 pr-4 py-3 text-xs sm:text-sm transition-all font-editorial-sans ${
+                    isLiterary
+                      ? "rounded-[11px] border border-[#d8cfc7] bg-[#fbf9f6] text-[#2c2c2c] placeholder-[#8a7f77] focus:outline-none focus:border-[#b87c67] focus:bg-[#ffffff] shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]"
+                      : "glass-input text-[#dde2e4] placeholder-[#84907f] focus:outline-none focus:border-[#e2ffcc] rounded-lg border border-[#84907f]/40"
+                  }`}
+                />
+              </div>
 
-              <button
-                onClick={scrollToHowItWorks}
-                className="sr-btn-mint border-[#84907f] text-[#84907f] hover:border-[#e2ffcc] hover:text-[#e2ffcc] text-xs py-3.5 px-5"
-              >
-                <span>METHODOLOGY</span>
-                <ArrowDown className="w-3.5 h-3.5" />
-              </button>
+              {isLiterary ? (
+                <button
+                  type="submit"
+                  className="group inline-flex items-center justify-center gap-2 py-3 px-5 sm:px-6 rounded-[11px] border border-[#b87c67] bg-[#fdfbf9] text-[#8a4f38] font-editorial-sans font-medium text-xs sm:text-[13px] tracking-normal shrink-0 transition-all duration-200 hover:bg-[#faeee7] hover:border-[#7c442f] hover:text-[#5c2a1a] active:scale-[0.99] cursor-pointer shadow-[0_1px_2px_rgba(138,79,56,0.05)]"
+                >
+                  <span>Initiate Audit</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-[#8a4f38] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#5c2a1a] shrink-0" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="group inline-flex items-center justify-center px-6 py-3.5 bg-[#e2ffcc] text-[#161b13] font-editorial-sans font-medium text-xs sm:text-sm tracking-normal transition-all duration-200 hover:bg-[#d5fca8] hover:shadow-[0_0_25px_rgba(226,255,204,0.4)] active:scale-95 cursor-pointer border border-[#e2ffcc] shrink-0 rounded-lg"
+                >
+                  <span>Initiate Audit</span>
+                  <ArrowUpRight className="w-4 h-4 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </button>
+              )}
+            </form>
+
+            {/* Quick Coordinate Chips */}
+            <div className={`flex flex-wrap items-center gap-2 text-[11px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
+              <span className={`font-medium ${isLiterary ? "text-[#444141]" : "text-[#dde2e4]"}`}>
+                Preset observations:
+              </span>
+              {presetCoordinates.map((chip, idx) => (
+                <button
+                  key={idx}
+                  onClick={onStartInvestigation}
+                  className={`px-3 py-1 transition-all cursor-pointer font-editorial-sans text-xs ${
+                    isLiterary
+                      ? "gic-card bg-[#ffffff] border border-[#dee2de] hover:border-[#b87c67] text-[#444141] hover:text-[#8a4f38] rounded-md shadow-none"
+                      : "border border-[#84907f]/30 bg-[#2d3329]/40 backdrop-blur-md hover:border-[#e2ffcc] hover:text-[#e2ffcc] hover:bg-[#e2ffcc]/10 text-[#dde2e4] rounded-md"
+                  }`}
+                >
+                  <MapPin className={`w-3 h-3 inline mr-1.5 ${isLiterary ? "text-[#9c583e]" : "text-[#e2ffcc]"}`} />
+                  <span>{chip.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* 3D Liquid Glass Perspective Console Stage */}
-        <div className="hero-3d-perspective w-full pt-6">
-          <div className="liquid-glass-stage relative border border-[#84907f]/40 bg-[#161b13]">
-            {/* Liquid Specular Top Rim */}
-            <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#e2ffcc]/40 to-transparent z-20 pointer-events-none" />
+        {/* 2. High-Fidelity Workstation OS Window Console Frame */}
+        <div className="w-full pt-2">
+          <div
+            className={`relative overflow-hidden ${
+              isLiterary
+                ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-2xl shadow-[0_12px_45px_-10px_rgba(40,40,52,0.08)]"
+                : "glass-panel border border-[#e2ffcc]/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(226,255,204,0.25)]"
+            }`}
+          >
+            {/* Geodetic Corner Crosshair Ticks (Dark Mode) */}
+            {!isLiterary && (
+              <>
+                <span className="absolute top-1 left-1.5 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none">+</span>
+                <span className="absolute top-1 right-1.5 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none">+</span>
+                <span className="absolute bottom-1 left-1.5 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none">+</span>
+                <span className="absolute bottom-1 right-1.5 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none">+</span>
+              </>
+            )}
 
-            {/* Top Bar of Field Card */}
-            <div className="px-5 py-3 border-b border-[#84907f]/30 flex flex-wrap items-center justify-between text-[11px] font-mono text-[#84907f] bg-[#161b13]/80 backdrop-blur-md">
+            {/* Workstation Window Chrome Bar */}
+            <div
+              className={`px-4 sm:px-5 py-3 border-b flex flex-wrap items-center justify-between gap-3 text-xs font-editorial-sans ${
+                isLiterary
+                  ? "border-[#dee2de] bg-[#f9faf7] text-[#444141]"
+                  : "border-[#84907f]/30 bg-[#161b13]/70 backdrop-blur-md text-[11px]"
+              }`}
+            >
+              {/* Window Controls & Live Stream Badge */}
               <div className="flex items-center space-x-3">
-                <span className="text-[#e2ffcc] font-bold">[RADAR SURVEY VIEW]</span>
-                <span>LAT 22.60995° N, LON 88.41794° E</span>
+                <div className="flex items-center space-x-1.5">
+                  <div className={`w-2.5 h-2.5 rounded-full ${isLiterary ? "bg-[#dee2de]" : "bg-[#e2ffcc]"}`} />
+                  <div className={`w-2.5 h-2.5 rounded-full ${isLiterary ? "bg-[#b4b8b4]" : "bg-[#84907f]"}`} />
+                  <div className={`w-2.5 h-2.5 rounded-full ${isLiterary ? "bg-[#646464]" : "bg-[#2d3329] border border-[#84907f]/40"}`} />
+                </div>
+                <div className={`h-3 w-px ${isLiterary ? "bg-[#dee2de]" : "bg-[#84907f]/40"}`} />
+                <div className={`flex items-center space-x-1.5 text-[11px] font-medium tracking-wide ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`}>
+                  <span className={`w-2 h-2 rounded-full inline-block animate-pulse ${isLiterary ? "bg-[#41a1cf]" : "bg-[#e2ffcc]"}`} />
+                  <span>{isLiterary ? "Live telemetry channel" : "Live sensory stream"}</span>
+                </div>
               </div>
-              <span className="text-[#dde2e4]">KOLKATA METROPOLITAN BASIN // IN-SITU OBSERVATION</span>
+
+              {/* Terminal Address Capsule */}
+              <div
+                className={`hidden md:flex items-center space-x-2 px-3 py-1 text-[11px] font-editorial-sans ${
+                  isLiterary
+                    ? "border border-[#dee2de] bg-[#ffffff] rounded-full text-[#646464]"
+                    : "border border-[#84907f]/30 bg-[#2d3329]/60 backdrop-blur-sm text-[#84907f] rounded-full"
+                }`}
+              >
+                <Radio className={`w-3 h-3 ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`} />
+                <span>zonalyze.gis/telemetry?lat=22.57617&lon=88.35801&datum=WGS84</span>
+              </div>
+
+              {/* Location Tag */}
+              <span className={`text-[11px] font-editorial-sans ${isLiterary ? "text-[#2c2c2c] font-medium" : "text-[#dde2e4]"}`}>
+                Tiretta Bazaar, Central Kolkata
+              </span>
             </div>
 
-            {/* Field Image Canvas with Stamp Elements */}
-            <div className="relative aspect-[21/9] sm:aspect-[24/9] w-full overflow-hidden bg-[#161b13]">
+            {/* Field Image Canvas */}
+            <div className={`relative aspect-[16/9] w-full overflow-hidden ${isLiterary ? "bg-[#f9faf7]" : "bg-[#161b13]"}`}>
               <img
                 src="/zonalyze_liquid_glass_ui.jpg"
-                alt="ZONALYZE field telemetry display"
-                className="w-full h-full object-cover filter contrast-[1.08] brightness-[0.92]"
+                alt="ZONALYZE live audit console"
+                className="w-full h-full object-contain sm:object-cover"
+                style={{ imageRendering: "-webkit-optimize-contrast" }}
               />
-              <div className="absolute inset-0 bg-[#161b13]/20 pointer-events-none" />
-
-              {/* Tilted Polaroid Stamp in corner with hover effect */}
-              <div className="hidden lg:block absolute bottom-6 right-8 w-72 bg-[#dde2e4] p-3 shadow-2xl rotate-2 border border-[#2d3329] pointer-events-none transition-transform duration-300">
-                <div className="aspect-[4/3] w-full overflow-hidden bg-black mb-2">
-                  <img src="/zonalyze_liquid_glass_crop.jpg" alt="Field Crop" className="w-full h-full object-cover" />
-                </div>
-                <div className="font-mono text-[9px] text-[#2d3329] font-bold leading-tight uppercase flex justify-between">
-                  <span>FIG 01 // CATCHMENT</span>
-                  <span>ELEV: 11M</span>
-                </div>
-              </div>
             </div>
 
-            {/* Bottom Caption Bar */}
-            <div className="px-5 py-3 border-t border-[#84907f]/30 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono text-[#84907f] bg-[#161b13]/80 backdrop-blur-md">
+            {/* Bottom Telemetry Status Bar */}
+            <div
+              className={`px-5 py-3.5 border-t flex flex-wrap items-center justify-between gap-3 text-xs font-editorial-sans ${
+                isLiterary
+                  ? "border-[#dee2de] bg-[#f9faf7] text-[#646464]"
+                  : "border-[#84907f]/30 bg-[#161b13]/70 backdrop-blur-md text-[11px] text-[#84907f]"
+              }`}
+            >
               <div className="flex items-center space-x-4">
-                <span>[CACHE HIT: 150M]</span>
-                <span className="text-[#e2ffcc]">AQI 83 (POOR)</span>
-                <span>PM2.5: 97.6 µg/m³</span>
+                <span className={isLiterary ? "text-[#2c2c2c] font-medium" : "text-[#dde2e4]"}>[CACHE HIT: 150M]</span>
+                <span className={`font-semibold ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`}>AQI 101 (VERY POOR)</span>
+                <span>PM2.5: 143 µg/m³</span>
+                <span>TEMP: 26.9°C</span>
               </div>
-              <span className="text-[#dde2e4]">ZERO FABRICATED ESTIMATES // GROUNDED EVIDENCE ONLY</span>
+              <span className={isLiterary ? "text-[#2c2c2c]" : "text-[#dde2e4]"}>
+                {isLiterary ? "Zero fabricated estimates — field evidence only" : "Zero fabricated estimates — grounded evidence only"}
+              </span>
             </div>
+          </div>
+        </div>
+
+        {/* 3. Verified Ground-Truth Data Source Trust Ticker */}
+        <div
+          className={`w-full py-3.5 px-5 flex flex-wrap items-center justify-between gap-3 text-xs tracking-wide font-editorial-sans ${
+            isLiterary
+              ? "gic-card bg-[#ffffff] border border-[#dee2de] text-[#646464] rounded-xl shadow-none"
+              : "glass-card border border-[#84907f]/25 text-[11px] text-[#84907f]"
+          }`}
+        >
+          <div className={`flex items-center space-x-2 font-medium ${isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"}`}>
+            <ShieldCheck className={`w-4 h-4 ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`} />
+            <span>{isLiterary ? "Verified observation feeds:" : "Verified observation feeds:"}</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            {trustSources.map((source, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <span>{source}</span>
+                {index < trustSources.length - 1 && <span className={isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}>◇</span>}
+              </div>
+            ))}
           </div>
         </div>
 
       </div>
 
       {/* Scroll Cue Indicator */}
-      <div className="w-full px-6 sm:px-12 flex justify-between items-center text-[10px] font-mono text-[#84907f]">
-        <span>[SCROLL TO AUDIT SIGNALS]</span>
-        <div className="flex items-center space-x-2">
-          <span>SEC 01 // INTRO</span>
-          <div className="w-3 h-3 border border-[#e2ffcc] rotate-45 inline-block" />
-        </div>
+      <div className={`w-full px-6 sm:px-12 flex justify-end items-center text-xs font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[11px] text-[#84907f]"}`}>
+        <button
+          onClick={scrollToHowItWorks}
+          className={`flex items-center space-x-2 transition-colors cursor-pointer ${
+            isLiterary ? "hover:text-[#171717] text-[#444141]" : "hover:text-[#e2ffcc]"
+          }`}
+        >
+          <span>{isLiterary ? "Methodology" : "METHODOLOGY"}</span>
+          <ArrowDown className={`w-3.5 h-3.5 ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`} />
+        </button>
       </div>
 
     </section>

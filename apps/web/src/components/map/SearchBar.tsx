@@ -4,13 +4,14 @@ import { Search, Navigation, MapPin } from "lucide-react";
 interface SearchBarProps {
   onSearchCoordinates: (lat: number, lng: number) => void;
   isLoading: boolean;
+  className?: string;
 }
 
 /**
  * Contributor 3: Frontend Map Lead
  * SearchBar: Allows quick coordinate jumping or address resolution.
  */
-export const SearchBar: React.FC<SearchBarProps> = ({ onSearchCoordinates, isLoading }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({ onSearchCoordinates, isLoading, className = "" }) => {
   const [query, setQuery] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
@@ -61,36 +62,36 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearchCoordinates, isLoa
   };
 
   return (
-    <div className="absolute top-6 left-6 z-30 w-11/12 max-w-md">
+    <div className={`w-72 sm:w-80 md:w-96 ${className}`}>
       <form
         onSubmit={handleSearch}
-        className="flex items-center gap-2 rounded-2xl border border-slate-700/70 bg-slate-950/65 p-2 shadow-[0_20px_45px_rgba(15,23,42,0.45)] backdrop-blur-md"
+        className="flex items-center gap-2 rounded-2xl border border-slate-700/80 bg-slate-950/75 p-1.5 shadow-[0_20px_45px_rgba(2,6,23,0.55)] backdrop-blur-md transition-all focus-within:border-cyan-500/60 focus-within:shadow-[0_0_25px_rgba(6,182,212,0.25)]"
       >
         <div className="pl-2.5 text-cyan-400">
-          <MapPin className="w-4 h-4" />
+          <MapPin className="w-4 h-4 animate-pulse" />
         </div>
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search coordinates 'lat, lon' or click map..."
-          className="flex-1 bg-transparent px-2 py-2 text-sm text-slate-100 placeholder:text-slate-400 focus:outline-none"
+          placeholder="Coordinates 'lat, lon' or city..."
+          className="flex-1 bg-transparent px-2 py-1.5 text-xs sm:text-sm text-slate-100 placeholder:text-slate-400 focus:outline-none font-mono"
           disabled={isLoading}
         />
         <button
           type="button"
           onClick={handleLocateMe}
           title="Detect Current Location"
-          className="rounded-xl border border-slate-700/70 bg-slate-900/80 p-2 text-slate-300 transition hover:border-cyan-500/40 hover:text-cyan-300"
+          className="rounded-xl border border-slate-700/70 bg-slate-900/80 p-2 text-slate-300 transition hover:border-cyan-500/40 hover:text-cyan-300 hover:scale-105 active:scale-95"
         >
-          <Navigation className="w-4 h-4" />
+          <Navigation className="w-3.5 h-3.5" />
         </button>
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-2 text-white shadow-[0_0_22px_rgba(59,130,246,0.4)] transition hover:brightness-110 disabled:opacity-50"
+          className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-2 text-white shadow-[0_0_20px_rgba(6,182,212,0.4)] transition hover:brightness-110 hover:scale-105 active:scale-95 disabled:opacity-50"
         >
-          <Search className="w-4 h-4" />
+          <Search className="w-3.5 h-3.5" />
         </button>
       </form>
     </div>
