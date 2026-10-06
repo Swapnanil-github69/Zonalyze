@@ -68,13 +68,13 @@ export const CinematicFooter: React.FC = () => {
                 onClick={() => scrollTo("how-it-works")}
                 className="hover:text-[#171717] transition-colors cursor-pointer"
               >
-                Methodology
+                Method
               </button>
               <button
                 onClick={() => scrollTo("preview")}
                 className="hover:text-[#171717] transition-colors cursor-pointer"
               >
-                Field Preview
+                Telemetry
               </button>
               <button
                 onClick={() => scrollTo("top")}
@@ -144,13 +144,13 @@ export const CinematicFooter: React.FC = () => {
               onClick={() => scrollTo("how-it-works")}
               className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              Methodology
+              Method
             </button>
             <button
               onClick={() => scrollTo("preview")}
               className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              Field Preview
+              Telemetry
             </button>
           </nav>
         </div>

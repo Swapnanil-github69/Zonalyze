@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, X, ArrowUpRight, Crosshair, Moon, BookOpen } from "lucide-react";
+import { Menu, X, ArrowUpRight, Crosshair, Moon, Sun } from "lucide-react";
 import { useLandingTheme } from "../../context/LandingThemeContext";
 
 interface NavigationProps {
@@ -24,7 +24,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
   };
 
   const navLinks = [
-    { id: "about", label: isLiterary ? "About" : "SYSTEM" },
+    { id: "about", label: isLiterary ? "System" : "SYSTEM" },
     { id: "categories", label: isLiterary ? "Evidence" : "EVIDENCE" },
     { id: "how-it-works", label: isLiterary ? "Method" : "METHOD" },
     { id: "preview", label: isLiterary ? "Telemetry" : "TELEMETRY" },
@@ -49,7 +49,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
             </span>
           </div>
 
-          {/* Links: af / Inter 15px weight 500 */}
+          {/* Links: System, Evidence, Method, Telemetry */}
           <nav className="hidden md:flex items-center space-x-7 text-[14px] font-editorial-sans font-medium">
             {navLinks.map((link) => (
               <button
@@ -64,14 +64,18 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
 
           {/* Right Action Cluster */}
           <div className="flex items-center space-x-3">
-            {/* Theme Toggle Button */}
+            {/* Balanced Sun/Moon Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-1.5 rounded-full border border-[#dee2de] text-[#444141] hover:text-[#171717] hover:bg-[#f9faf7] transition-all cursor-pointer flex items-center gap-1.5 text-xs font-editorial-sans px-2.5"
-              title="Switch to Dark Telemetry Console"
+              className="flex items-center gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-full border border-[#dee2de] bg-[#f9faf7] hover:border-[#b4b8b4] transition-all cursor-pointer shadow-xs"
+              title="Switch to Dark Console mode"
+              aria-label="Toggle theme"
             >
-              <Moon className="w-3.5 h-3.5 text-[#282834]" />
-              <span className="hidden sm:inline text-[11px] text-[#646464]">Dark Console</span>
+              <span className="w-5 h-5 rounded-full bg-[#ffffff] border border-[#dee2de] shadow-xs flex items-center justify-center text-[#9c583e]">
+                <Sun className="w-3 h-3" />
+              </span>
+              <Moon className="w-3.5 h-3.5 text-[#84907f] hover:text-[#282834] transition-colors" />
+              <span className="hidden sm:inline text-[11px] font-editorial-sans text-[#646464] pl-0.5">Dark</span>
             </button>
 
             {/* GIC Primary Outlined CTA Button */}
@@ -114,10 +118,14 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
             <div className="pt-3 border-t border-[#dee2de] flex items-center justify-between">
               <button
                 onClick={toggleTheme}
-                className="text-xs text-[#646464] flex items-center gap-1.5"
+                className="text-xs text-[#646464] flex items-center gap-2"
               >
-                <Moon className="w-3.5 h-3.5" />
-                <span>Switch to Dark Console</span>
+                <div className="flex items-center gap-1">
+                  <Sun className="w-3.5 h-3.5 text-[#9c583e]" />
+                  <span>/</span>
+                  <Moon className="w-3.5 h-3.5" />
+                </div>
+                <span>Dark Console</span>
               </button>
 
               <button
@@ -168,16 +176,20 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
           ))}
         </nav>
 
-        {/* Action cluster with theme toggle */}
+        {/* Action cluster with balanced Sun/Moon theme toggle */}
         <div className="flex items-center space-x-3 sm:space-x-4">
-          {/* Theme Switcher to Literary Journal */}
+          {/* Balanced Sun/Moon Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="px-2.5 py-1.5 border border-[#84907f]/40 bg-[#2d3329]/40 hover:border-[#e2ffcc] hover:text-[#e2ffcc] transition-all cursor-pointer flex items-center gap-1.5 text-xs font-editorial-sans text-[#dde2e4]"
-            title="Switch to Literary Journal Style"
+            className="flex items-center gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-full border border-[#84907f]/40 bg-[#161b13] hover:border-[#e2ffcc] transition-all cursor-pointer shadow-xs"
+            title="Switch to Literary Mode"
+            aria-label="Toggle theme"
           >
-            <BookOpen className="w-3.5 h-3.5 text-[#e2ffcc]" />
-            <span className="hidden sm:inline text-[11px]">Literary Mode</span>
+            <Sun className="w-3.5 h-3.5 text-[#84907f] hover:text-[#e2ffcc] transition-colors" />
+            <span className="w-5 h-5 rounded-full bg-[#2d3329] border border-[#e2ffcc]/40 flex items-center justify-center text-[#e2ffcc] shadow-[0_0_10px_rgba(226,255,204,0.25)]">
+              <Moon className="w-3 h-3" />
+            </span>
+            <span className="hidden sm:inline text-[11px] font-editorial-sans text-[#dde2e4] pl-0.5">Light</span>
           </button>
 
           <button
@@ -220,7 +232,11 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
               onClick={toggleTheme}
               className="text-left text-xs font-editorial-sans text-[#e2ffcc] flex items-center gap-2 py-1"
             >
-              <BookOpen className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-1">
+                <Sun className="w-3.5 h-3.5" />
+                <span>/</span>
+                <Moon className="w-3.5 h-3.5" />
+              </div>
               <span>Switch to Literary Mode</span>
             </button>
 
