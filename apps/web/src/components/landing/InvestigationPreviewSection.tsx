@@ -44,7 +44,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
         >
           <div className="flex items-center space-x-2">
             <span className={`w-2 h-2 inline-block ${isLiterary ? "bg-[#41a1cf] rounded-full" : "bg-[#2d3329] animate-pulse"}`} />
-            <span className="font-bold">{isLiterary ? "Section 03 — Live Field Telemetry" : "SECTION 03 // LIVE FIELD TELEMETRY"}</span>
+            <span className="font-bold">{isLiterary ? "Live Field Telemetry" : "LIVE FIELD TELEMETRY"}</span>
           </div>
           <div
             className={`px-3 py-1 font-medium font-editorial-sans ${

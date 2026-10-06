@@ -9,7 +9,6 @@ export const EvidenceCategoriesSection: React.FC = () => {
   const categories = [
     {
       id: "atmosphere",
-      code: "REC-01",
       title: isLiterary ? "Atmospheric Telemetry" : "ATMOSPHERIC TELEMETRY",
       subtitle: isLiterary ? "Air sensor observations" : "AIR SENSOR OBSERVATIONS",
       icon: Wind,
@@ -22,7 +21,6 @@ export const EvidenceCategoriesSection: React.FC = () => {
     },
     {
       id: "infrastructure",
-      code: "REC-02",
       title: isLiterary ? "Civic Infrastructure" : "CIVIC INFRASTRUCTURE",
       subtitle: isLiterary ? "Mapped urban nodes" : "MAPPED URBAN NODES",
       icon: Building2,
@@ -35,7 +33,6 @@ export const EvidenceCategoriesSection: React.FC = () => {
     },
     {
       id: "environmental",
-      code: "REC-03",
       title: isLiterary ? "Landform Context" : "LANDFORM CONTEXT",
       subtitle: isLiterary ? "Topography & elevation" : "TOPOGRAPHY & ELEVATION",
       icon: Mountain,
@@ -48,7 +45,6 @@ export const EvidenceCategoriesSection: React.FC = () => {
     },
     {
       id: "noise",
-      code: "REC-04",
       title: isLiterary ? "Acoustic Decay" : "ACOUSTIC DECAY",
       subtitle: isLiterary ? "Deterministic transit proximity" : "DETERMINISTIC TRANSIT PROXIMITY",
       icon: Volume2,
@@ -94,7 +90,7 @@ export const EvidenceCategoriesSection: React.FC = () => {
           <div className="flex items-center space-x-2">
             <span className={`w-2 h-2 inline-block ${isLiterary ? "bg-[#41a1cf] rounded-full" : "bg-[#e2ffcc] animate-pulse"}`} />
             <span className={`font-bold ${isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"}`}>
-              {isLiterary ? "Section 02 — Evidence Inventory" : "SECTION 02 // EVIDENCE INVENTORY"}
+              {isLiterary ? "Evidence Inventory" : "EVIDENCE INVENTORY"}
             </span>
           </div>
           <div
@@ -153,7 +149,7 @@ export const EvidenceCategoriesSection: React.FC = () => {
                           : "text-[#e2ffcc]"
                       }`}
                     >
-                      [{cat.code}] // {cat.subtitle}
+                      {cat.subtitle}
                     </span>
                     <div
                       className={`w-8 h-8 flex items-center justify-center ${

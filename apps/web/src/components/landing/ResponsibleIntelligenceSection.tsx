@@ -62,7 +62,7 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
         >
           <div className="flex items-center space-x-2">
             <span className={`w-2 h-2 inline-block ${isLiterary ? "bg-[#41a1cf] rounded-full" : "bg-[#2d3329] animate-pulse"}`} />
-            <span className="font-bold">{isLiterary ? "Section 05 — Ethical Telemetry" : "SECTION 05 // ETHICAL TELEMETRY"}</span>
+            <span className="font-bold">{isLiterary ? "Ethical Telemetry" : "ETHICAL TELEMETRY"}</span>
           </div>
           <div
             className={`px-3 py-1 font-medium font-editorial-sans ${
