@@ -40,10 +40,11 @@ export async function investigateLocation(req: Request, res: Response): Promise<
     if (cached) {
       const railName = (cached.facilities?.railway?.name || "").toLowerCase();
       const metroName = (cached.facilities?.metro?.name || "").toLowerCase();
+      const airportName = (cached.facilities?.airport?.name || "").toLowerCase();
       const hasAirport = Boolean(cached.facilities?.airport?.name);
 
       // Stale detection: if rail station has "metro" or "line 1" or "line 2" or "esplanade" or "central",
-      // or if airport is completely missing in an urban area, PURGE AND RE-RUN:
+      // or if airport is completely missing in an urban area or non-commercial airfield, PURGE AND RE-RUN:
       const isCorrupted =
         railName.includes("line 1") ||
         railName.includes("line 2") ||
@@ -52,6 +53,12 @@ export async function investigateLocation(req: Request, res: Response): Promise<
         railName.includes("chandni chowk") ||
         railName.includes("metro") ||
         metroName.includes("kamarkundu") ||
+        airportName.includes("behala") ||
+        airportName.includes("safdarjung") ||
+        airportName.includes("barrackpore") ||
+        airportName.includes("flying club") ||
+        airportName.includes("air force station") ||
+        airportName.includes("afs") ||
         !hasAirport;
 
       if (isCorrupted || forceRefresh) {
