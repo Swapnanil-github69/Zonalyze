@@ -125,15 +125,6 @@ export function buildDetailedFacilities(
   _address?: string,
   rawFacilities?: FacilitiesData
 ): DetailedFacilities {
-  const [lon, lat] = coords;
-
-  // Approximate distance to major international airport (Kolkata CCU: 22.6547, 88.4467)
-  const ccuLat = 22.6547;
-  const ccuLon = 88.4467;
-  const dLat = (ccuLat - lat) * 111000;
-  const dLon = (ccuLon - lon) * 111000 * Math.cos((lat * Math.PI) / 180);
-  const airportDistM = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
-
   // Determine transit metrics
   const metroDetected = rawFacilities?.metro !== null && rawFacilities?.metro !== undefined;
   const metroStations = metroDetected
@@ -176,8 +167,13 @@ export function buildDetailedFacilities(
   const busName = busDetected ? (rawFacilities!.busStop!.name || "Bus Stop") : null;
   const busRoutes = busDetected ? (rawFacilities!.busStop!.routesCount ?? 1) : 0;
 
-  const airportCoords: [number, number] =
-    rawFacilities?.airport?.coordinates || [ccuLon, ccuLat];
+  // Dynamic Pan-India Airport metrics
+  const airportDetected = rawFacilities?.airport !== null && rawFacilities?.airport !== undefined;
+  const airportDist = airportDetected ? rawFacilities!.airport!.distanceMeters : null;
+  const airportName = airportDetected ? rawFacilities!.airport!.name : null;
+  const airportCoords: [number, number] | undefined = airportDetected
+    ? rawFacilities!.airport!.coordinates
+    : undefined;
 
   // Map verified real OpenStreetMap hospitality venues
   let hotels: HotelItem[] = [];
@@ -242,9 +238,9 @@ export function buildDetailedFacilities(
         coordinates: busCoords,
       },
       airport: {
-        count: 1,
-        nearest_dist_m: rawFacilities?.airport?.distanceMeters ?? airportDistM,
-        name: rawFacilities?.airport?.name || "CCU International Airport",
+        count: airportDetected ? 1 : 0,
+        nearest_dist_m: airportDist,
+        name: airportName,
         coordinates: airportCoords,
       },
     },

@@ -31,10 +31,37 @@ export async function investigateLocation(req: Request, res: Response): Promise<
       return;
     }
 
-    const cached = await findNearbyInvestigation(latitude, longitude);
+    const forceRefresh =
+      req.query.refresh === "true" ||
+      req.body?.refresh === true ||
+      req.body?.refresh === "true";
+
+    const cached = await findNearbyInvestigation(latitude, longitude, forceRefresh);
     if (cached) {
-      res.status(200).json({ success: true, cached: true, data: cached });
-      return;
+      const railName = (cached.facilities?.railway?.name || "").toLowerCase();
+      const metroName = (cached.facilities?.metro?.name || "").toLowerCase();
+      const hasAirport = Boolean(cached.facilities?.airport?.name);
+
+      // Stale detection: if rail station has "metro" or "line 1" or "line 2" or "esplanade" or "central",
+      // or if airport is completely missing in an urban area, PURGE AND RE-RUN:
+      const isCorrupted =
+        railName.includes("line 1") ||
+        railName.includes("line 2") ||
+        railName.includes("esplanade") ||
+        railName.includes("central") ||
+        railName.includes("chandni chowk") ||
+        railName.includes("metro") ||
+        metroName.includes("kamarkundu") ||
+        !hasAirport;
+
+      if (isCorrupted || forceRefresh) {
+        console.log("[api] Purging corrupted/stale cache entry for coordinate:", cached._id);
+        await Investigation.deleteOne({ _id: cached._id });
+        // Proceed to perform a fresh live audit instead of returning cached!
+      } else {
+        res.status(200).json({ success: true, cached: true, data: cached });
+        return;
+      }
     }
 
     const [address, environment, osmData] = await Promise.all([

@@ -56,6 +56,16 @@ export class HeuristicService {
         tags.healthcare === "nursing_home" ||
         tags.building === "hospital";
 
+      const cleanFacName = facilityName.toLowerCase();
+      const isRapidTransit =
+        isMetroStation(tags) ||
+        cleanFacName.includes("line 1") ||
+        cleanFacName.includes("line 2") ||
+        cleanFacName.includes("esplanade") ||
+        cleanFacName.includes("central") ||
+        cleanFacName.includes("chandni chowk") ||
+        cleanFacName.includes("metro");
+
       if (isHealthcare) {
         const type = tags.amenity || tags.healthcare || "medical";
         const fallback =
@@ -72,11 +82,14 @@ export class HeuristicService {
         });
       } else if (tags.amenity === "pharmacy") {
         pharmacies++;
-      } else if (isMetroStation(tags)) {
+      } else if (isRapidTransit && !cleanFacName.includes("kamarkundu")) {
         metro_stations++;
         if (nearestMetroDist === null || dist < nearestMetroDist) {
           nearestMetroDist = dist;
-          nearestMetroName = facilityName || "Metro Station";
+          let displayName = facilityName || "Metro Station";
+          if (cleanFacName === "central") displayName = "Central Metro Station";
+          else if (cleanFacName === "esplanade") displayName = "Esplanade Metro Station";
+          nearestMetroName = displayName;
         }
       } else if (
         tags.railway === "station" ||

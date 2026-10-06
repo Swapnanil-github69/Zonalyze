@@ -29,18 +29,67 @@ function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number)
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+export function isInvestigationCorrupted(cached: any): boolean {
+  if (!cached) return false;
+  const railName = (
+    cached.facilities?.railway?.name ||
+    cached.infrastructure?.nearest_railway_name ||
+    ""
+  ).toLowerCase();
+  const metroName = (
+    cached.facilities?.metro?.name ||
+    cached.infrastructure?.nearest_metro_name ||
+    ""
+  ).toLowerCase();
+  const hasAirport = Boolean(cached.facilities?.airport?.name);
+
+  // Stale detection: if rail station has "metro" or "line 1" or "line 2" or "esplanade" or "central",
+  // or if airport is completely missing in an urban area, PURGE AND RE-RUN:
+  return (
+    railName.includes("line 1") ||
+    railName.includes("line 2") ||
+    railName.includes("esplanade") ||
+    railName.includes("central") ||
+    railName.includes("chandni chowk") ||
+    railName.includes("metro") ||
+    metroName.includes("kamarkundu") ||
+    !hasAirport
+  );
+}
+
 export class CacheService {
+  public static invalidateMemoryCache(id?: any): void {
+    if (!id) {
+      memoryInvestigations.length = 0;
+      return;
+    }
+    const idStr = String(id);
+    for (let i = memoryInvestigations.length - 1; i >= 0; i--) {
+      if (String(memoryInvestigations[i].data?._id) === idStr) {
+        memoryInvestigations.splice(i, 1);
+      }
+    }
+  }
+
   public static async findNearbyInvestigation(
     latitude: number,
-    longitude: number
+    longitude: number,
+    forceRefresh = false
   ): Promise<IInvestigation | null> {
     // 1. Fast in-memory check (<1ms)
     const now = Date.now();
-    for (const item of memoryInvestigations) {
-      if (now - item.timestamp < MEMORY_CACHE_TTL) {
-        if (haversineMeters(latitude, longitude, item.lat, item.lon) <= 150) {
-          return item.data;
+    for (let i = memoryInvestigations.length - 1; i >= 0; i--) {
+      const item = memoryInvestigations[i];
+      if (now - item.timestamp >= MEMORY_CACHE_TTL) {
+        memoryInvestigations.splice(i, 1);
+        continue;
+      }
+      if (haversineMeters(latitude, longitude, item.lat, item.lon) <= 150) {
+        if (forceRefresh || isInvestigationCorrupted(item.data)) {
+          memoryInvestigations.splice(i, 1);
+          continue;
         }
+        return item.data;
       }
     }
 
@@ -61,6 +110,17 @@ export class CacheService {
       }).exec();
 
       if (cached) {
+        if (forceRefresh || isInvestigationCorrupted(cached)) {
+          console.log("[api] Purging corrupted/stale cache entry for coordinate:", cached._id);
+          try {
+            await Investigation.deleteOne({ _id: cached._id });
+          } catch (delErr) {
+            console.warn("⚠️ Failed to delete corrupted document:", delErr);
+          }
+          CacheService.invalidateMemoryCache(cached._id);
+          return null;
+        }
+
         memoryInvestigations.unshift({
           lat: latitude,
           lon: longitude,
@@ -68,9 +128,10 @@ export class CacheService {
           data: cached,
         });
         if (memoryInvestigations.length > MAX_MEMORY_ITEMS) memoryInvestigations.pop();
+        return cached;
       }
 
-      return cached;
+      return null;
     } catch (error) {
       console.warn("⚠️ Geospatial cache lookup error (continuing with live fetch):", error);
       return null;

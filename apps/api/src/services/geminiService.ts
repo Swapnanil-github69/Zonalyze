@@ -92,6 +92,16 @@ function getMetrics(payload: {
       facilities.nearest_auto_stand_dist_m,
       infrastructure.nearest_auto_stand_dist_m
     ),
+    railwayDistance: distanceValue(
+      facilities.railway,
+      facilities.nearest_railway_dist_m,
+      infrastructure.nearest_railway_dist_m
+    ),
+    airportDistance: distanceValue(
+      facilities.airport,
+      facilities.nearest_airport_dist_m,
+      infrastructure.nearest_airport_dist_m
+    ),
     hospitalDistance: distanceValue(
       facilities.hospital,
       facilities.nearest_hospital_dist_m,

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import axios from "axios";
+import { Investigation } from "../models/Investigation.js";
 import { CacheService } from "../services/cache.service.js";
 import { NominatimService } from "../services/nominatim.service.js";
 import { fetchAtmosphere } from "../services/openMeteoService.js";
@@ -35,16 +36,43 @@ export class InvestigateController {
 
       console.log(`🔍 [AUDIT START] Investigating: (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`);
 
+      const forceRefresh =
+        req.query.refresh === "true" ||
+        req.body?.refresh === true ||
+        req.body?.refresh === "true";
+
       // 2. Geospatial Cache Check (<=150m, within past 7 days)
-      const cached = await CacheService.findNearbyInvestigation(latitude, longitude);
+      const cached = await CacheService.findNearbyInvestigation(latitude, longitude, forceRefresh);
       if (cached) {
-        console.log(`⚡ [CACHE HIT] Found previous investigation within 150m: ${cached._id}`);
-        const responseData = {
-          ...cached.toObject(),
-          cached: true,
-        };
-        res.status(200).json(responseData);
-        return;
+        const railName = (cached.facilities?.railway?.name || "").toLowerCase();
+        const metroName = (cached.facilities?.metro?.name || "").toLowerCase();
+        const hasAirport = Boolean(cached.facilities?.airport?.name);
+
+        // Stale detection: if rail station has "metro" or "line 1" or "line 2" or "esplanade" or "central",
+        // or if airport is completely missing in an urban area, PURGE AND RE-RUN:
+        const isCorrupted =
+          railName.includes("line 1") ||
+          railName.includes("line 2") ||
+          railName.includes("esplanade") ||
+          railName.includes("central") ||
+          railName.includes("chandni chowk") ||
+          metroName.includes("kamarkundu") ||
+          !hasAirport;
+
+        if (isCorrupted || forceRefresh) {
+          console.log("[api] Purging corrupted/stale cache entry for coordinate:", cached._id);
+          await Investigation.deleteOne({ _id: cached._id });
+          CacheService.invalidateMemoryCache(cached._id);
+          // Proceed to perform a fresh live audit instead of returning cached!
+        } else {
+          console.log(`⚡ [CACHE HIT] Found previous investigation within 150m: ${cached._id}`);
+          const responseData = {
+            ...cached.toObject(),
+            cached: true,
+          };
+          res.status(200).json(responseData);
+          return;
+        }
       }
 
       console.log(`🌐 [CACHE MISS] Ingesting telemetry from external APIs in parallel...`);

@@ -15,6 +15,8 @@ import {
   Car,
   Bike,
   Zap,
+  ExternalLink,
+  Navigation,
 } from "lucide-react";
 import { fetchFacilityRoute, RouteResult, TravelMode } from "../services/routeService";
 import { SelectedFacility } from "../components/dossier/InfrastructureCard";
@@ -242,6 +244,34 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
                 </button>
               ))}
             </div>
+
+            {/* Dynamic Pan-India Google Maps Navigation & Review Deep-links */}
+            {selectedFacility && (
+              <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&origin=${(investigation?.location?.coordinates?.[1] ?? selectedCoords?.lat ?? 0)},${(investigation?.location?.coordinates?.[0] ?? selectedCoords?.lng ?? 0)}&destination=${selectedFacility.coordinates[1]},${selectedFacility.coordinates[0]}&travelmode=${travelMode === "bike" ? "two_wheeler" : travelMode === "bicycle" ? "bicycling" : travelMode === "car" ? "driving" : "walking"}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-1 px-2.5 rounded-lg text-[11px] font-semibold text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/30 transition"
+                  title="Open turnkey GPS navigation on Google Maps"
+                >
+                  <Navigation className="w-3 h-3" />
+                  <span>Google Maps Route</span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                </a>
+
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${selectedFacility.name} ${selectedFacility.coordinates[1]},${selectedFacility.coordinates[0]}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 py-1 px-2.5 rounded-lg text-[11px] font-semibold text-cyan-300 bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/30 transition"
+                  title="Check reviews, ratings, and photos on Google Maps"
+                >
+                  <span>Google Reviews & Photos</span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                </a>
+              </div>
+            )}
           </div>
         </div>
       )}
