@@ -19,10 +19,38 @@ type ApiInvestigationResult = Omit<InvestigationResult, "livabilityScore"> & {
   livabilityScore?: LivabilityScoreData | number;
 };
 
+import {
+  NON_COMMERCIAL_AIRPORT_BLACKLIST,
+  MAJOR_INDIAN_AIRPORTS,
+  resolveClientNearestAirport,
+} from "../data/indianAirports";
+export {
+  NON_COMMERCIAL_AIRPORT_BLACKLIST,
+  MAJOR_INDIAN_AIRPORTS,
+  resolveClientNearestAirport,
+};
+
 function normalizeInvestigationResult(
   report: ApiInvestigationResult
 ): InvestigationResult {
   const { livabilityScore, ...investigation } = report;
+
+  // Sanitize airport if non-commercial or blacklisted airfield was supplied
+  if (investigation.facilities?.airport) {
+    const apName = (investigation.facilities.airport.name || "").toLowerCase();
+    if (NON_COMMERCIAL_AIRPORT_BLACKLIST.some((term) => apName.includes(term))) {
+      const coords = investigation.location?.coordinates || [0, 0];
+      const localAp = resolveClientNearestAirport(coords[1], coords[0]);
+      investigation.facilities.airport = localAp
+        ? {
+            name: localAp.name,
+            distanceMeters: localAp.distanceMeters,
+            coordinates: localAp.coordinates,
+          }
+        : null;
+    }
+  }
+
   if (typeof livabilityScore !== "number") {
     return { ...investigation, livabilityScore };
   }
@@ -104,68 +132,7 @@ const PAN_INDIA_METRO_STATION_NAMES = [
   "aluva", "edapally", "maharajas college", "hazratganj", "charbagh metro"
 ];
 
-const MAJOR_INDIAN_AIRPORTS = [
-  { name: "Netaji Subhash Chandra Bose Int'l Airport (CCU)", lat: 22.6547, lon: 88.4467 },
-  { name: "Kazi Nazrul Islam Airport (RDP)", lat: 23.6231, lon: 87.2417 },
-  { name: "Bagdogra International Airport (IXB)", lat: 26.6812, lon: 88.3286 },
-  { name: "Indira Gandhi International Airport (DEL)", lat: 28.5562, lon: 77.1000 },
-  { name: "Chhatrapati Shivaji Maharaj Int'l Airport (BOM)", lat: 19.0896, lon: 72.8656 },
-  { name: "Kempegowda International Airport (BLR)", lat: 13.1986, lon: 77.7066 },
-  { name: "Chaudhary Charan Singh Int'l Airport (LKO)", lat: 26.7606, lon: 80.8893 },
-  { name: "Sardar Vallabhbhai Patel Int'l Airport (AMD)", lat: 23.0772, lon: 72.6347 },
-  { name: "Rajiv Gandhi International Airport (HYD)", lat: 17.2403, lon: 78.4294 },
-  { name: "Chennai International Airport (MAA)", lat: 12.9941, lon: 80.1709 },
-  { name: "Cochin International Airport (COK)", lat: 10.1520, lon: 76.4019 },
-  { name: "Jayprakash Narayan Airport (PAT)", lat: 25.5913, lon: 85.0880 },
-  { name: "Biju Patnaik Airport (BBI)", lat: 20.2444, lon: 85.8178 },
-  { name: "Pune Airport (PNQ)", lat: 18.5822, lon: 73.9197 },
-  { name: "Goa Dabolim Airport (GOI)", lat: 15.3808, lon: 73.8313 },
-  { name: "Manohar International Airport (GOX)", lat: 15.7667, lon: 73.8667 },
-  { name: "Jaipur International Airport (JAI)", lat: 26.8242, lon: 75.8122 },
-  { name: "Shaheed Bhagat Singh Int'l Airport (IXC)", lat: 30.6735, lon: 76.7885 },
-  { name: "Lokpriya Gopinath Bordoloi Int'l Airport (GAU)", lat: 26.1061, lon: 91.5859 },
-  { name: "Lal Bahadur Shastri Int'l Airport (VNS)", lat: 25.4524, lon: 82.8593 },
-  { name: "Sheikh ul-Alam Int'l Airport (SXR)", lat: 33.9871, lon: 74.7741 },
-  { name: "Trivandrum International Airport (TRV)", lat: 8.4821, lon: 76.9200 },
-  { name: "Dr. Babasaheb Ambedkar Int'l Airport (NAG)", lat: 21.0922, lon: 79.0472 },
-  { name: "Devi Ahilya Bai Holkar Airport (IDR)", lat: 22.7217, lon: 75.8011 },
-  { name: "Coimbatore International Airport (CJB)", lat: 11.0299, lon: 77.0434 },
-  { name: "Visakhapatnam International Airport (VTZ)", lat: 17.7212, lon: 83.2245 },
-  { name: "Surat International Airport (STV)", lat: 21.1139, lon: 72.7419 },
-  { name: "Birsa Munda Airport (IXR)", lat: 23.3143, lon: 85.3217 },
-  { name: "Swami Vivekananda Airport (RPR)", lat: 21.1804, lon: 81.7388 },
-  { name: "Sri Guru Ram Dass Jee Int'l Airport (ATQ)", lat: 31.7096, lon: 74.7973 },
-  { name: "Calicut International Airport (CCJ)", lat: 11.1368, lon: 75.9553 },
-  { name: "Mangalore International Airport (IXE)", lat: 12.9613, lon: 74.8900 },
-  { name: "Madurai Airport (IXM)", lat: 9.8345, lon: 78.0934 },
-  { name: "Tiruchirappalli International Airport (TRZ)", lat: 10.7654, lon: 78.7097 },
-  { name: "Vijayawada International Airport (VGA)", lat: 16.5304, lon: 80.7968 },
-  { name: "Vadodara Airport (BDQ)", lat: 22.3362, lon: 73.2263 },
-  { name: "Raja Bhoj Airport (BHO)", lat: 23.2875, lon: 77.3378 },
-  { name: "Dehradun Jolly Grant Airport (DED)", lat: 30.1897, lon: 78.1803 },
-  { name: "Imphal Airport (IMF)", lat: 24.7600, lon: 93.8967 },
-  { name: "Agartala Maharaja Bir Bikram Airport (IXA)", lat: 23.8870, lon: 91.2405 }
-];
 
-function resolveClientNearestAirport(lat: number, lon: number): { name: string; distanceMeters: number; coordinates: [number, number] } | null {
-  let closest: { name: string; distanceMeters: number; coordinates: [number, number] } | null = null;
-  let minDistance = Infinity;
-
-  for (const ap of MAJOR_INDIAN_AIRPORTS) {
-    const dLat = (ap.lat - lat) * 111000;
-    const dLon = (ap.lon - lon) * 111000 * Math.cos((lat * Math.PI) / 180);
-    const d = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
-    if (d < minDistance && d <= 100000) {
-      minDistance = d;
-      closest = {
-        name: ap.name,
-        distanceMeters: d,
-        coordinates: [ap.lon, ap.lat],
-      };
-    }
-  }
-  return closest;
-}
 
 export function isClientMetroName(name: string): boolean {
   const clean = name.toLowerCase().replace(/[^a-z0-9\s]/g, " ").trim();
@@ -233,8 +200,6 @@ async function fallbackClientInvestigation(
   }> = [];
 
   const viewbox = `${(longitude - 0.025).toFixed(4)},${(latitude + 0.025).toFixed(4)},${(longitude + 0.025).toFixed(4)},${(latitude - 0.025).toFixed(4)}`;
-  const airportDelta = 0.65; // ~70km
-  const airportViewbox = `${(longitude - airportDelta).toFixed(4)},${(latitude + airportDelta).toFixed(4)},${(longitude + airportDelta).toFixed(4)},${(latitude - airportDelta).toFixed(4)}`;
 
   await Promise.all([
     axios
@@ -384,38 +349,14 @@ async function fallbackClientInvestigation(
         }
       })
       .catch(() => {}),
-    axios
-      .get(
-        `https://nominatim.openstreetmap.org/search?q=airport&format=json&limit=5&viewbox=${airportViewbox}&bounded=1`,
-        { timeout: 5000 }
-      )
-      .then((airRes) => {
-        if (Array.isArray(airRes.data) && airRes.data.length > 0) {
-          for (const item of airRes.data) {
-            const aName = (item.name || item.display_name?.split(",")[0] || "Airport").trim();
-            const aLat = parseFloat(item.lat);
-            const aLon = parseFloat(item.lon);
-            const dLat = (aLat - latitude) * 111000;
-            const dLon = (aLon - longitude) * 111000 * Math.cos((latitude * Math.PI) / 180);
-            const dist = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
-            if (nearestAirportDistM === null || dist < nearestAirportDistM) {
-              nearestAirportDistM = dist;
-              nearestAirportName = aName;
-              nearestAirportCoords = [aLon, aLat];
-            }
-          }
-        }
-      })
-      .catch(() => {}),
   ]);
-
-  if (nearestAirportDistM === null) {
-    const localAp = resolveClientNearestAirport(latitude, longitude);
-    if (localAp) {
-      nearestAirportName = localAp.name;
-      nearestAirportDistM = localAp.distanceMeters;
-      nearestAirportCoords = localAp.coordinates;
-    }
+ 
+  // Determine airport exclusively from verified commercial passenger registry (0ms, 0 external network requests)
+  const localAp = resolveClientNearestAirport(latitude, longitude);
+  if (localAp) {
+    nearestAirportName = localAp.name;
+    nearestAirportDistM = localAp.distanceMeters;
+    nearestAirportCoords = localAp.coordinates;
   }
 
   if (typeof nearestMetroName === "string" && (nearestMetroName as string).toLowerCase().trim() === "central") {

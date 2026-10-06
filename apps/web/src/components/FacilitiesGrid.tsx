@@ -2,6 +2,11 @@ import React from "react";
 import { Train, Bus, Plane } from "lucide-react";
 import { DetailedFacilities } from "../types/investigation";
 
+import {
+  NON_COMMERCIAL_AIRPORT_BLACKLIST,
+  resolveClientNearestAirport,
+} from "../data/indianAirports";
+
 export interface FacilitiesGridProps {
   detailed: DetailedFacilities;
   selectedFacilityName?: string | null;
@@ -42,7 +47,31 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
     onSelectFacility(name, coords, dist, type);
   };
 
-  const { metro, rail, bus, airport } = detailed.transit;
+  const { metro, rail, bus } = detailed.transit;
+  let airport = detailed.transit.airport;
+
+  // Ultimate render-level safeguard: If airport is blacklisted (e.g. Behala), dynamically substitute
+  if (
+    airport.name &&
+    NON_COMMERCIAL_AIRPORT_BLACKLIST.some((term) => airport.name!.toLowerCase().includes(term))
+  ) {
+    const coords = airport.coordinates || [88.3506, 22.5503]; // [lon, lat]
+    const commercialAp = resolveClientNearestAirport(coords[1], coords[0]);
+    if (commercialAp) {
+      airport = {
+        ...airport,
+        name: commercialAp.name,
+        nearest_dist_m: commercialAp.distanceMeters,
+        coordinates: commercialAp.coordinates,
+      };
+    } else {
+      airport = {
+        ...airport,
+        name: null,
+        nearest_dist_m: null,
+      };
+    }
+  }
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">

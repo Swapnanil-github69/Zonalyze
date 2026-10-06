@@ -7,6 +7,10 @@ import {
   FacilitiesData,
   HotelItem,
 } from "../types/investigation";
+import {
+  NON_COMMERCIAL_AIRPORT_BLACKLIST,
+  resolveClientNearestAirport,
+} from "../data/indianAirports";
 
 /**
  * Deterministically computes an objective Livability Score out of 10
@@ -168,12 +172,31 @@ export function buildDetailedFacilities(
   const busRoutes = busDetected ? (rawFacilities!.busStop!.routesCount ?? 1) : 0;
 
   // Dynamic Pan-India Airport metrics
-  const airportDetected = rawFacilities?.airport !== null && rawFacilities?.airport !== undefined;
-  const airportDist = airportDetected ? rawFacilities!.airport!.distanceMeters : null;
-  const airportName = airportDetected ? rawFacilities!.airport!.name : null;
-  const airportCoords: [number, number] | undefined = airportDetected
+  let airportDetected = rawFacilities?.airport !== null && rawFacilities?.airport !== undefined;
+  let airportDist = airportDetected ? rawFacilities!.airport!.distanceMeters : null;
+  let airportName = airportDetected ? rawFacilities!.airport!.name : null;
+  let airportCoords: [number, number] | undefined = airportDetected
     ? rawFacilities!.airport!.coordinates
     : undefined;
+
+  // Hard safeguard: purge any non-commercial airfields (Behala, Safdarjung, etc.)
+  if (
+    airportName &&
+    NON_COMMERCIAL_AIRPORT_BLACKLIST.some((term) => airportName!.toLowerCase().includes(term))
+  ) {
+    const localAp = resolveClientNearestAirport(coords[1], coords[0]);
+    if (localAp) {
+      airportName = localAp.name;
+      airportDist = localAp.distanceMeters;
+      airportCoords = localAp.coordinates;
+      airportDetected = true;
+    } else {
+      airportName = null;
+      airportDist = null;
+      airportCoords = undefined;
+      airportDetected = false;
+    }
+  }
 
   // Map verified real OpenStreetMap hospitality venues
   let hotels: HotelItem[] = [];
