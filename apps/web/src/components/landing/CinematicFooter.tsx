@@ -37,13 +37,13 @@ export const CinematicFooter: React.FC = () => {
 
           {/* Middle Row: Brand & Navigation */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pt-6 pb-6 border-t border-[#dee2de]">
-            {/* Brand Wordmark */}
+            {/* Brand Wordmark with consistent Crosshair mark adapted to warm editorial palette */}
             <div
               onClick={() => scrollTo("top")}
               className="cursor-pointer select-none group flex items-center space-x-3"
             >
-              <div className="w-8 h-8 rounded-full border border-[#282834]/30 flex items-center justify-center text-[#282834] group-hover:border-[#41a1cf] group-hover:text-[#41a1cf] transition-all duration-200">
-                <Compass className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-full bg-[#f9faf7] border border-[#282834]/30 flex items-center justify-center text-[#282834] group-hover:scale-105 group-hover:border-[#41a1cf] group-hover:text-[#41a1cf] transition-all duration-200 shadow-sm">
+                <Crosshair className="w-4 h-4 text-[#282834] group-hover:text-[#41a1cf] transition-colors" />
               </div>
               <span className="font-editorial-serif font-normal text-2xl text-[#171717] tracking-[-0.02em]">
                 Zonalyze
