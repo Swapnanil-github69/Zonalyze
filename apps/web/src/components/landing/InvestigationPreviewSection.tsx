@@ -39,7 +39,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
           className={`flex flex-wrap items-center justify-between gap-4 pb-4 text-xs tracking-wider uppercase border-b ${
             isLiterary
               ? "border-[#dee2de] font-editorial-sans text-[#646464]"
-              : "border-[#2d3329]/30 font-mono text-[11px] text-[#2d3329]"
+              : "border-[#2d3329]/30 font-editorial-sans text-[11px] text-[#2d3329]"
           }`}
         >
           <div className="flex items-center space-x-2">
@@ -47,7 +47,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
             <span className="font-bold">{isLiterary ? "Section 03 — Live Field Telemetry" : "SECTION 03 // LIVE FIELD TELEMETRY"}</span>
           </div>
           <div
-            className={`px-3 py-1 font-medium ${
+            className={`px-3 py-1 font-medium font-editorial-sans ${
               isLiterary
                 ? "gic-card bg-[#ffffff] border border-[#dee2de] text-[11px] text-[#444141] rounded-full shadow-none"
                 : "px-2.5 py-1 glass-card-light text-[10px] font-bold"
@@ -59,20 +59,15 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
 
         {/* Section Header */}
         <div className="max-w-4xl space-y-4 text-left">
-          {isLiterary ? (
-            <h2 className="font-editorial-serif font-normal text-3xl sm:text-5xl lg:text-[54px] text-[#2c2c2c] tracking-[-0.03em] leading-[1.1]">
-              How evidence appears in the field.
-            </h2>
-          ) : (
-            <h2 className="font-display-stout text-5xl sm:text-7xl lg:text-[80px] text-[#2d3329] tracking-tight leading-[0.90] uppercase">
-              HOW EVIDENCE APPEARS <br />
-              IN THE FIELD.
-            </h2>
-          )}
+          <h2 className={`font-editorial-serif font-normal text-3xl sm:text-5xl lg:text-[54px] tracking-[-0.03em] leading-[1.1] ${
+            isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"
+          }`}>
+            How evidence appears in the field.
+          </h2>
 
           <p
-            className={`text-sm leading-relaxed max-w-2xl ${
-              isLiterary ? "font-editorial-sans text-[#444141] text-[15px]" : "font-mono text-xs sm:text-sm text-[#2d3329]"
+            className={`text-sm sm:text-[15px] leading-relaxed max-w-2xl font-editorial-sans ${
+              isLiterary ? "text-[#444141]" : "text-[#2d3329]"
             }`}
           >
             When you select a location, Zonalyze opens an unembellished investigation log. Direct sensor telemetry, mapped transit points, and deterministic models are presented with zero cosmetic rating distortion.
@@ -94,29 +89,29 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
               className={`px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 text-xs ${
                 isLiterary
                   ? "bg-[#f9faf7] border-b border-[#dee2de] font-editorial-sans text-[#444141]"
-                  : "bg-[#dde2e4]/70 backdrop-blur-md border-b border-[#2d3329]/25 font-mono uppercase text-[11px]"
+                  : "bg-[#dde2e4]/70 backdrop-blur-md border-b border-[#2d3329]/25 font-editorial-sans uppercase text-[11px]"
               }`}
             >
               <div className="flex items-center space-x-3">
                 <span
                   className={`px-2.5 py-0.5 font-bold ${
                     isLiterary
-                      ? "border border-[#dee2de] bg-[#ffffff] text-[#2c2c2c] rounded-md font-medium"
-                      : "border border-[#2d3329] bg-[#2d3329] text-[#dde2e4]"
+                      ? "border border-[#dee2de] bg-[#ffffff] text-[#2c2c2c] rounded-md font-medium font-editorial-sans"
+                      : "border border-[#2d3329] bg-[#2d3329] text-[#dde2e4] font-editorial-sans"
                   }`}
                 >
                   [CACHE HIT // 150M]
                 </span>
-                <span className={isLiterary ? "text-[#646464]" : "text-[#84907f]"}>
+                <span className={isLiterary ? "text-[#646464] font-editorial-sans" : "text-[#84907f] font-editorial-sans"}>
                   TIMESTAMP: 2026.10.05 18:39 UTC+5.5
                 </span>
-                <span className={`hidden md:inline font-medium ${isLiterary ? "text-[#2c2c2c]" : "font-bold text-[#2d3329]"}`}>
+                <span className={`hidden md:inline font-medium font-editorial-sans ${isLiterary ? "text-[#2c2c2c]" : "font-bold text-[#2d3329]"}`}>
                   Bangur, South Dumdum, Kolkata
                 </span>
               </div>
 
               <div
-                className={`px-3 py-1 font-medium ${
+                className={`px-3 py-1 font-medium font-editorial-sans ${
                   isLiterary
                     ? "border border-[#dee2de] bg-[#ffffff] rounded-md text-[#2c2c2c]"
                     : "glass-card-light font-bold text-[#2d3329]"
@@ -138,7 +133,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                 <div className="space-y-4">
                   <div
                     className={`flex items-center justify-between text-xs ${
-                      isLiterary ? "font-editorial-sans text-[#646464]" : "text-[11px] font-mono uppercase tracking-wider text-[#84907f]"
+                      isLiterary ? "font-editorial-sans text-[#646464]" : "text-[11px] font-editorial-sans uppercase tracking-wider text-[#84907f]"
                     }`}
                   >
                     <span>{isLiterary ? "Geodetic Catchment" : "GEODETIC CATCHMENT"}</span>
@@ -163,7 +158,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                       className={`absolute bottom-3 left-3 px-2.5 py-1 text-[11px] shadow-sm font-medium ${
                         isLiterary
                           ? "gic-card bg-[#ffffff] border border-[#dee2de] text-[#2c2c2c] rounded-md"
-                          : "glass-card-light text-[10px] font-mono text-[#2d3329] font-bold uppercase"
+                          : "glass-card-light text-[10px] font-editorial-sans text-[#2d3329] font-bold uppercase"
                       }`}
                     >
                       [PIN: 22.57617°N, 88.35801°E]
@@ -175,7 +170,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                   className={`p-3.5 flex items-center justify-between text-xs ${
                     isLiterary
                       ? "gic-card bg-[#f9faf7] border border-[#dee2de] rounded-lg font-editorial-sans text-[#444141]"
-                      : "p-3 glass-card-light font-mono text-[11px] text-[#2d3329] uppercase"
+                      : "p-3 glass-card-light font-editorial-sans text-[11px] text-[#2d3329] uppercase"
                   }`}
                 >
                   <span>DATUM: WGS 84</span>
@@ -202,15 +197,15 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                     >
                       <div className="flex items-center space-x-2 text-xs font-bold tracking-wide uppercase">
                         <ShieldCheck className={`w-4 h-4 ${isLiterary ? "text-[#41a1cf]" : "text-[#2d3329]"}`} />
-                        <span className={isLiterary ? "font-editorial-sans text-[#2c2c2c]" : "font-mono text-[#2d3329]"}>
-                          OBJECTIVE LIVABILITY SYNTHESIS
+                        <span className="font-editorial-sans">
+                          {isLiterary ? "Objective Livability Synthesis" : "OBJECTIVE LIVABILITY SYNTHESIS"}
                         </span>
                       </div>
                       <span
-                        className={`text-xs font-bold px-2 py-0.5 ${
+                        className={`text-xs font-bold px-2 py-0.5 font-editorial-sans ${
                           isLiterary
                             ? "border border-[#dee2de] bg-[#ffffff] text-[#41a1cf] rounded-md"
-                            : "font-mono text-[#2d3329] border border-[#2d3329]/40 bg-white/40"
+                            : "text-[#2d3329] border border-[#2d3329]/40 bg-white/40"
                         }`}
                       >
                         RATING: 7.0 / 10
@@ -227,19 +222,19 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                         }`}
                       >
                         <span
-                          className={`text-5xl sm:text-6xl leading-none ${
-                            isLiterary ? "font-editorial-serif text-[#2c2c2c] font-normal" : "font-display-stout text-[#2d3329]"
+                          className={`text-5xl sm:text-6xl leading-none font-editorial-serif font-normal ${
+                            isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"
                           }`}
                         >
                           7.0
                         </span>
-                        <span className={`text-[10px] uppercase mt-1 ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>
+                        <span className={`text-[10px] uppercase mt-1 font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
                           BASE TEN SCALE
                         </span>
                       </div>
 
                       {/* 4 Score Bars */}
-                      <div className={`sm:col-span-8 space-y-2.5 text-xs ${isLiterary ? "font-editorial-sans" : "font-mono"}`}>
+                      <div className="sm:col-span-8 space-y-2.5 text-xs font-editorial-sans">
                         <div className="space-y-1">
                           <div className={`flex justify-between ${isLiterary ? "text-[#444141]" : "text-[#2d3329]"}`}>
                             <span>AIR QUALITY INDEX</span>
@@ -282,7 +277,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                       </div>
                     </div>
 
-                    <div className={`pt-2 text-[11px] uppercase ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>
+                    <div className={`pt-2 text-[11px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
                       [!] MULTI-FACTOR HEURISTIC GROUNDED ON OPEN SENSOR TELEMETRY
                     </div>
                   </div>
@@ -302,15 +297,15 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                     >
                       <div className="flex items-center space-x-2 text-xs font-bold tracking-wide uppercase">
                         <Activity className={`w-4 h-4 ${isLiterary ? "text-[#41a1cf]" : "text-[#2d3329]"}`} />
-                        <span className={isLiterary ? "font-editorial-sans text-[#2c2c2c]" : "font-mono text-[#2d3329]"}>
-                          ATMOSPHERIC OBSERVATIONS
+                        <span className="font-editorial-sans">
+                          {isLiterary ? "Atmospheric Observations" : "ATMOSPHERIC OBSERVATIONS"}
                         </span>
                       </div>
                       <span
-                        className={`text-xs font-bold px-2 py-0.5 ${
+                        className={`text-xs font-bold px-2 py-0.5 font-editorial-sans ${
                           isLiterary
                             ? "border border-[#dee2de] bg-[#ffffff] text-red-600 rounded-md"
-                            : "font-mono text-[#2d3329] border border-[#2d3329]/40 bg-white/40"
+                            : "text-[#2d3329] border border-[#2d3329]/40 bg-white/40"
                         }`}
                       >
                         AQI 101 // VERY POOR
@@ -326,9 +321,9 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                             : "p-3 border border-[#2d3329]/20 bg-white/40 backdrop-blur-sm hover:bg-white/60 transition-colors"
                         }`}
                       >
-                        <div className={`text-[10px] uppercase ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>PM2.5 PARTICULATES</div>
-                        <div className={`text-2xl sm:text-3xl leading-none ${isLiterary ? "font-editorial-serif text-[#2c2c2c] font-normal" : "font-display-stout text-[#2d3329]"}`}>143 µg/m³</div>
-                        <div className={`text-[10px] ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>WHO LIMIT: 15 µg/m³</div>
+                        <div className={`text-[10px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>PM2.5 PARTICULATES</div>
+                        <div className={`text-2xl sm:text-3xl leading-none font-editorial-serif font-normal ${isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"}`}>143 µg/m³</div>
+                        <div className={`text-[10px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>WHO LIMIT: 15 µg/m³</div>
                       </div>
 
                       <div
@@ -338,9 +333,9 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                             : "p-3 border border-[#2d3329]/20 bg-white/40 backdrop-blur-sm hover:bg-white/60 transition-colors"
                         }`}
                       >
-                        <div className={`text-[10px] uppercase ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>PM10 COARSE DUST</div>
-                        <div className={`text-2xl sm:text-3xl leading-none ${isLiterary ? "font-editorial-serif text-[#2c2c2c] font-normal" : "font-display-stout text-[#2d3329]"}`}>159.3 µg/m³</div>
-                        <div className={`text-[10px] ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>WHO LIMIT: 45 µg/m³</div>
+                        <div className={`text-[10px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>PM10 COARSE DUST</div>
+                        <div className={`text-2xl sm:text-3xl leading-none font-editorial-serif font-normal ${isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"}`}>159.3 µg/m³</div>
+                        <div className={`text-[10px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>WHO LIMIT: 45 µg/m³</div>
                       </div>
 
                       <div
@@ -350,9 +345,9 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                             : "p-3 border border-[#2d3329]/20 bg-white/40 backdrop-blur-sm hover:bg-white/60 transition-colors"
                         }`}
                       >
-                        <div className={`text-[10px] uppercase ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>SURFACE TEMPERATURE</div>
-                        <div className={`text-2xl sm:text-3xl leading-none ${isLiterary ? "font-editorial-serif text-[#2c2c2c] font-normal" : "font-display-stout text-[#2d3329]"}`}>26.9°C</div>
-                        <div className={`text-[10px] ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>LIVE SENSOR 2M</div>
+                        <div className={`text-[10px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>SURFACE TEMPERATURE</div>
+                        <div className={`text-2xl sm:text-3xl leading-none font-editorial-serif font-normal ${isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"}`}>26.9°C</div>
+                        <div className={`text-[10px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>LIVE SENSOR 2M</div>
                       </div>
 
                       <div
@@ -362,9 +357,9 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                             : "p-3 border border-[#2d3329]/20 bg-white/40 backdrop-blur-sm hover:bg-white/60 transition-colors"
                         }`}
                       >
-                        <div className={`text-[10px] uppercase ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>SEASONAL BASELINE</div>
-                        <div className={`text-2xl sm:text-3xl leading-none ${isLiterary ? "font-editorial-serif text-[#2c2c2c] font-normal" : "font-display-stout text-[#2d3329]"}`}>28.4°C</div>
-                        <div className={`text-[10px] ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f]"}`}>7-DAY SENSORY MEAN</div>
+                        <div className={`text-[10px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>SEASONAL BASELINE</div>
+                        <div className={`text-2xl sm:text-3xl leading-none font-editorial-serif font-normal ${isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"}`}>28.4°C</div>
+                        <div className={`text-[10px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>7-DAY SENSORY MEAN</div>
                       </div>
                     </div>
                   </div>
@@ -376,7 +371,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                     isLiterary ? "border-[#dee2de]" : "border-[#2d3329]/25"
                   }`}
                 >
-                  <span className={`text-xs ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[#84907f] uppercase"}`}>
+                  <span className={`text-xs font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f] uppercase"}`}>
                     {isLiterary ? "Enter any global coordinate to generate dossier." : "ENTER ANY GLOBAL COORDINATE TO GENERATE LOG."}
                   </span>
 
@@ -391,7 +386,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                   ) : (
                     <button
                       onClick={onLaunchInvestigation}
-                      className="sr-btn-charcoal text-xs py-3 px-6 shadow-sm hover:shadow-md"
+                      className="sr-btn-charcoal text-xs sm:text-sm py-2.5 px-6 font-editorial-sans font-medium shadow-sm hover:shadow-md"
                     >
                       <span>[ OPEN INVESTIGATION WORKSPACE ]</span>
                       <ArrowRight className="w-3.5 h-3.5" />

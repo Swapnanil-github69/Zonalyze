@@ -105,7 +105,7 @@ export const CinematicFooter: React.FC = () => {
   }
 
   return (
-    <footer className="relative w-full bg-[#161b13]/85 backdrop-blur-xl text-[#dde2e4] py-16 border-t border-[#e2ffcc]/15 shadow-[0_-10px_30px_rgba(0,0,0,0.4)] text-left font-mono overflow-hidden">
+    <footer className="relative w-full bg-[#161b13]/85 backdrop-blur-xl text-[#dde2e4] py-16 border-t border-[#e2ffcc]/15 shadow-[0_-10px_30px_rgba(0,0,0,0.4)] text-left font-editorial-sans overflow-hidden">
       {/* Ambient background light */}
       <div className="absolute top-0 right-1/4 w-[400px] h-[200px] bg-[#e2ffcc]/4 rounded-full blur-3xl pointer-events-none" />
 
@@ -121,51 +121,51 @@ export const CinematicFooter: React.FC = () => {
             <div className="w-8 h-8 rounded-full glass-badge border border-[#e2ffcc]/50 flex items-center justify-center text-[#e2ffcc] group-hover:scale-105 group-hover:border-[#e2ffcc] transition-all duration-200 shadow-[0_0_15px_rgba(226,255,204,0.15)]">
               <Crosshair className="w-4 h-4 text-[#e2ffcc]" />
             </div>
-            <span className="font-display-stout text-3xl sm:text-4xl text-[#e2ffcc] tracking-wider leading-none">
-              ZONALYZE
+            <span className="font-editorial-serif text-2xl sm:text-3xl text-[#e2ffcc] tracking-tight leading-none font-normal">
+              Zonalyze
             </span>
           </div>
 
-          {/* Navigation Links: Clean mono caps with glassy hover effect */}
-          <nav className="flex flex-wrap items-center gap-8 text-[11px] font-mono tracking-wider uppercase text-[#84907f]">
+          {/* Navigation Links */}
+          <nav className="flex flex-wrap items-center gap-8 text-[14px] font-editorial-sans font-medium text-[#84907f]">
             <button
               onClick={() => scrollTo("about")}
               className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              SYSTEM
+              System
             </button>
             <button
               onClick={() => scrollTo("categories")}
               className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              EVIDENCE
+              Evidence
             </button>
             <button
               onClick={() => scrollTo("how-it-works")}
               className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              METHODOLOGY
+              Methodology
             </button>
             <button
               onClick={() => scrollTo("preview")}
               className="hover:text-[#e2ffcc] transition-colors cursor-pointer"
             >
-              FIELD PREVIEW
+              Field Preview
             </button>
           </nav>
         </div>
 
         {/* Bottom Footer Row: Geographical & Technical Lineage */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end text-[10px] text-[#84907f] uppercase tracking-wider">
-          <div className="md:col-span-7 space-y-1 leading-relaxed">
-            <div>AN OBJECTIVE FIELD GUIDE TO ENVIRONMENTAL AND CIVIC CONTEXT.</div>
-            <div>VERIFIED TELEMETRY HARVESTED VIA OPEN-METEO & OPENSTREETMAP REGISTRIES.</div>
-            <div>ALL GAPS, RADIUS LIMITS, AND DECIBEL DECAY FACTORS REMAIN TRANSPARENT.</div>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end text-xs font-editorial-sans text-[#84907f]">
+          <div className="md:col-span-7 space-y-1.5 leading-relaxed">
+            <div>An objective field guide to environmental and civic context.</div>
+            <div>Verified telemetry harvested via Open-Meteo & OpenStreetMap registries.</div>
+            <div>All gaps, radius limits, and decibel decay factors remain transparent.</div>
           </div>
 
-          <div className="md:col-span-5 md:text-right font-mono text-[#e2ffcc] space-y-1">
-            <div>GEODETIC DATUM: WGS 84 (EPSG:4326)</div>
-            <div>© {new Date().getFullYear()} ZONALYZE. ALL SURVEY RIGHTS RESERVED.</div>
+          <div className="md:col-span-5 md:text-right font-editorial-sans text-[#e2ffcc] space-y-1">
+            <div>Geodetic Datum: WGS 84 (EPSG:4326)</div>
+            <div>© {new Date().getFullYear()} Zonalyze. All survey rights reserved.</div>
           </div>
         </div>
 

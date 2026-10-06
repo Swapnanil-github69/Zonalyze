@@ -57,7 +57,7 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
           className={`flex flex-wrap items-center justify-between gap-4 pb-4 text-xs tracking-wider uppercase border-b ${
             isLiterary
               ? "border-[#dee2de] font-editorial-sans text-[#646464]"
-              : "border-[#2d3329]/30 font-mono text-[11px] text-[#2d3329]"
+              : "border-[#2d3329]/30 font-editorial-sans text-[11px] text-[#2d3329]"
           }`}
         >
           <div className="flex items-center space-x-2">
@@ -65,7 +65,7 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
             <span className="font-bold">{isLiterary ? "Section 05 — Ethical Telemetry" : "SECTION 05 // ETHICAL TELEMETRY"}</span>
           </div>
           <div
-            className={`px-3 py-1 font-medium ${
+            className={`px-3 py-1 font-medium font-editorial-sans ${
               isLiterary
                 ? "gic-card bg-[#ffffff] border border-[#dee2de] text-[11px] text-[#444141] rounded-full shadow-none"
                 : "px-2.5 py-1 glass-card-light text-[10px] font-bold"
@@ -76,20 +76,15 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
         </div>
 
         <div className="max-w-4xl space-y-4 text-left">
-          {isLiterary ? (
-            <h2 className="font-editorial-serif font-normal text-3xl sm:text-5xl lg:text-[54px] text-[#2c2c2c] tracking-[-0.03em] leading-[1.1]">
-              Insight should show its working.
-            </h2>
-          ) : (
-            <h2 className="font-display-stout text-5xl sm:text-7xl lg:text-[80px] text-[#2d3329] tracking-tight leading-[0.90] uppercase">
-              INSIGHT SHOULD SHOW <br />
-              ITS WORKING.
-            </h2>
-          )}
+          <h2 className={`font-editorial-serif font-normal text-3xl sm:text-5xl lg:text-[54px] tracking-[-0.03em] leading-[1.1] ${
+            isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"
+          }`}>
+            Insight should show its working.
+          </h2>
 
           <p
-            className={`text-sm leading-relaxed max-w-2xl ${
-              isLiterary ? "font-editorial-sans text-[#444141] text-[15px]" : "font-mono text-xs sm:text-sm text-[#2d3329]"
+            className={`text-sm sm:text-[15px] leading-relaxed max-w-2xl font-editorial-sans ${
+              isLiterary ? "text-[#444141]" : "text-[#2d3329]"
             }`}
           >
             Zonalyze cleanly decouples retrieved ground truth from analytical debriefs. Timestamps, coverage radii, and uncertainties matter as much as the synthesis itself.
@@ -108,13 +103,13 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
             className={`flex flex-wrap items-center justify-between gap-2 pb-3 text-xs uppercase tracking-wider border-b ${
               isLiterary
                 ? "border-[#dee2de] font-editorial-sans text-[#646464]"
-                : "border-[#2d3329]/25 font-mono text-[11px] text-[#84907f]"
+                : "border-[#2d3329]/25 font-editorial-sans text-[11px] text-[#84907f]"
             }`}
           >
-            <span className={`font-bold ${isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"}`}>
+            <span className={`font-bold font-editorial-sans ${isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"}`}>
               {isLiterary ? "Empirical comparison — Speculation vs. in-situ truth" : "EMPIRICAL COMPARISON // SPECULATION VS. IN-SITU TRUTH"}
             </span>
-            <span>COORDINATE AUDIT BENCHMARK</span>
+            <span className="font-editorial-sans">COORDINATE AUDIT BENCHMARK</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -128,17 +123,17 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
               }`}
             >
               <div className="flex items-center justify-between border-b border-red-900/20 pb-2">
-                <span className="font-mono text-[10px] font-bold uppercase text-red-700 tracking-wider">
+                <span className="font-editorial-sans text-[10px] font-bold uppercase text-red-700 tracking-wider">
                   [!] UNVERIFIED LISTING NARRATIVE
                 </span>
-                <span className="text-[10px] font-mono text-red-600">ZERO SENSOR DATA</span>
+                <span className="text-[10px] font-editorial-sans text-red-600">ZERO SENSOR DATA</span>
               </div>
 
-              <blockquote className={`italic border-l-2 border-red-700/60 pl-3 leading-relaxed ${isLiterary ? "font-editorial-serif text-sm text-[#444141]" : "font-mono text-xs sm:text-sm text-[#2d3329]/80"}`}>
+              <blockquote className={`italic border-l-2 border-red-700/60 pl-3 leading-relaxed font-editorial-serif text-sm ${isLiterary ? "text-[#444141]" : "text-[#2d3329]/80"}`}>
                 "Bespoke residential haven nestled in tranquil green serenity with pristine fresh morning air and unmatched civic connectivity."
               </blockquote>
 
-              <div className={`space-y-1.5 pt-2 border-t border-red-900/20 text-xs ${isLiterary ? "font-editorial-sans text-red-900/80" : "font-mono text-[11px] text-red-900/80"}`}>
+              <div className={`space-y-1.5 pt-2 border-t border-red-900/20 text-xs font-editorial-sans ${isLiterary ? "text-red-900/80" : "text-[11px] text-red-900/80"}`}>
                 <div>✗ Hides PM2.5 particulate spikes during thermal inversion</div>
                 <div>✗ Omits high-frequency rail noise corridor 140m east</div>
                 <div>✗ Zero station logs, coordinates, or capture timestamps</div>
@@ -154,29 +149,29 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
               }`}
             >
               <div className={`flex items-center justify-between pb-2 border-b ${isLiterary ? "border-[#dee2de]" : "border-[#84907f]/40"}`}>
-                <span className={`text-[11px] font-bold uppercase tracking-wider ${isLiterary ? "font-editorial-sans text-[#41a1cf]" : "font-mono text-[10px] text-[#e2ffcc]"}`}>
+                <span className={`text-[11px] font-bold uppercase tracking-wider font-editorial-sans ${isLiterary ? "text-[#41a1cf]" : "text-[10px] text-[#e2ffcc]"}`}>
                   [✓] ZONALYZE IN-SITU OBSERVATIONS
                 </span>
-                <span className={`text-xs ${isLiterary ? "font-editorial-sans text-[#646464]" : "font-mono text-[10px] text-[#84907f]"}`}>
+                <span className={`text-xs font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[10px] text-[#84907f]"}`}>
                   DATUM: WGS 84
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="grid grid-cols-2 gap-3 text-xs font-editorial-sans">
                 <div className={`p-2.5 ${isLiterary ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-lg" : "glass-card border border-[#84907f]/30"}`}>
-                  <div className={`text-[9px] uppercase ${isLiterary ? "font-editorial-sans text-[#646464]" : "text-[#84907f]"}`}>PM2.5 CONCENTRATION</div>
-                  <div className={`font-bold text-base ${isLiterary ? "font-editorial-serif text-[#2c2c2c]" : "text-[#e2ffcc]"}`}>143 µg/m³</div>
-                  <div className={`text-[9px] ${isLiterary ? "font-editorial-sans text-[#646464]" : "text-[#84907f]"}`}>9.5x WHO 24h limit</div>
+                  <div className={`text-[9px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>PM2.5 CONCENTRATION</div>
+                  <div className={`font-bold text-base font-editorial-serif ${isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"}`}>143 µg/m³</div>
+                  <div className={`text-[9px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>9.5x WHO 24h limit</div>
                 </div>
 
                 <div className={`p-2.5 ${isLiterary ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-lg" : "glass-card border border-[#84907f]/30"}`}>
-                  <div className={`text-[9px] uppercase ${isLiterary ? "font-editorial-sans text-[#646464]" : "text-[#84907f]"}`}>ACOUSTIC CORRIDOR</div>
-                  <div className={`font-bold text-base ${isLiterary ? "font-editorial-serif text-[#2c2c2c]" : "text-[#e2ffcc]"}`}>78 dB Peak</div>
-                  <div className={`text-[9px] ${isLiterary ? "font-editorial-sans text-[#646464]" : "text-[#84907f]"}`}>Rail line buffer: 140m</div>
+                  <div className={`text-[9px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>ACOUSTIC CORRIDOR</div>
+                  <div className={`font-bold text-base font-editorial-serif ${isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"}`}>78 dB Peak</div>
+                  <div className={`text-[9px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>Rail line buffer: 140m</div>
                 </div>
               </div>
 
-              <div className={`space-y-1.5 pt-2 border-t text-xs ${isLiterary ? "border-[#dee2de] font-editorial-sans text-[#444141]" : "border-[#84907f]/30 font-mono text-[11px] text-[#dde2e4]"}`}>
+              <div className={`space-y-1.5 pt-2 border-t text-xs font-editorial-sans ${isLiterary ? "border-[#dee2de] text-[#444141]" : "border-[#84907f]/30 text-[11px] text-[#dde2e4]"}`}>
                 <div className={`flex items-center space-x-2 ${isLiterary ? "text-[#41a1cf]" : "text-[#e2ffcc]"}`}>
                   <span>✓</span>
                   <span>Nearest emergency trauma center verified at 420m (OSM registry)</span>
@@ -211,8 +206,8 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
                     }`}
                   >
                     <span
-                      className={`text-xs font-medium ${
-                        isLiterary ? "font-editorial-sans text-[#41a1cf]" : "font-mono text-[11px] text-[#84907f] font-bold"
+                      className={`text-xs font-medium font-editorial-sans ${
+                        isLiterary ? "text-[#41a1cf]" : "text-[11px] text-[#84907f] font-bold"
                       }`}
                     >
                       {item.subtitle}
@@ -229,18 +224,18 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
                   </div>
 
                   <h3
-                    className={`text-2xl sm:text-3xl tracking-wide ${
+                    className={`text-xl sm:text-2xl font-editorial-serif font-normal ${
                       isLiterary
-                        ? "font-editorial-serif font-normal text-[#2c2c2c]"
-                        : "font-display-stout text-[#2d3329] uppercase"
+                        ? "text-[#2c2c2c]"
+                        : "text-[#2d3329]"
                     }`}
                   >
                     {item.title}
                   </h3>
 
                   <p
-                    className={`text-xs sm:text-[13px] leading-relaxed ${
-                      isLiterary ? "font-editorial-sans text-[#444141]" : "font-mono text-[#2d3329]"
+                    className={`text-xs sm:text-[13px] leading-relaxed font-editorial-sans ${
+                      isLiterary ? "text-[#444141]" : "text-[#2d3329]"
                     }`}
                   >
                     {item.description}
@@ -248,10 +243,10 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
                 </div>
 
                 <div
-                  className={`pt-4 border-t text-[10px] uppercase ${
+                  className={`pt-4 border-t text-[10px] uppercase font-editorial-sans ${
                     isLiterary
-                      ? "border-[#dee2de] font-editorial-sans text-[#646464]"
-                      : "border-[#2d3329]/25 font-mono text-[#84907f]"
+                      ? "border-[#dee2de] text-[#646464]"
+                      : "border-[#2d3329]/25 text-[#84907f]"
                   }`}
                 >
                   VERIFIED PROTOCOL // ZONALYZE GEO-ENGINE

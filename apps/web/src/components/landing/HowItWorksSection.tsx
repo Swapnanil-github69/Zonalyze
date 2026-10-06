@@ -64,7 +64,7 @@ export const HowItWorksSection: React.FC = () => {
           className={`flex flex-wrap items-center justify-between gap-4 pb-4 text-xs tracking-wider uppercase border-b ${
             isLiterary
               ? "border-[#dee2de] font-editorial-sans text-[#646464]"
-              : "border-[#84907f]/30 font-mono text-[11px] text-[#84907f]"
+              : "border-[#84907f]/30 font-editorial-sans text-[11px] text-[#84907f]"
           }`}
         >
           <div className="flex items-center space-x-2">
@@ -74,30 +74,28 @@ export const HowItWorksSection: React.FC = () => {
             </span>
           </div>
           <div
-            className={`px-3 py-1 font-medium ${
+            className={`px-3 py-1 font-medium font-editorial-sans ${
               isLiterary
                 ? "gic-card bg-[#ffffff] border border-[#dee2de] text-[11px] text-[#444141] rounded-full shadow-none"
                 : "px-2.5 py-1 glass-badge text-[10px] text-[#e2ffcc]"
             }`}
           >
-            {isLiterary ? "Deterministic retrieval protocol" : "DETERMINISTIC RETRIEVAL PROTOCOL"}
+            <span>
+              {isLiterary ? "Deterministic retrieval protocol" : "DETERMINISTIC RETRIEVAL PROTOCOL"}
+            </span>
           </div>
         </div>
 
         <div className="max-w-4xl space-y-4 text-left">
-          {isLiterary ? (
-            <h2 className="font-editorial-serif font-normal text-3xl sm:text-5xl lg:text-[54px] text-[#2c2c2c] tracking-[-0.03em] leading-[1.1]">
-              Empirical methodology.
-            </h2>
-          ) : (
-            <h2 className="font-display-stout text-5xl sm:text-7xl lg:text-[80px] text-[#e2ffcc] tracking-tight leading-[0.90] uppercase">
-              EMPIRICAL METHODOLOGY.
-            </h2>
-          )}
+          <h2 className={`font-editorial-serif font-normal text-3xl sm:text-5xl lg:text-[54px] tracking-[-0.03em] leading-[1.1] ${
+            isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"
+          }`}>
+            Empirical methodology.
+          </h2>
 
           <p
-            className={`text-sm leading-relaxed max-w-2xl ${
-              isLiterary ? "font-editorial-sans text-[#444141] text-[15px]" : "font-mono text-xs sm:text-sm text-[#84907f]"
+            className={`text-sm sm:text-[15px] leading-relaxed max-w-2xl font-editorial-sans font-normal ${
+              isLiterary ? "text-[#444141]" : "text-[#84907f]"
             }`}
           >
             Our pipeline prioritizes verifiable physical observations prior to analytical synthesis. Missing signals are left visible as spatial gaps.
@@ -124,10 +122,10 @@ export const HowItWorksSection: React.FC = () => {
                     }`}
                   >
                     <span
-                      className={`text-xs font-medium tracking-wide ${
+                      className={`text-xs font-editorial-sans font-semibold tracking-wide ${
                         isLiterary
-                          ? "font-editorial-sans text-[#41a1cf]"
-                          : "font-mono text-xs font-bold text-[#e2ffcc] tracking-wider"
+                          ? "text-[#41a1cf]"
+                          : "text-[#e2ffcc]"
                       }`}
                     >
                       [STEP {step.number}]
@@ -144,18 +142,18 @@ export const HowItWorksSection: React.FC = () => {
                   </div>
 
                   <h3
-                    className={`text-xl sm:text-2xl tracking-wide ${
+                    className={`text-xl sm:text-2xl tracking-tight font-editorial-serif font-normal ${
                       isLiterary
-                        ? "font-editorial-serif font-normal text-[#2c2c2c]"
-                        : "font-display-stout text-[#dde2e4] uppercase"
+                        ? "text-[#2c2c2c]"
+                        : "text-[#dde2e4]"
                     }`}
                   >
                     {step.title}
                   </h3>
 
                   <p
-                    className={`text-xs leading-relaxed ${
-                      isLiterary ? "font-editorial-sans text-[#444141] text-[13px]" : "font-mono text-[#dde2e4]/90"
+                    className={`text-xs leading-relaxed font-editorial-sans ${
+                      isLiterary ? "text-[#444141] text-[13px]" : "text-[#dde2e4]/90"
                     }`}
                   >
                     {step.description}
@@ -163,10 +161,10 @@ export const HowItWorksSection: React.FC = () => {
                 </div>
 
                 <div
-                  className={`pt-4 border-t text-[11px] uppercase leading-tight ${
+                  className={`pt-4 border-t text-xs leading-relaxed font-editorial-sans ${
                     isLiterary
-                      ? "border-[#dee2de] font-editorial-sans text-[#646464] text-[10px]"
-                      : "border-[#84907f]/20 font-mono text-[10px] text-[#84907f]"
+                      ? "border-[#dee2de] text-[#646464] text-[10px]"
+                      : "border-[#84907f]/20 text-[11px] text-[#84907f]"
                   }`}
                 >
                   {step.clarification}
