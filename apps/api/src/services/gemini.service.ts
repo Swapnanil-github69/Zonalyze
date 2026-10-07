@@ -221,7 +221,7 @@ INSTRUCTIONS:
             };
 
         const promptToSend = isGemma
-          ? `${prompt}\n\nCRITICAL REQUIREMENT: Output your response ONLY as a valid JSON object matching the requested fields: {"summary": "...", "insights_in_brief": {"transit": "...", "healthcare": "...", "environment": "...", "acoustic": "..."}, "empirical_observations": ["..."], "site_inspection_targets": ["..."]}. Do not include markdown preamble, commentary, or conversational remarks.`
+          ? `${prompt}\n\nCRITICAL REQUIREMENT: Output your response ONLY as a valid, well-formed JSON object with double-quoted keys and string values. Every key-value pair and array element MUST be separated by a comma. Do not use unescaped double quotes inside values (use single quotes for embedded quotes). Output fields matching: {"summary": "...", "insights_in_brief": {"transit": "...", "healthcare": "...", "environment": "...", "acoustic": "..."}, "empirical_observations": ["..."], "site_inspection_targets": ["..."]}. Do not include markdown preamble, commentary, or conversational remarks.`
           : prompt;
 
         const response = await client.models.generateContent({
