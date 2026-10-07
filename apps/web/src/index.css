@@ -26,7 +26,7 @@
   --color-signal-blue: #41a1cf;
   --color-cerulean: #0081c0;
 
-  --font-ppmondwest: 'Fraunces', Georgia, serif;
+  --font-ppmondwest: 'Ubuntu', sans-serif;
   --font-af: 'Inter', system-ui, sans-serif;
   --font-f37stout: 'Bebas Neue', sans-serif;
   --font-mono: 'JetBrains Mono', 'IBM Plex Mono', monospace;
@@ -61,9 +61,9 @@ body {
 
 /* General Intelligence Company — Typography */
 .font-editorial-serif {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Ubuntu', sans-serif;
   font-weight: 400;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
   font-feature-settings: "liga" 0;
 }
 

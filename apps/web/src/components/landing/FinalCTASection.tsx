@@ -62,22 +62,22 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
                   {/* Card 1: Warm landscape frame */}
                   <div className="absolute top-2 left-0 w-64 p-3 bg-[#ffffff] rounded-[16px] border border-[#dee2de] shadow-[rgba(0,0,0,0.08)_0px_2px_8px] -rotate-3 transition-transform hover:rotate-0 hover:scale-105 duration-300 z-10">
                     <div className="aspect-[4/3] w-full rounded-[10px] overflow-hidden bg-[#f9faf7] mb-2 border border-[#dee2de]/50">
-                      <img src="/zonalyze_liquid_glass_crop.jpg" alt="Atmospheric Field View" className="w-full h-full object-cover" />
+                      <img src="/zonalyze_literary_map_crop.jpg" alt="Atmospheric Field View" className="w-full h-full object-cover" />
                     </div>
                     <div className="font-editorial-sans text-[13px] text-[#2c2c2c] font-medium flex justify-between">
-                      <span>Survey Log · San Rita</span>
-                      <span className="text-[#646464]">22.60°N // 88.41°E</span>
+                      <span>Survey Log · Tiretta</span>
+                      <span className="text-[#646464]">22.58°N // 88.36°E</span>
                     </div>
                   </div>
 
                   {/* Card 2: Field sensor frame */}
                   <div className="absolute top-10 right-4 w-60 p-3 bg-[#ffffff] rounded-[16px] border border-[#dee2de] shadow-[rgba(0,0,0,0.08)_0px_4px_12px] rotate-3 transition-transform hover:rotate-0 hover:scale-105 duration-300 z-20">
                     <div className="aspect-[4/3] w-full rounded-[10px] overflow-hidden bg-[#f9faf7] mb-2 border border-[#dee2de]/50">
-                      <img src="/zonalyze_liquid_glass_ui.jpg" alt="Atmospheric Sensor View" className="w-full h-full object-cover" />
+                      <img src="/zonalyze_literary_paper_console.jpg" alt="Atmospheric Sensor View" className="w-full h-full object-cover" />
                     </div>
                     <div className="font-editorial-sans text-[13px] text-[#2c2c2c] font-medium flex justify-between">
                       <span>Sensor Telemetry</span>
-                      <span className="text-[#41a1cf]">AQI 83 · Poor</span>
+                      <span className="text-[#41a1cf]">AQI 101 · Poor</span>
                     </div>
                   </div>
 
@@ -127,7 +127,7 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
                   onClick={onStartInvestigation}
                   className="sr-btn-mint text-xs sm:text-sm py-3.5 px-7 font-editorial-sans font-medium shadow-[0_0_20px_rgba(226,255,204,0.2)] hover:shadow-[0_0_30px_rgba(226,255,204,0.4)]"
                 >
-                  <span>[ LAUNCH INVESTIGATION WORKSPACE ]</span>
+                  <span>LAUNCH INVESTIGATION WORKSPACE</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 
@@ -142,21 +142,21 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
               <div className="relative w-full max-w-md h-72">
                 <div className="absolute top-2 left-0 w-64 p-3 glass-card-light -rotate-3 shadow-2xl transition-transform hover:rotate-0 hover:scale-105 duration-300 z-10 border border-[#2d3329]/30">
                   <div className="aspect-[4/3] w-full overflow-hidden bg-black mb-2 shadow-inner">
-                    <img src="/zonalyze_liquid_glass_crop.jpg" alt="Field Crop 1" className="w-full h-full object-cover" />
+                    <img src="/zonalyze_tactical_map_crop.jpg" alt="Field Crop 1" className="w-full h-full object-cover" />
                   </div>
                   <div className="font-editorial-sans text-[10px] text-[#2d3329] font-medium flex justify-between uppercase">
                     <span>SURVEY LOG #01</span>
-                    <span>22.60°N // 88.41°E</span>
+                    <span>22.58°N // 88.36°E</span>
                   </div>
                 </div>
 
                 <div className="absolute top-10 right-4 w-60 p-3 glass-card-light rotate-3 shadow-2xl transition-transform hover:rotate-0 hover:scale-105 duration-300 z-20 border border-[#2d3329]/30">
                   <div className="aspect-[4/3] w-full overflow-hidden bg-black mb-2 shadow-inner">
-                    <img src="/zonalyze_liquid_glass_ui.jpg" alt="Field Crop 2" className="w-full h-full object-cover" />
+                    <img src="/zonalyze_tactical_dark_console.jpg" alt="Field Crop 2" className="w-full h-full object-cover" />
                   </div>
                   <div className="font-editorial-sans text-[10px] text-[#2d3329] font-medium flex justify-between uppercase">
                     <span>RADAR TELEMETRY</span>
-                    <span className="text-red-700">AQI: 83 POOR</span>
+                    <span className="text-red-700">AQI: 101 POOR</span>
                   </div>
                 </div>
               </div>

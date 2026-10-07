@@ -22,7 +22,7 @@ export const EvidenceCategoriesSection: React.FC = () => {
     {
       id: "infrastructure",
       title: isLiterary ? "Civic Infrastructure" : "CIVIC INFRASTRUCTURE",
-      subtitle: isLiterary ? "Mapped urban nodes" : "MAPPED URBAN NODES",
+      subtitle: isLiterary ? "Map urban nodes" : "MAP URBAN NODES",
       icon: Building2,
       observations: [
         "Emergency healthcare facilities, hospitals, and pharmacies",
@@ -34,7 +34,7 @@ export const EvidenceCategoriesSection: React.FC = () => {
     {
       id: "environmental",
       title: isLiterary ? "Landform Context" : "LANDFORM CONTEXT",
-      subtitle: isLiterary ? "Topography & elevation" : "TOPOGRAPHY & ELEVATION",
+      subtitle: isLiterary ? "Topography & Elevation" : "TOPOGRAPHY & ELEVATION",
       icon: Mountain,
       observations: [
         "Geodetic coordinate datum (WGS 84 ellipsoid standard)",
@@ -46,7 +46,7 @@ export const EvidenceCategoriesSection: React.FC = () => {
     {
       id: "noise",
       title: isLiterary ? "Acoustic Decay" : "ACOUSTIC DECAY",
-      subtitle: isLiterary ? "Deterministic transit proximity" : "DETERMINISTIC TRANSIT PROXIMITY",
+      subtitle: isLiterary ? "Deterministic Transit Proximity" : "DETERMINISTIC TRANSIT PROXIMITY",
       icon: Volume2,
       observations: [
         "Corridor proximity to heavy rail lines and primary arterial highways",
@@ -77,7 +77,7 @@ export const EvidenceCategoriesSection: React.FC = () => {
         </>
       )}
 
-      <div className="relative w-full px-6 sm:px-12 space-y-12">
+      <div className="relative w-full max-w-7xl mx-auto px-6 sm:px-12 space-y-12">
         
         {/* Section Header */}
         <div
@@ -123,22 +123,22 @@ export const EvidenceCategoriesSection: React.FC = () => {
         </div>
 
         {/* 4 Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
           {categories.map((cat) => {
             const IconComponent = cat.icon;
             return (
               <div
                 key={cat.id}
-                className={`p-6 sm:p-8 flex flex-col justify-between space-y-6 text-left transition-all duration-300 ${
+                className={`p-7 sm:p-9 flex flex-col justify-between space-y-7 text-left transition-all duration-300 ${
                   isLiterary
                     ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-xl hover:border-[#b4b8b4]"
                     : "glass-card border border-[#84907f]/30 hover:border-[#e2ffcc]/40"
                 }`}
               >
                 {/* Header */}
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div
-                    className={`flex items-center justify-between pb-3 border-b ${
+                    className={`flex items-center justify-between pb-3.5 border-b ${
                       isLiterary ? "border-[#dee2de]" : "border-[#84907f]/20"
                     }`}
                   >
@@ -174,7 +174,7 @@ export const EvidenceCategoriesSection: React.FC = () => {
                 </div>
 
                 {/* Observations list */}
-                <ul className="space-y-2.5 text-xs font-editorial-sans">
+                <ul className="space-y-3.5 text-xs font-editorial-sans">
                   {cat.observations.map((obs, idx) => (
                     <li
                       key={idx}
@@ -192,7 +192,7 @@ export const EvidenceCategoriesSection: React.FC = () => {
 
                 {/* Source & Transparency Note */}
                 <div
-                  className={`pt-4 border-t text-xs leading-relaxed font-editorial-sans ${
+                  className={`pt-5 border-t text-xs leading-relaxed font-editorial-sans ${
                     isLiterary
                       ? "border-[#dee2de] text-[#646464] text-[10px]"
                       : "border-[#84907f]/20 text-[11px] text-[#84907f]"

@@ -63,10 +63,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       )}
 
       {/* Main Hero Container */}
-      <div className="w-full px-6 sm:px-12 py-8 sm:py-10 space-y-8">
+      <div className="w-full max-w-7xl mx-auto px-6 sm:px-12 py-8 sm:py-10 space-y-8">
         
         {/* Headline & Mission Lead */}
-        <div className="space-y-4 text-left max-w-7xl">
+        <div className="space-y-4 text-left max-w-4xl">
           <h1 className={`font-editorial-serif font-normal text-4xl sm:text-5xl md:text-6xl lg:text-[62px] tracking-[-0.035em] leading-[1.08] ${
             isLiterary ? "text-[#2c2c2c]" : "text-[#e2ffcc]"
           }`}>
@@ -149,19 +149,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* 2. High-Fidelity Workstation OS Window Console Frame */}
         <div className="w-full pt-2">
           <div
-            className={`relative overflow-hidden ${
+            className={`relative overflow-hidden rounded-xl sm:rounded-2xl transition-all duration-300 ${
               isLiterary
-                ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-2xl shadow-[0_12px_45px_-10px_rgba(40,40,52,0.08)]"
+                ? "gic-card bg-[#ffffff] border border-[#dee2de] shadow-[0_12px_45px_-10px_rgba(40,40,52,0.08)]"
                 : "glass-panel border border-[#e2ffcc]/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(226,255,204,0.25)]"
             }`}
           >
             {/* Geodetic Corner Crosshair Ticks (Dark Mode) */}
             {!isLiterary && (
               <>
-                <span className="absolute top-1 left-1.5 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none">+</span>
-                <span className="absolute top-1 right-1.5 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none">+</span>
-                <span className="absolute bottom-1 left-1.5 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none">+</span>
-                <span className="absolute bottom-1 right-1.5 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none">+</span>
+                <span className="absolute top-1.5 left-2 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none z-10">+</span>
+                <span className="absolute top-1.5 right-2 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none z-10">+</span>
+                <span className="absolute bottom-1.5 left-2 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none z-10">+</span>
+                <span className="absolute bottom-1.5 right-2 text-[10px] font-mono text-[#84907f]/60 select-none pointer-events-none z-10">+</span>
               </>
             )}
 
@@ -206,12 +206,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Field Image Canvas */}
-            <div className={`relative aspect-[16/9] w-full overflow-hidden ${isLiterary ? "bg-[#f9faf7]" : "bg-[#161b13]"}`}>
+            <div
+              className={`relative w-full overflow-hidden transition-colors duration-500 ${
+                isLiterary ? "bg-[#fcfaf7]" : "bg-[#0c1a1f]"
+              }`}
+              style={{ aspectRatio: "1376 / 768" }}
+            >
               <img
-                src="/zonalyze_liquid_glass_ui.jpg"
+                src={isLiterary ? "/zonalyze_literary_paper_console.jpg" : "/zonalyze_tactical_dark_console.jpg"}
                 alt="ZONALYZE live audit console"
-                className="w-full h-full object-contain sm:object-cover"
-                style={{ imageRendering: "-webkit-optimize-contrast" }}
+                width={1376}
+                height={768}
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-cover block select-none pointer-events-none transition-opacity duration-300"
               />
             </div>
 
@@ -262,7 +270,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       </div>
 
       {/* Scroll Cue Indicator */}
-      <div className={`w-full px-6 sm:px-12 flex justify-end items-center text-xs font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[11px] text-[#84907f]"}`}>
+      <div className={`w-full max-w-7xl mx-auto px-6 sm:px-12 flex justify-end items-center text-xs font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[11px] text-[#84907f]"}`}>
         <button
           onClick={scrollToHowItWorks}
           className={`flex items-center space-x-2 transition-colors cursor-pointer ${

@@ -52,9 +52,10 @@ export default {
         surface: "#142629",
       },
       fontFamily: {
-        serif: ["'Fraunces'", "'Cormorant Garamond'", "'DM Serif Display'", "'Instrument Serif'", "Georgia", "serif"],
-        display: ["'Fraunces'", "'Cormorant Garamond'", "'DM Serif Display'", "Georgia", "serif"],
-        cormorant: ["'Cormorant Garamond'", "'Fraunces'", "'DM Serif Display'", "Georgia", "serif"],
+        serif: ["'Ubuntu'", "sans-serif"],
+        display: ["'Ubuntu'", "sans-serif"],
+        cormorant: ["'Ubuntu'", "sans-serif"],
+        ubuntu: ["'Ubuntu'", "sans-serif"],
         sans: ["'Inter'", "'Manrope'", "system-ui", "-apple-system", "sans-serif"],
         mono: ["'IBM Plex Mono'", "'JetBrains Mono'", "monospace"],
         space: ["'Space Grotesk'", "sans-serif"],

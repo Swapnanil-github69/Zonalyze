@@ -148,7 +148,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
   // Dark Telemetry Console Mode
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#161b13]/65 backdrop-blur-xl border-b border-[#e2ffcc]/15 shadow-[0_4px_30px_rgba(0,0,0,0.5)] px-6 sm:px-12 py-4">
-      <div className="w-full flex items-center justify-between">
+      <div className="w-full max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Brand Wordmark Stamp with Crosshair Symbol */}
         <div
@@ -194,10 +194,12 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
 
           <button
             onClick={onStartInvestigation}
-            className="group relative inline-flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-[#e2ffcc] text-[#161b13] font-editorial-sans font-medium text-xs sm:text-sm tracking-normal transition-all duration-200 hover:bg-[#d5fca8] hover:shadow-[0_0_20px_rgba(226,255,204,0.35)] active:scale-95 cursor-pointer border border-[#e2ffcc]"
+            className="group relative inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-1.5 sm:py-2 bg-[#e2ffcc] text-[#161b13] font-editorial-sans font-medium text-xs sm:text-sm tracking-normal rounded-lg transition-all duration-200 hover:bg-[#d5fca8] hover:shadow-[0_0_20px_rgba(226,255,204,0.35)] active:scale-95 cursor-pointer border border-[#e2ffcc]/80 shadow-xs"
           >
             <span>Initiate Survey</span>
-            <ArrowUpRight className="w-3.5 h-3.5 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <div className="w-4 h-4 rounded-full bg-[#161b13]/15 flex items-center justify-center text-[#161b13] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <ArrowUpRight className="w-2.5 h-2.5" />
+            </div>
           </button>
 
           {/* Mobile menu toggle */}
@@ -245,10 +247,12 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
                 setMobileMenuOpen(false);
                 onStartInvestigation();
               }}
-              className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-[#e2ffcc] text-[#161b13] font-editorial-sans font-medium text-xs sm:text-sm transition-all duration-200 hover:bg-[#d5fca8]"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#e2ffcc] text-[#161b13] font-editorial-sans font-medium text-xs sm:text-sm rounded-lg transition-all duration-200 hover:bg-[#d5fca8] shadow-sm"
             >
               <span>Initiate Survey</span>
-              <ArrowUpRight className="w-3.5 h-3.5 ml-1.5" />
+              <div className="w-4 h-4 rounded-full bg-[#161b13]/15 flex items-center justify-center text-[#161b13]">
+                <ArrowUpRight className="w-2.5 h-2.5" />
+              </div>
             </button>
           </div>
         </div>
