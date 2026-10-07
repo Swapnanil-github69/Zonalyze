@@ -52,11 +52,7 @@ export const HospitalCard: React.FC<HospitalCardProps> = ({
     return `${Math.round(meters)}m`;
   };
 
-  const displayName =
-    hospital?.name ||
-    (hospital?.count && hospital.count > 0
-      ? "Local Medical Facility"
-      : "Closest Regional Hospital");
+  const displayName = hospital?.name || "";
   const hasLocal = (hospital?.count || 0) > 0;
 
   const isSelected = (name?: string | null) => {
@@ -71,7 +67,7 @@ export const HospitalCard: React.FC<HospitalCardProps> = ({
     if (!hospital?.coordinates) return;
 
     const target: RouteTarget = {
-      name: displayName,
+      name: displayName || "Medical Facility",
       type: "hospital",
       coordinates: hospital.coordinates,
       distanceMeters: hospital.nearest_dist_m ?? null,

@@ -467,7 +467,7 @@ Coordinates: [Latitude: ${originLat}, Longitude: ${originLon}]
 VERIFIED SENSOR & SATELLITE TELEMETRY (Immediate perimeter envelope):
 - Atmospheric Health: AQI ${env.aqi ?? "N/A"}, PM2.5: ${env.pm2_5 ?? "N/A"} µg/m³, PM10: ${env.pm10 ?? "N/A"} µg/m³.
 - Healthcare Facilities: ${infra.hospitals ?? 0} healthcare facilities/hospitals in immediate cluster.
-  * Nearest Facility: "${infra.nearest_hospital_name || 'Nearest Local Medical Facility'}" located ${infra.nearest_hospital_dist_m ?? "outside immediate 3000m radius"}m from audited coordinates.
+  * Nearest Facility: "${infra.nearest_hospital_name || 'Nearest Medical Facility'}" located ${infra.nearest_hospital_dist_m ?? "outside immediate 3000m radius"}m from audited coordinates.
 ${nearbyHospSummary ? `  * Top Detected Healthcare Options in Sector: ${nearbyHospSummary}` : ""}
 - Multi-Modal Transit: ${infra.metro_stations ?? 0} metro stations (Nearest metro: "${infra.nearest_metro_name || 'Metro'}" at ${infra.nearest_metro_dist_m ?? "outside immediate 3000m radius"}m), ${infra.railway_stations ?? 0} rail platforms (Nearest rail: "${infra.nearest_railway_name || 'Station'}" at ${infra.nearest_railway_dist_m ?? "outside immediate radius"}m).
 - Parks & Greenery: ${infra.parks ?? 0} parks in radial envelope.
@@ -488,7 +488,7 @@ RULES:
 - CRITICAL HEALTHCARE GROUNDING RULE: When the user asks for the nearest hospital, clinic, or medical facility (e.g. "where is the nearest hospital", "nearest hospital", "which hospital is closest"), you MUST explicitly name the nearest facility detected in telemetry ("${infra.nearest_hospital_name || 'nearest medical center'}") and quote its exact distance (${infra.nearest_hospital_dist_m ? `${infra.nearest_hospital_dist_m}m` : 'nearby'}). You may also cite other detected facilities in the cluster if relevant. NEVER guess or invent random hospitals that are farther away.
 - CRITICAL NEARBY FACILITIES & AMENITIES GROUNDING RULE: When the user asks about nearby facilities, amenities, or services in general (e.g. "any nearby facilities", "what facilities are nearby", "nearby amenities", "what is near here"):
   You MUST give a clear breakdown of the REAL facilities detected in telemetry:
-  1. Healthcare: Explicitly name "${infra.nearest_hospital_name || 'Nearest Local Medical Facility'}" and quote its exact distance (${infra.nearest_hospital_dist_m ? `${infra.nearest_hospital_dist_m}m` : 'nearby'}), plus any other detected hospitals in the cluster.
+  1. Healthcare: Explicitly name "${infra.nearest_hospital_name || 'Nearest Medical Facility'}" and quote its exact distance (${infra.nearest_hospital_dist_m ? `${infra.nearest_hospital_dist_m}m` : 'nearby'}), plus any other detected hospitals in the cluster.
   2. Rapid Transit & Rail: Explicitly name "${infra.nearest_metro_name || 'Nearest Metro Station'}" (${infra.nearest_metro_dist_m ? `${infra.nearest_metro_dist_m}m` : 'nearby'}) and "${infra.nearest_railway_name || 'Nearest Railway Station'}" (${infra.nearest_railway_dist_m ? `${infra.nearest_railway_dist_m}m` : 'nearby'}).
   3. Greenery & Parks: Mention the ${infra.parks ?? 0} parks in the radial envelope.
   NEVER quote generic placeholder numbers like 640m or omit facility names!

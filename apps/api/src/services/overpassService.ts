@@ -179,9 +179,9 @@ export function buildPanIndiaOverpassQuery(lat: number, lon: number): string {
   // 3. Accommodations (Hotels, Guest Houses, Homestays, Lodges, Dhabas with stays)
   nwr["tourism"~"hotel|guest_house|hostel|motel|chalet"](around:${HOTEL_RADIUS},${lat},${lon});
 
-  // 4. Medical facilities (hospitals, clinics, health centres)
-  nwr["amenity"~"hospital|clinic"](around:1200, ${lat}, ${lon});
-  nwr["healthcare"~"hospital|clinic|centre"](around:1200, ${lat}, ${lon});
+  // 4. Medical facilities (Hospitals, Nursing Homes, Clinics)
+  nwr["amenity"~"hospital|clinic"](around:1500, ${lat}, ${lon});
+  nwr["healthcare"~"hospital|clinic|centre"](around:1500, ${lat}, ${lon});
 
   // 5. Urban Essentials
   nwr["amenity"~"pharmacy|marketplace"](around:2000,${lat},${lon});
@@ -710,6 +710,7 @@ export function parseElements(
 
   const hotels: OSMResult["facilities"]["hotels"] = [];
   const medicalEnvelopeFacilities: Facility[] = [];
+  const allMedicalFacilities: Facility[] = [];
   const seenMedicalKeys = new Set<string>();
   let railwayDistance: number | null = null;
   let highwayDistance: number | null = null;
@@ -795,24 +796,27 @@ export function parseElements(
       tags.building === "hospital";
 
     if (isHospital || isClinic) {
-      const rawName = tags.name || tags["name:en"] || tags["name:bn"];
-      if (rawName) {
+      const rawName = tags.name || tags["name:en"] || tags["name:bn"] || tags["official_name"] || tags.operator;
+      if (rawName && typeof rawName === "string" && rawName.trim()) {
+        const cleanName = rawName.trim();
         const distMeters = Math.round(d);
 
         // Deduplicate entries that share similar names within close proximity
-        const dedupKey = `${rawName.toLowerCase().trim()}_${Math.round(distMeters / 40)}`;
+        const dedupKey = `${cleanName.toLowerCase()}_${Math.round(distMeters / 40)}`;
         if (!seenMedicalKeys.has(dedupKey)) {
           seenMedicalKeys.add(dedupKey);
 
           const facilityObj: Facility = {
-            name: rawName,
+            name: cleanName,
             distanceMeters: distMeters,
             coordinates: [elLon, elLat],
             type: isHospital ? "Hospital" : "Clinic",
           };
 
-          // Collect medical facilities within the 1.2 km neighborhood corridor
-          if (distMeters <= 1200) {
+          allMedicalFacilities.push(facilityObj);
+
+          // Collect medical facilities within the 1.5 km neighborhood corridor
+          if (distMeters <= 1500) {
             medicalEnvelopeFacilities.push(facilityObj);
           }
         }
@@ -868,13 +872,14 @@ export function parseElements(
 
   // Sort by closest distance
   medicalEnvelopeFacilities.sort((a, b) => a.distanceMeters - b.distanceMeters);
+  allMedicalFacilities.sort((a, b) => a.distanceMeters - b.distanceMeters);
 
-  const primaryNearestMedical = medicalEnvelopeFacilities[0] || null;
+  const primaryNearestMedical = medicalEnvelopeFacilities[0] || allMedicalFacilities[0] || null;
 
   result.facilities.health = {
-    count: medicalEnvelopeFacilities.length, // True count of mapped medical centers in sector
+    count: medicalEnvelopeFacilities.length, // True count of mapped medical centers in 1.5km sector
     nearest: primaryNearestMedical,
-    facilities: medicalEnvelopeFacilities.slice(0, 10),
+    facilities: (medicalEnvelopeFacilities.length > 0 ? medicalEnvelopeFacilities : allMedicalFacilities).slice(0, 10),
   };
 
   result.facilities.hospital = primaryNearestMedical

@@ -164,7 +164,7 @@ async function fallbackClientInvestigation(
   let pm10 = 64.1;
   let historical_pm25: number[] = [28, 30, 35, 42, 38, 31, 32.4];
 
-  let nearestHospitalName = "Local Medical Facility";
+  let nearestHospitalName: string | null = null;
   let nearestHospitalDistM: number | null = null;
   let nearbyHospitals: Array<{
     name: string;
@@ -172,7 +172,7 @@ async function fallbackClientInvestigation(
     type: string;
     coordinates?: [number, number];
   }> = [];
-  let hospitalsCount = 1;
+  let hospitalsCount = 0;
 
   let nearestRailwayName: string | null = null;
   let nearestRailwayDistM: number | null = null;
@@ -385,7 +385,7 @@ async function fallbackClientInvestigation(
       railway_stations: nearestRailwayDistM !== null ? 1 : 0,
       metro_stations: nearestMetroDistM !== null ? 1 : 0,
       parks: 2,
-      nearest_hospital_dist_m: nearestHospitalDistM ?? 150,
+      nearest_hospital_dist_m: nearestHospitalDistM,
       nearest_hospital_name: nearestHospitalName,
       nearby_hospitals: nearbyHospitals,
       nearest_railway_dist_m: nearestRailwayDistM,
@@ -405,7 +405,7 @@ async function fallbackClientInvestigation(
         distanceMeters: nearestRailwayDistM,
         coordinates: nearestRailwayCoords || [longitude, latitude],
       } : null,
-      hospital: nearestHospitalDistM !== null ? {
+      hospital: nearestHospitalDistM !== null && nearestHospitalName ? {
         name: nearestHospitalName,
         distanceMeters: nearestHospitalDistM,
         coordinates: (nearbyHospitals[0]?.coordinates as [number, number]) || [longitude, latitude],
@@ -434,10 +434,12 @@ async function fallbackClientInvestigation(
     },
     aiReport: {
       summary:
-        `Audited location exhibiting verified atmospheric coverage, transit proximity (${nearestMetroName || nearestRailwayName || 'regional link'}), and nearby medical coverage via ${nearestHospitalName}.`,
+        `Audited location exhibiting verified atmospheric coverage, transit proximity (${nearestMetroName || nearestRailwayName || 'regional link'})${nearestHospitalName ? `, and nearby medical coverage via ${nearestHospitalName}` : ''}.`,
       empirical_observations: [
         `Direct atmospheric audit registers PM2.5 at ${pm2_5} µg/m³ with European AQI index ${aqi}.`,
-        `Nearest medical facility (${nearestHospitalName}) detected at ${nearestHospitalDistM ? `${nearestHospitalDistM}m` : 'close proximity'}.`,
+        nearestHospitalName
+          ? `Nearest medical facility (${nearestHospitalName}) detected at ${nearestHospitalDistM}m.`
+          : `No medical facility detected in the immediate envelope.`,
         nearestMetroName
           ? `Rapid transit connection verified: Metro Station (${nearestMetroName}) within operational radius.`
           : nearestRailwayName
