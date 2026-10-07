@@ -11,7 +11,7 @@ import { CinematicFooter } from "../components/landing/CinematicFooter";
 import { useLandingTheme } from "../context/LandingThemeContext";
 
 interface LandingPageProps {
-  onNavigateToInvestigation: () => void;
+  onNavigateToInvestigation: (lat?: number, lon?: number) => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToInvestigation }) => {
@@ -59,4 +59,5 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigateToInvestigat
   );
 };
 
+export { LandingHeroSearch } from "../components/landing/HeroSection";
 export default LandingPage;

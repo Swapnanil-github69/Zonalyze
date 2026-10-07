@@ -63,12 +63,13 @@ export const MapView: React.FC<MapViewProps> = ({
   // Renders or removes pedestrian route polyline and destination marker
   const renderRouteOnMap = useCallback(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || !map.isStyleLoaded()) return;
 
-    const sourceId = "pedestrian-route-source";
-    const glowLayerId = "pedestrian-route-glow";
-    const coreLayerId = "pedestrian-route-core";
-    const pulseLayerId = "pedestrian-route-pulse";
+    try {
+      const sourceId = "pedestrian-route-source";
+      const glowLayerId = "pedestrian-route-glow";
+      const coreLayerId = "pedestrian-route-core";
+      const pulseLayerId = "pedestrian-route-pulse";
 
     // Clean up existing layers if present
     if (map.getLayer(pulseLayerId)) map.removeLayer(pulseLayerId);
@@ -219,12 +220,17 @@ export const MapView: React.FC<MapViewProps> = ({
       duration: 1200,
       maxZoom: 16.5,
     });
+  } catch (err) {
+    console.warn("Could not render route on map:", err);
+  }
   }, [activeRoute, selectedFacility, isDossierOpen]);
 
   // Renders high-tech 500m civic inspection catchment perimeter circle
   const renderRadarZone = useCallback(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || !map.isStyleLoaded()) return;
+
+    try {
 
     const sourceId = "audit-zone-source";
     const glowLayerId = "audit-zone-glow";
@@ -298,17 +304,47 @@ export const MapView: React.FC<MapViewProps> = ({
         "line-opacity": 0.85,
       },
     });
+  } catch (err) {
+    console.warn("Could not render radar zone on map:", err);
+  }
   }, [selectedCoords, activeTileStyle]);
+
+  const renderRouteOnMapRef = useRef(renderRouteOnMap);
+  renderRouteOnMapRef.current = renderRouteOnMap;
+
+  const renderRadarZoneRef = useRef(renderRadarZone);
+  renderRadarZoneRef.current = renderRadarZone;
 
   // Initialize MapLibre GL instance
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
+    let initialCenter: [number, number] = [88.3516, 22.5645];
+    let initialZoom = 13.5;
+
+    if (selectedCoords) {
+      initialCenter = [selectedCoords.lng, selectedCoords.lat];
+      initialZoom = 14.5;
+    } else if (typeof window !== "undefined") {
+      // Check window.location for pre-seeded lat/lon
+      const params = new URLSearchParams(window.location.search);
+      const latStr = params.get("lat") || (window.location.hash.includes("lat=") ? new URLSearchParams(window.location.hash.split("?")[1] || "").get("lat") : null);
+      const lonStr = params.get("lon") || params.get("lng") || (window.location.hash.includes("lon=") ? new URLSearchParams(window.location.hash.split("?")[1] || "").get("lon") : null);
+      if (latStr && lonStr) {
+        const parsedLat = parseFloat(latStr);
+        const parsedLon = parseFloat(lonStr);
+        if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
+          initialCenter = [parsedLon, parsedLat];
+          initialZoom = 14.5;
+        }
+      }
+    }
+
     const mapInstance = new maplibregl.Map({
       container: mapContainerRef.current,
       style: TILE_STYLES[activeTileStyle],
-      center: [88.3516, 22.5645], // Default Hotspot: Kolkata Central
-      zoom: 13.5,
+      center: initialCenter,
+      zoom: initialZoom,
       pitch: 42,
       bearing: -12,
       attributionControl: false,
@@ -345,14 +381,21 @@ export const MapView: React.FC<MapViewProps> = ({
       setCursorCoords({ lat: e.lngLat.lat, lng: e.lngLat.lng });
     });
 
-    mapInstance.on("style.load", () => {
-      renderRouteOnMap();
-      renderRadarZone();
-    });
+    const handleMapReady = () => {
+      if (mapInstance && mapInstance.isStyleLoaded()) {
+        renderRouteOnMapRef.current();
+        renderRadarZoneRef.current();
+      }
+    };
+
+    mapInstance.on("load", handleMapReady);
+    mapInstance.on("styledata", handleMapReady);
 
     mapRef.current = mapInstance;
 
     return () => {
+      mapInstance.off("load", handleMapReady);
+      mapInstance.off("styledata", handleMapReady);
       mapInstance.remove();
       mapRef.current = null;
     };
@@ -380,11 +423,15 @@ export const MapView: React.FC<MapViewProps> = ({
     if (!mapRef.current) return;
     const next3D = !is3D;
     setIs3D(next3D);
-    mapRef.current.easeTo({
-      pitch: next3D ? 45 : 0,
-      bearing: next3D ? -15 : 0,
-      duration: 700,
-    });
+    try {
+      mapRef.current.easeTo({
+        pitch: next3D ? 45 : 0,
+        bearing: next3D ? -15 : 0,
+        duration: 700,
+      });
+    } catch (err) {
+      console.warn("Could not easeTo 3D pitch:", err);
+    }
   }, [is3D]);
 
   // Update target marker pin whenever selected coordinates change
@@ -395,49 +442,57 @@ export const MapView: React.FC<MapViewProps> = ({
 
     // Only fly to origin coordinate if we don't have an active route being rendered
     if (!activeRoute) {
-      mapRef.current.flyTo({
-        center: [lng, lat],
-        zoom: 14.5,
-        pitch: is3D ? 42 : 0,
-        essential: true,
-        duration: 1600,
-      });
+      try {
+        mapRef.current.flyTo({
+          center: [lng, lat],
+          zoom: 14.5,
+          pitch: is3D ? 42 : 0,
+          essential: true,
+          duration: 1600,
+        });
+      } catch (err) {
+        console.warn("Could not flyTo coords:", err);
+      }
     }
 
     // Create or position the high-tech tactical animated marker
-    if (!markerRef.current) {
-      const el = document.createElement("div");
-      el.className = "pointer-events-none select-none";
-      el.innerHTML = `
-        <div class="relative flex flex-col items-center">
-          <div class="px-2.5 py-1 mb-1 rounded-full bg-slate-950/90 border border-cyan-400/80 shadow-[0_0_20px_rgba(6,182,212,0.5)] backdrop-blur-md flex items-center gap-1.5 text-[10px] font-mono font-bold text-cyan-300">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"></span>
-          <span class="tracking-wider">AUDIT TARGET</span>
-          <span class="text-slate-500">|</span>
-          <span class="text-cyan-200 text-[9px] font-mono">${lat.toFixed(4)}°, ${lng.toFixed(4)}°</span>
-        </div>
-        <div class="relative flex items-center justify-center w-12 h-12">
-          <div class="absolute h-12 w-12 rounded-full border-2 border-cyan-400/80 bg-cyan-400/20 shadow-[0_0_30px_rgba(34,211,238,0.6)] animate-ping"></div>
-          <div class="absolute h-8 w-8 rounded-full border border-sky-300/50 bg-sky-500/10 animate-pulse"></div>
-          <div class="absolute h-6 w-6 rounded-full border border-dashed border-cyan-300/70 animate-[spin_8s_linear_infinite]"></div>
-          <div class="relative h-4 w-4 rounded-full border-2 border-white bg-gradient-to-tr from-cyan-400 via-sky-300 to-emerald-300 shadow-[0_0_20px_rgba(56,189,248,1)] flex items-center justify-center">
-            <div class="w-1.5 h-1.5 rounded-full bg-slate-950"></div>
+    try {
+      if (!markerRef.current) {
+        const el = document.createElement("div");
+        el.className = "pointer-events-none select-none";
+        el.innerHTML = `
+          <div class="relative flex flex-col items-center">
+            <div class="px-2.5 py-1 mb-1 rounded-full bg-slate-950/90 border border-cyan-400/80 shadow-[0_0_20px_rgba(6,182,212,0.5)] backdrop-blur-md flex items-center gap-1.5 text-[10px] font-mono font-bold text-cyan-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"></span>
+            <span class="tracking-wider">AUDIT TARGET</span>
+            <span class="text-slate-500">|</span>
+            <span class="text-cyan-200 text-[9px] font-mono">${lat.toFixed(4)}°, ${lng.toFixed(4)}°</span>
           </div>
-          <div class="absolute left-1/2 top-[calc(100%-0.55rem)] -translate-x-1/2 h-3.5 w-1.5 rounded-b-full bg-gradient-to-b from-cyan-400 to-blue-600 shadow-md"></div>
+          <div class="relative flex items-center justify-center w-12 h-12">
+            <div class="absolute h-12 w-12 rounded-full border-2 border-cyan-400/80 bg-cyan-400/20 shadow-[0_0_30px_rgba(34,211,238,0.6)] animate-ping"></div>
+            <div class="absolute h-8 w-8 rounded-full border border-sky-300/50 bg-sky-500/10 animate-pulse"></div>
+            <div class="absolute h-6 w-6 rounded-full border border-dashed border-cyan-300/70 animate-[spin_8s_linear_infinite]"></div>
+            <div class="relative h-4 w-4 rounded-full border-2 border-white bg-gradient-to-tr from-cyan-400 via-sky-300 to-emerald-300 shadow-[0_0_20px_rgba(56,189,248,1)] flex items-center justify-center">
+              <div class="w-1.5 h-1.5 rounded-full bg-slate-950"></div>
+            </div>
+            <div class="absolute left-1/2 top-[calc(100%-0.55rem)] -translate-x-1/2 h-3.5 w-1.5 rounded-b-full bg-gradient-to-b from-cyan-400 to-blue-600 shadow-md"></div>
+          </div>
         </div>
-      </div>
-    `;
+      `;
 
-      markerRef.current = new maplibregl.Marker({ element: el, anchor: "bottom" })
-        .setLngLat([lng, lat])
-        .addTo(mapRef.current);
-    } else {
-      markerRef.current.setLngLat([lng, lat]);
-      // Update badge coordinates dynamically
-      const badgeSpan = markerRef.current.getElement().querySelector(".font-mono:last-child");
-      if (badgeSpan) {
-        badgeSpan.textContent = `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+        markerRef.current = new maplibregl.Marker({ element: el, anchor: "bottom" })
+          .setLngLat([lng, lat])
+          .addTo(mapRef.current);
+      } else {
+        markerRef.current.setLngLat([lng, lat]);
+        // Update badge coordinates dynamically
+        const badgeSpan = markerRef.current.getElement().querySelector(".font-mono:last-child");
+        if (badgeSpan) {
+          badgeSpan.textContent = `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+        }
       }
+    } catch (err) {
+      console.warn("Could not create or update target marker:", err);
     }
   }, [selectedCoords, activeRoute, is3D]);
 
