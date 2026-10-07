@@ -387,7 +387,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                       onClick={onLaunchInvestigation}
                       className="sr-btn-charcoal text-xs sm:text-sm py-2.5 px-6 font-editorial-sans font-medium shadow-sm hover:shadow-md"
                     >
-                      <span>[ OPEN INVESTIGATION WORKSPACE ]</span>
+                      <span>OPEN INVESTIGATION WORKSPACE</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   )}

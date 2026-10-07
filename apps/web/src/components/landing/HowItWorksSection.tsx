@@ -103,19 +103,19 @@ export const HowItWorksSection: React.FC = () => {
         </div>
 
         {/* 4 Pipeline Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pt-4">
           {steps.map((step) => {
             const IconComponent = step.icon;
             return (
               <div
                 key={step.number}
-                className={`p-6 flex flex-col justify-between space-y-5 text-left transition-all duration-300 ${
+                className={`p-7 sm:p-8 flex flex-col justify-between space-y-6 text-left transition-all duration-300 ${
                   isLiterary
                     ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-xl hover:border-[#b4b8b4]"
                     : "glass-card border border-[#84907f]/30 hover:border-[#e2ffcc]/40"
                 }`}
               >
-                <div className="space-y-3.5">
+                <div className="space-y-4">
                   <div
                     className={`w-8 h-8 flex items-center justify-center ${
                       isLiterary
