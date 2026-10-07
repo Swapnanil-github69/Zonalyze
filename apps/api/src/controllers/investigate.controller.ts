@@ -165,8 +165,8 @@ export class InvestigateController {
             }
       );
 
-      // 7. Asynchronous Background Debrief Hydration (unawaited)
-      if (savedDoc) {
+      // 7. Asynchronous Background Debrief Hydration (unawaited, fallback only)
+      if (savedDoc && (!savedDoc.aiReport || !savedDoc.aiReport.summary)) {
         setImmediate(async () => {
           try {
             const richDebrief = await GeminiService.generateDebrief({
