@@ -29,7 +29,7 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
                   </span>
                 </div>
 
-                <h2 className="font-editorial-serif font-normal text-4xl sm:text-5xl lg:text-6xl text-[#2c2c2c] tracking-[-0.035em] leading-[1.1]">
+                <h2 className="font-editorial-serif font-normal text-2xl sm:text-3xl lg:text-4xl text-[#2c2c2c] tracking-[-0.03em] leading-[1.15]">
                   Start with a place. <br />
                   Follow the evidence.
                 </h2>
@@ -113,7 +113,7 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
                 </span>
               </div>
 
-              <h2 className="font-editorial-serif font-normal text-4xl sm:text-5xl lg:text-6xl text-[#e2ffcc] tracking-[-0.035em] leading-[1.1]">
+              <h2 className="font-editorial-serif font-normal text-2xl sm:text-3xl lg:text-4xl text-[#e2ffcc] tracking-[-0.03em] leading-[1.15]">
                 Start with a place. <br />
                 Follow the evidence.
               </h2>
