@@ -282,10 +282,9 @@ export const AirQualityCard: React.FC<AirQualityCardProps> = ({ environment, coo
     <div className="glass-panel p-4 rounded-2xl border border-slate-700/60 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Wind className="w-4 h-4 text-cyan-400" />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-            Atmospheric & Environmental Telemetry
+        <div className="flex items-center">
+          <h3 className="text-base font-semibold text-slate-200 tracking-[-0.01em]" style={{ fontFamily: "'Manrope', sans-serif" }}>
+            Environmental Telemetry
           </h3>
         </div>
         <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${aqiInfo.color}`}>
@@ -364,8 +363,8 @@ export const AirQualityCard: React.FC<AirQualityCardProps> = ({ environment, coo
             <button
               onClick={() => handleTabChange("pm25")}
               className={`text-xs px-2.5 py-1 rounded-md font-medium transition flex items-center space-x-1.5 ${activeTab === "pm25"
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
                 }`}
             >
               <Activity className="w-3.5 h-3.5 text-cyan-400" />
@@ -374,8 +373,8 @@ export const AirQualityCard: React.FC<AirQualityCardProps> = ({ environment, coo
             <button
               onClick={() => handleTabChange("temperature")}
               className={`text-xs px-2.5 py-1 rounded-md font-medium transition flex items-center space-x-1.5 ${activeTab === "temperature"
-                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
                 }`}
             >
               <Thermometer className="w-3.5 h-3.5 text-amber-400" />

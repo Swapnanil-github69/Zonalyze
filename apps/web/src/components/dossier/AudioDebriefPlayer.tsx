@@ -150,39 +150,39 @@ export const AudioDebriefPlayer: React.FC<AudioDebriefPlayerProps> = ({
   return (
     <div className="p-3 rounded-2xl bg-gradient-to-r from-indigo-950/70 via-slate-900/90 to-blue-950/70 border border-indigo-500/40 shadow-lg flex items-center justify-between space-x-3 backdrop-blur-md">
       {/* Left: Icon & Title */}
-      <div className="flex items-center space-x-2.5 min-w-0">
-        <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center shrink-0">
+      <div className="flex items-center space-x-2 min-w-0 flex-1">
+        <div className="w-7 h-7 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center shrink-0">
           {isPlaying ? (
-            <Volume2 className="w-4 h-4 text-indigo-400 animate-pulse" />
+            <Volume2 className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
           ) : (
-            <VolumeX className="w-4 h-4 text-slate-400" />
+            <VolumeX className="w-3.5 h-3.5 text-slate-400" />
           )}
         </div>
-        <div className="min-w-0">
-          <div className="flex items-center space-x-1.5">
-            <span className="text-xs font-bold text-white font-mono tracking-wide truncate">
-              Voice Audio Debrief
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-slate-200 tracking-[-0.01em] truncate" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+              Voice Audit
             </span>
-            <span className="text-[9px] font-mono text-cyan-300 bg-cyan-500/20 px-1.5 py-0.2 rounded border border-cyan-500/30">
+            <span className="text-[9px] font-mono text-cyan-300 bg-cyan-500/20 px-1.5 py-0.2 rounded border border-cyan-500/30 shrink-0 hidden xs:inline-block">
               Natural Voice
             </span>
           </div>
-          <div className="text-[10px] text-slate-400 truncate flex items-center space-x-1">
+          <div className="text-[10px] text-slate-400 truncate">
             {isPlaying ? (
               <span className="text-emerald-400 font-medium flex items-center">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping mr-1 inline-block" />
                 Reading in{" "}
                 {selectedLang === "hi"
-                  ? "हिन्दी (Hindi)"
+                  ? "हिन्दी"
                   : selectedLang === "bn"
-                    ? "বাংলা (Bangla)"
+                    ? "বাংলা"
                     : "English"}
                 ...
               </span>
             ) : isPaused ? (
-              <span className="text-amber-400">Audio playback paused</span>
+              <span className="text-amber-400">Audio paused</span>
             ) : (
-              <span>Listen to location audit insights in native voice</span>
+              <span>Listen in native voice</span>
             )}
           </div>
         </div>
@@ -223,8 +223,8 @@ export const AudioDebriefPlayer: React.FC<AudioDebriefPlayerProps> = ({
               key={lang.code}
               onClick={() => changeLanguage(lang.code)}
               className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-medium transition ${selectedLang === lang.code
-                  ? "bg-indigo-600 text-white shadow-sm font-bold"
-                  : "text-slate-400 hover:text-slate-200"
+                ? "bg-indigo-600 text-white shadow-sm font-bold"
+                : "text-slate-400 hover:text-slate-200"
                 }`}
               title={`Switch audio to ${lang.name}`}
             >

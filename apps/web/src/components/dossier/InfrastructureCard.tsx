@@ -82,9 +82,8 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
     <div className="glass-panel p-4 rounded-2xl border border-slate-700/60 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Building2 className="w-4 h-4 text-emerald-400" />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+        <div className="flex items-center">
+          <h3 className="text-[15px] font-semibold text-slate-200 tracking-[-0.01em]" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
             Nearest Facilities & Proximity Grid
           </h3>
         </div>
@@ -103,33 +102,29 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
       <div className="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
         <button
           onClick={() => setActiveTab("all")}
-          className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "all" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-          }`}
+          className={`flex-1 py-1 rounded-lg transition font-medium ${activeTab === "all" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            }`}
         >
           All
         </button>
         <button
           onClick={() => setActiveTab("transit")}
-          className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "transit" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-          }`}
+          className={`flex-1 py-1 rounded-lg transition font-medium ${activeTab === "transit" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            }`}
         >
           Transit
         </button>
         <button
           onClick={() => setActiveTab("essentials")}
-          className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "essentials" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-          }`}
+          className={`flex-1 py-1 rounded-lg transition font-medium ${activeTab === "essentials" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            }`}
         >
           Essentials
         </button>
         <button
           onClick={() => setActiveTab("hotels")}
-          className={`flex-1 py-1 rounded-lg transition font-medium ${
-            activeTab === "hotels" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
-          }`}
+          className={`flex-1 py-1 rounded-lg transition font-medium ${activeTab === "hotels" ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            }`}
         >
           Hotels
         </button>
@@ -138,9 +133,9 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
       {/* 1. Transit Category Grid */}
       {(activeTab === "all" || activeTab === "transit") && (
         <div className="space-y-2">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+          <div className="text-xs font-semibold text-slate-300 tracking-[-0.01em] flex items-center justify-between" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
             <span>Transit & Mobility Corridor</span>
-            <span className="text-[10px] text-cyan-400 font-mono">Closest Access</span>
+            <span className="text-[10px] text-cyan-400 font-mono font-normal">Closest Access</span>
           </div>
 
           <FacilitiesGrid
@@ -155,9 +150,9 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
       {/* 2. Essentials Category Grid */}
       {(activeTab === "all" || activeTab === "essentials") && (
         <div className="space-y-2">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+          <div className="text-xs font-semibold text-slate-300 tracking-[-0.01em] flex items-center justify-between" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
             <span>Health & Urban Essentials</span>
-            <span className="text-[10px] text-emerald-400 font-mono">Density & Access</span>
+            <span className="text-[10px] text-emerald-400 font-mono font-normal">Density & Access</span>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
@@ -171,11 +166,10 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
                   "hospital"
                 )
               }
-              className={`p-2.5 rounded-xl border text-center flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.essentials.hospitals.name || "Hospital")
+              className={`p-2.5 rounded-xl border text-center flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${isSelected(detailed.essentials.hospitals.name || "Hospital")
                   ? "bg-rose-950/40 border-rose-400 ring-1 ring-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]"
                   : "bg-slate-900/80 border-slate-800 hover:border-rose-500/50 hover:bg-slate-800/80"
-              }`}
+                }`}
             >
               <div>
                 <HeartPulse className="w-4 h-4 text-rose-400 mx-auto mb-1 group-hover:scale-110 transition" />
@@ -211,11 +205,10 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
                   "store"
                 )
               }
-              className={`p-2.5 rounded-xl border text-center flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.essentials.convenienceStores.name || "Pharmacy & Store")
+              className={`p-2.5 rounded-xl border text-center flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${isSelected(detailed.essentials.convenienceStores.name || "Pharmacy & Store")
                   ? "bg-amber-950/40 border-amber-400 ring-1 ring-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
                   : "bg-slate-900/80 border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/80"
-              }`}
+                }`}
             >
               <div>
                 <Pill className="w-4 h-4 text-amber-400 mx-auto mb-1 group-hover:scale-110 transition" />
@@ -241,11 +234,10 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
                   "park"
                 )
               }
-              className={`p-2.5 rounded-xl border text-center flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
-                isSelected(detailed.essentials.parks.name || "Park / Green Space")
+              className={`p-2.5 rounded-xl border text-center flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${isSelected(detailed.essentials.parks.name || "Park / Green Space")
                   ? "bg-emerald-950/40 border-emerald-400 ring-1 ring-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
                   : "bg-slate-900/80 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80"
-              }`}
+                }`}
             >
               <div>
                 <Trees className="w-4 h-4 text-emerald-400 mx-auto mb-1 group-hover:scale-110 transition" />
@@ -265,9 +257,9 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
           {/* Detected Healthcare Facilities Breakdown */}
           {detailed.essentials.hospitals.nearby && detailed.essentials.hospitals.nearby.length > 0 && (
             <div className="bg-slate-900/70 p-2.5 rounded-xl border border-slate-800/80 space-y-1.5 mt-2">
-              <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <div className="text-xs font-semibold text-slate-300 tracking-[-0.01em] flex items-center justify-between" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
                 <span>Identified Medical Centers</span>
-                <span className="text-rose-400 font-mono text-[9px]">
+                <span className="text-rose-400 font-mono text-[9px] font-normal">
                   {detailed.essentials.hospitals.nearby.length} nearest mapped • Click to route
                 </span>
               </div>
@@ -278,11 +270,10 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
                     onClick={() =>
                       handleCardClick(h.name, h.coordinates, h.distance, "hospital")
                     }
-                    className={`flex items-center justify-between text-xs py-1.5 px-2 rounded-lg cursor-pointer transition border ${
-                      isSelected(h.name)
+                    className={`flex items-center justify-between text-xs py-1.5 px-2 rounded-lg cursor-pointer transition border ${isSelected(h.name)
                         ? "bg-rose-950/50 border-rose-400/80 text-rose-200"
                         : "border-transparent hover:bg-slate-800/80 text-slate-200"
-                    }`}
+                      }`}
                   >
                     <span className="truncate pr-2 font-medium" title={h.name}>
                       {h.name}
@@ -313,12 +304,9 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
       {/* 3. Hotels Section */}
       {(activeTab === "all" || activeTab === "hotels") && (
         <div className="space-y-2">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-            <span className="flex items-center">
-              <Hotel className="w-3.5 h-3.5 text-amber-400 mr-1.5" />
-              Nearby Accommodations
-            </span>
-            <span className="text-[10px] text-amber-400 font-mono">Click to Trace Route</span>
+          <div className="text-xs font-semibold text-slate-300 tracking-[-0.01em] flex items-center justify-between" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+            <span>Nearby Accommodations</span>
+            <span className="text-[10px] text-amber-400 font-mono font-normal">Click to Trace Route</span>
           </div>
 
           {detailed.hotels.length === 0 ? (
@@ -333,11 +321,10 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
                   onClick={() =>
                     handleCardClick(hotel.name, hotel.coordinates, hotel.distance_m, "hotel")
                   }
-                  className={`p-2.5 rounded-xl border flex items-center justify-between transition cursor-pointer group active:scale-[0.99] ${
-                    isSelected(hotel.name)
+                  className={`p-2.5 rounded-xl border flex items-center justify-between transition cursor-pointer group active:scale-[0.99] ${isSelected(hotel.name)
                       ? "bg-amber-950/40 border-amber-400 ring-1 ring-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.25)]"
                       : "bg-slate-900/80 border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/80"
-                  }`}
+                    }`}
                 >
                   <div className="space-y-0.5 min-w-0 pr-2">
                     <div className="flex items-center space-x-2 flex-wrap gap-y-1">

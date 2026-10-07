@@ -70,7 +70,7 @@ export const DossierPanel: React.FC<DossierPanelProps> = ({
       {isLoading ? (
         <div className="flex flex-col h-full">
           <div className="p-4 border-b border-slate-700/60 flex items-center justify-between bg-slate-900/80">
-            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+            <span className="text-[15px] font-semibold text-slate-200 tracking-[-0.01em]" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
               Location Audit in Progress
             </span>
             <button

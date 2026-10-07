@@ -313,12 +313,9 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
       {/* Widget Header */}
       <div className="p-3.5 bg-gradient-to-r from-indigo-950/80 via-slate-900/90 to-purple-950/80 border-b border-indigo-500/30 flex items-center justify-between">
         <div className="flex items-center space-x-2.5">
-          <div className="w-7 h-7 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
-            <MessageSquare className="w-3.5 h-3.5" />
-          </div>
           <div>
             <div className="flex items-center space-x-1.5">
-              <h4 className="text-xs font-bold text-white font-mono tracking-wide">
+              <h4 className="text-[15px] font-semibold text-slate-200 tracking-[-0.01em]" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
                 Ask Gemma Location AI
               </h4>
               <span className="text-[9px] font-mono text-cyan-300 bg-cyan-500/20 px-1.5 py-0.5 rounded border border-cyan-500/30">
@@ -358,8 +355,8 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                       setShowLangMenu(false);
                     }}
                     className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition ${selectedLang.code === lang.code
-                        ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
-                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      ? "bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30"
+                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
                       }`}
                   >
                     <div className="flex flex-col">
@@ -379,8 +376,8 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
             <button
               onClick={() => setAutoSpeak(!autoSpeak)}
               className={`p-1.5 rounded-lg border transition ${autoSpeak
-                  ? "bg-indigo-600/30 border-indigo-400 text-indigo-300"
-                  : "bg-slate-800/80 border-slate-700 text-slate-400 hover:text-slate-200"
+                ? "bg-indigo-600/30 border-indigo-400 text-indigo-300"
+                : "bg-slate-800/80 border-slate-700 text-slate-400 hover:text-slate-200"
                 }`}
               title={autoSpeak ? "Auto-voice readout enabled" : "Auto-voice readout disabled"}
             >
@@ -410,8 +407,7 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
         <div className="p-3.5 space-y-3">
           {/* Quick prompt chips (localized to active language) */}
           <div className="space-y-1.5">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center">
-              <Sparkles className="w-3 h-3 text-indigo-400 mr-1" />
+            <span className="text-xs font-semibold text-slate-300 tracking-[-0.01em] block" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
               Quick Questions ({selectedLang.label})
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -444,8 +440,8 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                 >
                   <div
                     className={`max-w-[90%] rounded-2xl p-2.5 text-xs leading-relaxed shadow-md ${isAssistant
-                        ? "bg-slate-900 border border-indigo-500/25 text-slate-200 rounded-tl-sm"
-                        : "bg-indigo-600 text-white rounded-tr-sm"
+                      ? "bg-slate-900 border border-indigo-500/25 text-slate-200 rounded-tl-sm"
+                      : "bg-indigo-600 text-white rounded-tr-sm"
                       }`}
                   >
                     <div className="flex items-center space-x-1.5 mb-1 opacity-75 text-[10px]">
@@ -471,8 +467,8 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                         <button
                           onClick={() => speakText(sanitizeChatText(msg.text), msg.id)}
                           className={`flex items-center space-x-1.5 text-[10px] px-2.5 py-1 rounded-lg transition font-medium ${isSpeaking
-                              ? "bg-indigo-600/30 text-indigo-300 border border-indigo-500/50 shadow-sm shadow-indigo-500/20"
-                              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800/60"
+                            ? "bg-indigo-600/30 text-indigo-300 border border-indigo-500/50 shadow-sm shadow-indigo-500/20"
+                            : "text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800/60"
                             }`}
                           title={`Listen in natural ${selectedLang.label} voice`}
                         >
@@ -565,8 +561,8 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                 type="button"
                 onClick={toggleListening}
                 className={`p-2.5 rounded-xl border transition ${isListening
-                    ? "bg-rose-600 text-white border-rose-500 animate-pulse shadow-lg shadow-rose-600/40"
-                    : "bg-slate-800/90 text-slate-300 hover:text-white hover:bg-slate-700 border-slate-700"
+                  ? "bg-rose-600 text-white border-rose-500 animate-pulse shadow-lg shadow-rose-600/40"
+                  : "bg-slate-800/90 text-slate-300 hover:text-white hover:bg-slate-700 border-slate-700"
                   }`}
                 title={
                   isListening
