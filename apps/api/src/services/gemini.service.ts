@@ -3,6 +3,9 @@ import { config } from "../config/env.js";
 import { AiDebrief } from "../types/index.js";
 import { calculateHaversineMeters } from "../utils/geoUtils.js";
 import { NominatimService } from "./nominatim.service.js";
+import { cleanAndParseJSON, sanitizeGemmaChatReply } from "./gemmaService.js";
+
+export { cleanAndParseJSON, sanitizeGemmaChatReply };
 
 const apiKey = process.env.GEMMA_API_KEY || process.env.GEMINI_API_KEY || "";
 const gemmaAi = new GoogleGenAI({ apiKey });
@@ -80,13 +83,15 @@ INSTRUCTIONS:
   }
 }
 
-const CANDIDATE_MODELS = [
+export const CANDIDATE_MODELS = [
   process.env.GEMMA_MODEL || "gemma-4-26b-a4b-it",
   "gemma-4-31b-it",
-  "gemini-2.5-flash-lite",
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
+  "gemini-flash-latest",
+  "gemini-3.8-flash",
+  "gemini-pro-latest",
 ];
+
+const ACTIVE_MODELS = CANDIDATE_MODELS;
 
 /**
  * Contributor 1: Backend Lead
@@ -161,7 +166,7 @@ INSTRUCTIONS:
    - Ground observations in the provided metrics.
 `;
 
-    for (const model of CANDIDATE_MODELS) {
+    for (const model of ACTIVE_MODELS) {
       try {
         const isGemma = model.startsWith("gemma-");
         const config: any = isGemma
@@ -231,19 +236,8 @@ INSTRUCTIONS:
           response.candidates?.[0]?.content?.parts?.slice(-1)[0]?.text;
 
         if (rawText) {
-          let cleanText = rawText.trim();
-          if (cleanText.includes("```json")) {
-            cleanText = cleanText.split("```json")[1].split("```")[0].trim();
-          } else if (cleanText.includes("```")) {
-            cleanText = cleanText.split("```")[1].split("```")[0].trim();
-          } else {
-            const firstBrace = cleanText.indexOf("{");
-            const lastBrace = cleanText.lastIndexOf("}");
-            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-              cleanText = cleanText.substring(firstBrace, lastBrace + 1);
-            }
-          }
-          const parsed = JSON.parse(cleanText) as AiDebrief;
+          const fallbackDebrief = this.generateDeterministicFallback(verifiedTelemetry);
+          const parsed = cleanAndParseJSON<AiDebrief>(rawText, fallbackDebrief);
           if (parsed && parsed.summary && parsed.empirical_observations) {
             return parsed;
           }
@@ -267,7 +261,7 @@ INSTRUCTIONS:
     return this.generateDeterministicFallback(verifiedTelemetry);
   }
 
-  private static generateDeterministicFallback(telemetry: any): AiDebrief {
+  public static generateDeterministicFallback(telemetry: any): AiDebrief {
     const observations: string[] = [];
     const inspections: string[] = [];
 
@@ -518,7 +512,7 @@ LANGUAGE & MULTILINGUAL OUTPUT:
     ];
 
     // Try candidate models in order of priority to ensure active quota and uptime
-    for (const model of CANDIDATE_MODELS) {
+    for (const model of ACTIVE_MODELS) {
       try {
         const isGemma = model.startsWith("gemma-");
         const modelContents = isGemma
@@ -545,7 +539,7 @@ LANGUAGE & MULTILINGUAL OUTPUT:
           response.candidates?.[0]?.content?.parts?.slice(-1)[0]?.text?.trim();
 
         if (text) {
-          return text;
+          return sanitizeGemmaChatReply(text, question);
         }
       } catch (error: any) {
         console.warn(`⚠️ Model ${model} chat failed (${error.status || error.message?.substring(0, 60)}), trying next candidate...`);

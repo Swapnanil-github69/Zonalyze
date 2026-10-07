@@ -107,7 +107,7 @@ export async function investigateLocation(req: Request, res: Response): Promise<
       facilities: osmData.facilities,
       noise: osmData.noise,
       infrastructure: {
-        hospitals: osmData.facilities.hospital ? 1 : 0,
+        hospitals: osmData.facilities.hospital?.count ?? (osmData.facilities.hospital && osmData.facilities.hospital.distanceMeters <= 550 ? 1 : 0),
         pharmacies: 0,
         railway_stations: osmData.facilities.railway ? 1 : 0,
         metro_stations: osmData.facilities.metro ? 1 : 0,

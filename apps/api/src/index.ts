@@ -41,10 +41,16 @@ app.get("/api/health", (_req, res) => {
 });
 
 async function bootstrap() {
-  await connectDB();
   const port = Number(process.env.PORT) || 5000;
+
+  // 1. Open HTTP listener immediately so API server is active in <100ms
   app.listen(port, () => {
-    console.log(`Zonalyze API server running at http://localhost:${port}`);
+    console.log(`⚡ Zonalyze API server running at http://localhost:${port}`);
+  });
+
+  // 2. Connect to MongoDB in background without blocking server availability
+  connectDB().catch((err) => {
+    console.error("Database connection failed:", err?.message || err);
   });
 }
 

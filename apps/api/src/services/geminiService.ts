@@ -2,11 +2,14 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+import { cleanAndParseJSON } from "./gemmaService.js";
+
 export {
+  cleanAndParseJSON,
   GEMMA_MODEL_NAME,
   UrbanAuditPayload,
   generateGemmaDebrief,
-} from "./gemini.service.js";
+} from "./gemmaService.js";
 
 export interface AIDebriefResult {
   summary: string;
@@ -140,20 +143,9 @@ function createFallback(metrics: Record<string, string>): AIDebriefResult {
 function parseDebrief(text: string | undefined): AIDebriefResult | null {
   if (!text) return null;
   try {
-    let cleanText = text.trim();
-    if (cleanText.includes("```json")) {
-      cleanText = cleanText.split("```json")[1].split("```")[0].trim();
-    } else if (cleanText.includes("```")) {
-      cleanText = cleanText.split("```")[1].split("```")[0].trim();
-    } else {
-      const firstBrace = cleanText.indexOf("{");
-      const lastBrace = cleanText.lastIndexOf("}");
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        cleanText = cleanText.substring(firstBrace, lastBrace + 1);
-      }
-    }
+    const parsed = cleanAndParseJSON<unknown>(text, null);
+    if (!parsed) return null;
 
-    const parsed: unknown = JSON.parse(cleanText);
     const result = asRecord(parsed);
     if (
       typeof result.summary === "string" &&

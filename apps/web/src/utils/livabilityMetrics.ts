@@ -269,9 +269,17 @@ export function buildDetailedFacilities(
     },
     essentials: {
       hospitals: {
-        count: infra.hospitals,
+        count:
+          (rawFacilities as any)?.health?.count ??
+          rawFacilities?.hospital?.count ??
+          infra.hospitals,
         nearest_dist_m: nearestHospitalDist,
-        name: rawFacilities?.hospital?.name || infra.nearest_hospital_name || (infra.hospitals > 0 ? "Nearest Medical Facility" : null),
+        name:
+          rawFacilities?.hospital?.name ||
+          (rawFacilities as any)?.health?.nearest?.name ||
+          infra.nearest_hospital_name ||
+          (infra.nearby_hospitals && infra.nearby_hospitals[0]?.name) ||
+          (nearestHospitalDist !== null ? "Closest Medical Facility" : null),
         coordinates: hospitalCoords,
         nearby: nearbyHospitals,
       },

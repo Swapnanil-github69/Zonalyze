@@ -11,6 +11,7 @@ const router = Router();
 router.post("/investigate", InvestigateController.investigateCoordinate);
 router.get("/investigations/recent", getRecentInvestigations);
 router.get("/investigations/:id", getInvestigationById);
+router.get("/investigations/:id/debrief", InvestigateController.hydrateDebrief);
 router.post("/investigate/chat", InvestigateController.chatAboutLocation);
 router.get("/investigate/tts", InvestigateController.textToSpeech);
 
