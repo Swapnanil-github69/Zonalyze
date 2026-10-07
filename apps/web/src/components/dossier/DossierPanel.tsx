@@ -104,7 +104,7 @@ export const DossierPanel: React.FC<DossierPanelProps> = ({
               />
             </div>
 
-            {/* AI Assistant / Gemini Chatbox */}
+            {/* AI Assistant / Gemma Chatbox */}
             <AiChatWidget investigation={investigation} />
 
             {/* 4. Acoustic Noise Profile Card */}

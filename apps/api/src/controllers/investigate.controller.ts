@@ -95,9 +95,8 @@ export class InvestigateController {
       );
       const osmData = parseElements(latitude, longitude, overpassElements);
 
-      // 5. Decoupled Sub-400ms Forensic Synthesis
-      // Generate instant grounded debrief in 0ms so proximity grid and panel render under 400ms
-      const instantAiReport = GeminiService.generateDeterministicFallback({
+      // 5. Gemma 4 Forensic Synthesis
+      const aiReport = await GeminiService.generateDebrief({
         address,
         environment: airQuality,
         infrastructure: {

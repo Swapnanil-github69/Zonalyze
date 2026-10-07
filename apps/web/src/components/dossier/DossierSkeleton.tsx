@@ -18,7 +18,7 @@ export const DossierSkeleton: React.FC<DossierSkeletonProps> = ({ stage, lat, ln
       case "computing_heuristics":
         return "Executing Haversine matrix & acoustic attenuation proxy...";
       case "synthesizing_ai":
-        return "Google Gemini synthesizing forensic debrief & inspection targets...";
+        return "Gemma synthesizing forensic debrief & inspection targets...";
       default:
         return "Streaming geospatial telemetry pipeline...";
     }

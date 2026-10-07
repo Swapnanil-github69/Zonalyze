@@ -3,7 +3,7 @@
 **Product Name:** Zonalyze  
 **Tagline:** Objective Location Intelligence and Grounded Environmental Risk Debriefs  
 **Architecture:** Monorepo (`apps/api` for Node/Express/TS, `apps/web` for React/Vite/TS)  
-**Cost Model:** ₹0 / Free-tier only (Zero Mapbox keys, open tiles, Open-Meteo, Nominatim, Overpass, MongoDB Atlas M0, Google Gemini API)
+**Cost Model:** ₹0 / Free-tier only (Zero Mapbox keys, open tiles, Open-Meteo, Nominatim, Overpass, MongoDB Atlas M0, Google Gemma AI)
 
 ---
 
@@ -22,7 +22,7 @@ Zonalyze is intentionally engineered to require **only ONE external API key** an
 
 | Service | Key / Credential | Required For | Cost / Tier | Where to Retrieve |
 | :--- | :--- | :--- | :--- | :--- |
-| **Google Gemini API** | `GEMINI_API_KEY` | Backend AI forensic debrief synthesis (`gemini-2.5-flash` or `gemini-1.5-flash`) | **Free Tier** | [Google AI Studio](https://aistudio.google.com/app/apikey) |
+| **Google Gemma 4 API** | `GEMINI_API_KEY` | Backend AI forensic debrief synthesis (`Gemma 4` / Google AI backend) | **Free Tier** | [Google AI Studio](https://aistudio.google.com/app/apikey) |
 | **MongoDB Atlas** | `MONGODB_URI` | Database persistence, 2dsphere caching, 7-day TTL | **Free (M0 Sandbox)** | [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) |
 | **Open-Meteo API** | *None (Keyless)* | Real-time & 72h historical PM2.5, PM10, AQI | **Free Public API** | Direct endpoint: `https://air-quality-api.open-meteo.com/v1/air-quality` |
 | **OSM Nominatim** | *None (Keyless)* | Reverse geocoding lat/lon to human address | **Free Public API** | Requires custom `User-Agent` header (`Zonalyze-Location-Auditor/1.0`) |
@@ -44,7 +44,7 @@ With 4 contributors on the team, work is divided across clear interface boundari
 | Contributor 1: Backend Lead        | • Orchestration Controller (`apps/api/src/controllers/`)     |
 | (You)                              | • Ingestion Services (Nominatim, Open-Meteo, Overpass)      |
 |                                    | • Heuristics Engine (Haversine & Noise proxy math)          |
-|                                    | • Gemini Structured Output Debrief Integration               |
+|                                    | • Gemma Structured Output Debrief Integration               |
 +------------------------------------+-------------------------------------------------------------+
 | Contributor 2: Database Engineer   | • MongoDB Atlas Cluster setup & connection lifecycle         |
 |                                    | • Mongoose Schema (`apps/api/src/models/Investigation.ts`)  |
@@ -75,7 +75,7 @@ sequenceDiagram
     participant API as Backend (apps/api)
     participant DB as MongoDB Atlas (2dsphere)
     participant Ext as External APIs (Nominatim/Open-Meteo/Overpass)
-    participant AI as Google Gemini (Structured Schema)
+    participant AI as Google Gemma 4 (Structured Schema)
 
     User->>Web: Drops pin or clicks on MapLibre GL
     Web->>API: POST /api/investigate { latitude, longitude }
@@ -100,7 +100,7 @@ sequenceDiagram
             API->>API: Assign bracket: Elevated / Moderate / Low
         end
 
-        API->>AI: Send verified JSON to Gemini with strict schema prompt
+        API->>AI: Send verified JSON to Gemma with strict schema prompt
         AI-->>API: Returns forensic report: summary, empirical observations, inspection targets
         
         API->>DB: Insert new Investigation document (2dsphere + 7d TTL)

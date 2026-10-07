@@ -46,7 +46,7 @@ export const ForensicReportCard: React.FC<ForensicReportCardProps> = ({
             <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
               AI Forensic Debrief
             </h3>
-            <span className="text-[10px] text-slate-400">Gemini Grounded Telemetry Synthesis</span>
+            <span className="text-[10px] text-slate-400">Gemma Grounded Telemetry Synthesis</span>
           </div>
         </div>
         <span className="text-[10px] font-mono text-indigo-300 bg-indigo-500/15 px-2 py-0.5 rounded-full border border-indigo-500/30 flex items-center space-x-1">
