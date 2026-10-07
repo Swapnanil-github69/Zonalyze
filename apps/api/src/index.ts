@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import investigateRoutes from "./routes/investigateRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import auditRoutes from "./routes/auditRoutes.js";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api", investigateRoutes);
 app.use("/api", chatRoutes);
+app.use("/api", auditRoutes);
 
 app.get("/", (_req, res) => {
   res.status(200).json({
@@ -29,6 +31,7 @@ app.get("/api", (_req, res) => {
       health: "/api/health",
       investigate: "/api/investigate",
       chat: "/api/chat",
+      geocode: "/api/geocode",
     },
   });
 });

@@ -485,6 +485,52 @@ export async function investigateCoordinates(
   }
 }
 
+export interface GeocodeResult {
+  displayName: string;
+  lat: number;
+  lon: number;
+}
+
+export async function forwardGeocode(query: string): Promise<GeocodeResult[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  try {
+    const response = await apiClient.get<{ success: boolean; results: GeocodeResult[] }>(
+      `/geocode?q=${encodeURIComponent(trimmed)}`
+    );
+    if (response.data?.success && Array.isArray(response.data.results)) {
+      return response.data.results;
+    }
+  } catch (err: any) {
+    console.warn("Backend geocoding request failed, falling back to client fetch:", err?.message || err);
+  }
+
+  // Resilient fallback directly to Nominatim
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=jsonv2&limit=5&addressdetails=1`;
+    const res = await fetch(url, {
+      headers: {
+        "Accept": "application/json",
+      },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        return data.map((item: any) => ({
+          displayName: item.display_name,
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon),
+        }));
+      }
+    }
+  } catch (clientErr: any) {
+    console.error("Client geocoding fallback failed:", clientErr);
+  }
+
+  return [];
+}
+
 export async function askLocationAi(
   question: string,
   investigation: InvestigationResult,
