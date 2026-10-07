@@ -19,16 +19,19 @@ export async function connectDB(): Promise<void> {
       return;
     }
 
-    console.log("Connecting to MongoDB Atlas...");
-    await mongoose.connect(config.mongoUri);
+    console.log("Connecting to MongoDB Atlas in background...");
+    await mongoose.connect(config.mongoUri, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
+    });
     console.log("✅ MongoDB connection established successfully.");
 
-    // Ensure collection and 2dsphere / TTL indexes exist in the database
-    await Investigation.createCollection();
-    await Investigation.syncIndexes();
-    console.log("✅ 'investigations' collection and indexes verified in MongoDB Atlas.");
-  } catch (error) {
-    console.error("❌ MongoDB connection error:", error);
+    // Sync indexes asynchronously in the background so it never blocks startup
+    Investigation.syncIndexes().catch((err) => {
+      console.warn("Non-fatal index sync note:", err?.message || err);
+    });
+  } catch (error: any) {
+    console.error("❌ MongoDB connection error:", error?.message || error);
     // In dev mode, do not crash immediately so other endpoints/mock modes can function
     if (config.nodeEnv === "production") {
       process.exit(1);

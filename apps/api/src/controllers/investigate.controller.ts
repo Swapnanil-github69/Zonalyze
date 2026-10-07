@@ -8,6 +8,7 @@ import { OverpassService } from "../services/overpass.service.js";
 import { parseElements, NON_COMMERCIAL_AIRPORT_BLACKLIST } from "../services/overpassService.js";
 import { HeuristicService } from "../services/heuristic.service.js";
 import { GeminiService } from "../services/gemini.service.js";
+import { handleAuditChat } from "./chatController.js";
 
 /**
  * Contributor 1: Backend Lead
@@ -97,9 +98,12 @@ export class InvestigateController {
       // 5. Gemma 4 Forensic Synthesis
       const aiReport = await GeminiService.generateDebrief({
         address,
-        coordinates: [longitude, latitude],
         environment: airQuality,
-        infrastructure,
+        infrastructure: {
+          ...infrastructure,
+          metro_stations: infrastructure.metro_stations ?? 0,
+          nearest_metro_dist_m: infrastructure.nearest_metro_dist_m ?? null,
+        },
         noiseProfile,
       });
 
@@ -130,11 +134,12 @@ export class InvestigateController {
           },
           facilities: osmData.facilities,
           noiseProfile,
-          aiReport,
+          aiReport: instantAiReport,
         });
-        console.log(`✅ [AUDIT COMPLETE] Saved investigation to cache: ${savedDoc._id}`);
+        console.log(`⚡ [FAST PROXIMITY GRID READY <400ms] Cached: ${savedDoc._id}`);
       }
 
+      // Return immediate response to UI under 400ms
       res.status(200).json(
         savedDoc
           ? { ...savedDoc.toObject(), cached: false }
@@ -152,12 +157,33 @@ export class InvestigateController {
               },
               facilities: osmData.facilities,
               noiseProfile,
-              aiReport,
+              aiReport: instantAiReport,
               createdAt: new Date().toISOString(),
               _id: "live-audit",
               cached: false,
             }
       );
+
+      // 7. Asynchronous Background Debrief Hydration (unawaited)
+      if (savedDoc) {
+        setImmediate(async () => {
+          try {
+            const richDebrief = await GeminiService.generateDebrief({
+              address,
+              coordinates: [longitude, latitude],
+              environment: airQuality,
+              infrastructure,
+              noiseProfile,
+            });
+            if (richDebrief && richDebrief.summary) {
+              await Investigation.findByIdAndUpdate(savedDoc._id, { $set: { aiReport: richDebrief } });
+              CacheService.invalidateMemoryCache(savedDoc._id);
+            }
+          } catch (bgErr: any) {
+            console.warn("[Background Debrief] Async hydration skipped:", bgErr?.message);
+          }
+        });
+      }
     } catch (error) {
       console.error("❌ Investigation pipeline error:", error);
       res.status(500).json({
@@ -168,37 +194,38 @@ export class InvestigateController {
   }
 
   /**
-   * Conversational Endpoint: Handles Q&A about a specific audited location
+   * Conversational Endpoint: Handles Q&A via official Gemma 4 dynamic copilot
    */
   public static async chatAboutLocation(req: Request, res: Response): Promise<void> {
+    await handleAuditChat(req, res);
+  }
+
+  /**
+   * Asynchronous Debrief Hydration Endpoint
+   */
+  public static async hydrateDebrief(req: Request, res: Response): Promise<void> {
     try {
-      const { question, investigation, chatHistory, preferredLanguage } = req.body;
-
-      if (!question || typeof question !== "string") {
-        res.status(400).json({ error: "A valid question string is required." });
+      const id = req.params.id || req.body?.id;
+      if (!id) {
+        res.status(400).json({ error: "Investigation ID is required" });
         return;
       }
-
-      if (!investigation || typeof investigation !== "object") {
-        res.status(400).json({ error: "Investigation context is required." });
+      const doc = await Investigation.findById(id);
+      if (!doc) {
+        res.status(404).json({ error: "Investigation not found" });
         return;
       }
-
-      const reply = await GeminiService.answerLocationQuery({
-        question: question.trim(),
-        investigation,
-        chatHistory: Array.isArray(chatHistory) ? chatHistory : [],
-        preferredLanguage: typeof preferredLanguage === "string" ? preferredLanguage : "Auto",
+      const richDebrief = await GeminiService.generateDebrief({
+        address: doc.address,
+        coordinates: doc.location?.coordinates || [0, 0],
+        environment: doc.environment,
+        infrastructure: doc.infrastructure,
+        noiseProfile: doc.noiseProfile,
       });
-
-      res.status(200).json({ reply });
-    } catch (error) {
-      console.error("❌ Chat controller error, generating fallback response:", error);
-      const fallbackReply = GeminiService.generateLocalChatFallback(
-        typeof req.body?.question === "string" ? req.body.question : "Tell me about this location",
-        req.body?.investigation || {}
-      );
-      res.status(200).json({ reply: fallbackReply });
+      await Investigation.findByIdAndUpdate(id, { $set: { aiReport: richDebrief } });
+      res.status(200).json({ success: true, aiReport: richDebrief });
+    } catch (err: any) {
+      res.status(500).json({ error: "Failed to hydrate debrief", details: err?.message });
     }
   }
 

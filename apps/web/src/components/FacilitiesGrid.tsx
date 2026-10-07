@@ -1,5 +1,5 @@
 import React from "react";
-import { Train, Bus, Plane } from "lucide-react";
+import { Train, Bus, Plane, HeartPulse } from "lucide-react";
 import { DetailedFacilities } from "../types/investigation";
 
 import {
@@ -16,12 +16,100 @@ export interface FacilitiesGridProps {
     dist: number | null,
     type: string
   ) => void;
+  showHospital?: boolean;
 }
+
+export interface HospitalCardProps {
+  hospital: DetailedFacilities["essentials"]["hospitals"];
+  selectedFacilityName?: string | null;
+  onSelectFacility?: (
+    name: string | null | undefined,
+    coords: [number, number] | undefined,
+    dist: number | null,
+    type: string
+  ) => void;
+}
+
+export const HospitalCard: React.FC<HospitalCardProps> = ({
+  hospital,
+  selectedFacilityName,
+  onSelectFacility,
+}) => {
+  const formatDistance = (meters: number | null | undefined): string => {
+    if (meters === null || meters === undefined) return "None detected";
+    if (meters >= 1000) return `${(meters / 1000).toFixed(1)} km`;
+    return `${Math.round(meters)}m`;
+  };
+
+  const isSelected = (name?: string | null) => {
+    return (
+      selectedFacilityName &&
+      name &&
+      selectedFacilityName.toLowerCase() === name.toLowerCase()
+    );
+  };
+
+  const handleCardClick = () => {
+    if (!hospital?.coordinates || !onSelectFacility || hospital.nearest_dist_m === null) return;
+    onSelectFacility(
+      hospital.name || "Hospital",
+      hospital.coordinates,
+      hospital.nearest_dist_m,
+      "hospital"
+    );
+  };
+
+  const displayName =
+    hospital?.name ||
+    (hospital?.count && hospital.count > 0
+      ? "Local Medical Facility"
+      : "Closest Regional Hospital");
+  const hasLocal = (hospital?.count || 0) > 0;
+
+  return (
+    <div
+      onClick={handleCardClick}
+      className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
+        isSelected(displayName)
+          ? "bg-rose-950/50 border-rose-400 ring-1 ring-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.3)]"
+          : "bg-slate-900/80 border-slate-800 hover:border-rose-500/50 hover:bg-slate-800/80"
+      } ${hospital?.nearest_dist_m === null ? "opacity-70 cursor-default" : ""}`}
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-slate-300 font-medium group-hover:text-rose-300 transition">
+          Hospitals
+        </span>
+        <HeartPulse className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition" />
+      </div>
+      <div className="mt-2">
+        <div className="text-sm font-bold text-white font-mono">
+          {formatDistance(hospital?.nearest_dist_m)}
+        </div>
+        {displayName && (
+          <div
+            className="text-[10px] text-rose-300 font-medium truncate mt-0.5"
+            title={displayName}
+          >
+            {displayName}
+          </div>
+        )}
+        <div className="text-[10px] text-slate-400 mt-0.5">
+          {hasLocal
+            ? `${hospital.count} medical center${hospital.count !== 1 ? "s" : ""} in corridor`
+            : hospital?.nearest_dist_m !== null
+            ? "Closest medical facility"
+            : "No medical facility detected"}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
   detailed,
   selectedFacilityName,
   onSelectFacility,
+  showHospital = false,
 }) => {
   const formatDistance = (meters: number | null | undefined): string => {
     if (meters === null || meters === undefined) return "None detected";
@@ -74,7 +162,7 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+    <div className={`grid ${showHospital ? "grid-cols-2 sm:grid-cols-5" : "grid-cols-2 sm:grid-cols-4"} gap-2`}>
       {/* Metro Card */}
       <div
         onClick={() =>
@@ -244,6 +332,15 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Optional Hospital Card */}
+      {showHospital && detailed.essentials?.hospitals && (
+        <HospitalCard
+          hospital={detailed.essentials.hospitals}
+          selectedFacilityName={selectedFacilityName}
+          onSelectFacility={onSelectFacility}
+        />
+      )}
     </div>
   );
 };

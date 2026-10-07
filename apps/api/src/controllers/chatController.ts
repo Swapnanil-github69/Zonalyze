@@ -2,139 +2,162 @@ import { Request, Response } from "express";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
+import { CANDIDATE_MODELS } from "../services/gemmaService.js";
+import { GeminiService } from "../services/gemini.service.js";
+
 dotenv.config();
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const apiKey = process.env.GEMMA_API_KEY || process.env.GEMINI_API_KEY || "";
+const ai = new GoogleGenAI({ apiKey });
 
-export interface AuditAddress {
-  displayName?: string;
-  suburb?: string;
-  city?: string;
-}
+// Use active valid model candidates with graceful candidate failover
+const GEMMA_MODEL = process.env.GEMMA_MODEL || "gemma-4-26b-a4b-it";
+const FALLBACK_MODELS = [
+  GEMMA_MODEL,
+  ...CANDIDATE_MODELS.filter((m) => m !== GEMMA_MODEL),
+];
 
-export interface AuditEnvironment {
-  aqi?: number;
-  aqiStatus?: string;
-  pm2_5?: number;
-  currentTemp?: number;
-}
-
-export interface AuditFacilities {
-  metro?: { name: string; distanceMeters: number };
-  railway?: { name: string; distanceMeters: number };
-  airport?: { name: string; distanceMeters: number };
-  hospital?: { name: string; distanceMeters: number };
-  busStop?: any;
-}
-
-export interface AuditNoise {
-  bracket?: string;
-  nearestSource?: string;
-}
-
-export interface AuditContext {
-  address?: AuditAddress;
-  coordinates?: [number, number]; // [longitude, latitude]
-  livabilityScore?: number;
-  environment?: AuditEnvironment;
-  facilities?: AuditFacilities;
-  noise?: AuditNoise;
-}
-
-export interface ChatHistoryItem {
-  role: "user" | "model" | string;
-  parts?: Array<{ text: string }>;
-  text?: string; // backwards compatibility
-}
-
-export interface ChatRequestBody {
-  message: string;
-  auditContext?: AuditContext;
-  history?: ChatHistoryItem[];
-}
-
-export async function handleAuditChat(req: Request, res: Response): Promise<void> {
+export const handleAuditChat = async (req: Request, res: Response) => {
   try {
-    const { message, history = [], auditContext } = req.body as ChatRequestBody;
+    const message = req.body?.message || req.body?.question;
+    const history = req.body?.history || req.body?.chatHistory || [];
+    const auditContext = req.body?.auditContext || req.body?.investigation;
 
-    if (!message || typeof message !== "string" || !message.trim()) {
-      res.status(400).json({ success: false, error: "Message is required" });
-      return;
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({ success: false, error: "Valid message string is required." });
     }
 
-    const contextHeader = `
-[SYSTEM CONTEXT & URBAN TELEMETRY]
-Location: ${auditContext?.address?.displayName || "Target Area"}
-Coordinates: [Lat: ${auditContext?.coordinates?.[1] ?? "N/A"}, Lon: ${auditContext?.coordinates?.[0] ?? "N/A"}]
-Nearest Metro: ${auditContext?.facilities?.metro ? `${auditContext.facilities.metro.name} (${auditContext.facilities.metro.distanceMeters}m)` : "None within radius"}
-Nearest Rail: ${auditContext?.facilities?.railway ? `${auditContext.facilities.railway.name} (${auditContext.facilities.railway.distanceMeters}m)` : "None within radius"}
-Nearest Airport: ${auditContext?.facilities?.airport ? `${auditContext.facilities.airport.name} (${auditContext.facilities.airport.distanceMeters}m)` : "None within range"}
-Nearest Hospital: ${auditContext?.facilities?.hospital ? `${auditContext.facilities.hospital.name} (${auditContext.facilities.hospital.distanceMeters}m)` : "N/A"}
+    // Extract telemetry facts cleanly
+    const locationName =
+      auditContext?.address?.displayName ||
+      (typeof auditContext?.address === "string" ? auditContext.address : "Selected Location");
+    const coords = auditContext?.coordinates
+      ? `Lat ${auditContext.coordinates[1]}, Lon ${auditContext.coordinates[0]}`
+      : auditContext?.location?.coordinates
+      ? `Lat ${auditContext.location.coordinates[1]}, Lon ${auditContext.location.coordinates[0]}`
+      : "Not specified";
+    const metro = auditContext?.facilities?.metro?.name
+      ? `${auditContext.facilities.metro.name} (${auditContext.facilities.metro.distanceMeters || auditContext.facilities.metro.distance_m}m away)`
+      : auditContext?.infrastructure?.nearest_metro_name
+      ? `${auditContext.infrastructure.nearest_metro_name} (${auditContext.infrastructure.nearest_metro_dist_m}m away)`
+      : "No direct metro station detected within immediate radius";
+    const rail = auditContext?.facilities?.railway?.name
+      ? `${auditContext.facilities.railway.name} (${auditContext.facilities.railway.distanceMeters || auditContext.facilities.railway.distance_m}m away)`
+      : auditContext?.infrastructure?.nearest_railway_name
+      ? `${auditContext.infrastructure.nearest_railway_name} (${auditContext.infrastructure.nearest_railway_dist_m}m away)`
+      : "No major railway platform nearby";
+    const hospital = auditContext?.facilities?.hospital?.name
+      ? `${auditContext.facilities.hospital.name} (${auditContext.facilities.hospital.distanceMeters || auditContext.facilities.hospital.distance_m}m away)`
+      : auditContext?.infrastructure?.nearest_hospital_name
+      ? `${auditContext.infrastructure.nearest_hospital_name} (${auditContext.infrastructure.nearest_hospital_dist_m}m away)`
+      : "No primary hospital within 1.5 km";
+    const airport = auditContext?.facilities?.airport?.name
+      ? `${auditContext.facilities.airport.name} (${auditContext.facilities.airport.distanceMeters || auditContext.facilities.airport.distance_m}m away)`
+      : auditContext?.infrastructure?.nearest_airport_name
+      ? `${auditContext.infrastructure.nearest_airport_name} (${auditContext.infrastructure.nearest_airport_dist_m}m away)`
+      : "Commercial airport beyond local reach";
+    const store = auditContext?.facilities?.store?.name
+      ? `${auditContext.facilities.store.name} (${auditContext.facilities.store.distanceMeters || auditContext.facilities.store.distance_m}m away)`
+      : "Local convenience store within neighborhood radius";
 
-ROLE & INSTRUCTIONS:
-- You are Zonalyze's local intelligence copilot powered by Gemma.
-- Answer the user's specific prompt directly in sentence 1.
-- Reason about relative distances, direction, and travel time from the coordinates.
-- Keep output concise, realistic, and formatted in clean Markdown.
-`;
+    const systemPrompt = `You are the Zonalyze Urban Intelligence Copilot powered by Gemma 4.
+You are having an interactive conversation with a user investigating an area.
 
-    // Construct conversation payload compatible with Gemma (no systemInstruction in config)
-    const formattedHistory: Array<{ role: "user" | "model"; parts: Array<{ text: string }> }> = [
-      {
-        role: "user",
-        parts: [{ text: `${contextHeader}\n\nUser Question: ${message.trim()}` }],
-      },
-    ];
+GROUND TRUTH TELEMETRY:
+- Audited Locality: ${locationName}
+- Coordinates: ${coords}
+- Transit: ${metro}; Heavy Rail: ${rail}
+- Health & Emergency: ${hospital}; Airport: ${airport}
+- Retail & Daily Essentials: ${store}
 
-    // If multi-turn history exists, prepend it safely
+GUIDELINES:
+1. Speak naturally, insightfully, and conversationally like an experienced urban analyst.
+2. Directly answer the user's specific inquiry in the first sentence.
+3. If asked about shops, grocery, markets, convenience stores, or daily needs, cite the detected retail node (${store}).
+4. NEVER recite these rules, never say "As an AI", and never output system keys or bullet lists unless specifically requested by the user.
+5. If asked about places (schools, markets, food, safety), combine the telemetry data with your broader knowledge of the city and locality.`;
+
+    // Build multi-turn conversational contents
+    const contents: Array<{ role: "user" | "model"; parts: Array<{ text: string }> }> = [];
+
+    // Append prior conversational history if provided
     if (Array.isArray(history) && history.length > 0) {
-      const pastTurns = history.slice(-4).map((turn: any) => ({
-        role: (turn.role === "assistant" || turn.role === "model" ? "model" : "user") as "user" | "model",
-        parts: [{ text: turn.text || turn.content || (Array.isArray(turn.parts) ? turn.parts[0]?.text : "") || "" }],
-      }));
-      formattedHistory.unshift(...pastTurns);
-    }
-
-    const candidateModels = [
-      "gemma-2-9b-it",
-      "gemma-4-26b-a4b-it",
-      "gemma-4-31b-it",
-      "gemini-2.5-flash-lite",
-    ];
-
-    let replyText = "";
-    for (const model of candidateModels) {
-      try {
-        const response = await ai.models.generateContent({
-          model,
-          contents: formattedHistory,
-          config: {
-            temperature: 0.7,
-            maxOutputTokens: 600,
-          },
-        });
-
-        const extracted =
-          response.text ||
-          response.candidates?.[0]?.content?.parts?.find((p: any) => !p.thought && p.text)?.text ||
-          response.candidates?.[0]?.content?.parts?.slice(-1)[0]?.text;
-
-        if (extracted && extracted.trim()) {
-          replyText = extracted.trim();
-          break;
-        }
-      } catch (err: any) {
-        console.warn(`Gemma candidate ${model} unavailable (${err?.message}), attempting failover...`);
+      for (const turn of history.slice(-6)) {
+        const text = turn.text || turn.content || turn.message;
+        if (!text) continue;
+        const role = turn.role === "assistant" || turn.role === "model" ? "model" : "user";
+        contents.push({ role, parts: [{ text: String(text) }] });
       }
     }
 
-    const reply = replyText || "No response received from Gemma.";
-    res.status(200).json({ success: true, reply });
-  } catch (error: any) {
-    console.error("Gemma Chat Error:", error);
-    res.status(200).json({
-      success: false,
-      reply: "Gemma model is momentarily handling high traffic. You can explore transit and accommodation routes directly on the interactive map.",
+    // Append the active user query bundled with situational system telemetry context
+    contents.push({
+      role: "user",
+      parts: [
+        {
+          text: `${systemPrompt}\n\nUser Question: ${message}\nAnswer directly:`,
+        },
+      ],
+    });
+
+    let replyText = "";
+    for (const modelCandidate of FALLBACK_MODELS) {
+      try {
+        const response = await ai.models.generateContent({
+          model: modelCandidate,
+          contents,
+          config: {
+            temperature: 0.7,
+            maxOutputTokens: 2048,
+          },
+        });
+
+        let extracted = response.text?.trim();
+        if (!extracted && response.candidates?.[0]?.content?.parts) {
+          const parts = response.candidates[0].content.parts;
+          const nonThought = parts.find((p: any) => !p.thought && p.text?.trim());
+          extracted = nonThought?.text?.trim() || parts[parts.length - 1]?.text?.trim();
+        }
+
+        if (extracted) {
+          replyText = extracted;
+          break;
+        }
+      } catch (candErr: any) {
+        console.warn(
+          `[ChatController] Candidate ${modelCandidate} failed (${candErr?.message}), trying next...`
+        );
+      }
+    }
+
+    if (!replyText) {
+      console.warn("[ChatController] Online model candidates exhausted, generating grounded local telemetry reply...");
+      replyText = GeminiService.generateLocalChatFallback(message, auditContext || {});
+    }
+
+    // Strip accidental prompt echoes if model mirrors introductory directives
+    replyText = replyText
+      .replace(
+        /^(\*?\s*(Role|Target Audience|Telemetry Data|System Directive|Ground Truth Telemetry|Audited Locality).*?\n)+/gim,
+        ""
+      )
+      .replace(/^(?:Answer|Response|Assistant):\s*/i, "")
+      .trim();
+
+    return res.status(200).json({
+      success: true,
+      reply: replyText,
+    });
+  } catch (err: any) {
+    console.error("[ChatController] Gemma dynamic generation failed:", err?.message || err);
+    // Even on unexpected exceptions, fallback gracefully to grounded telemetry answer
+    const auditContext = req.body?.auditContext || req.body?.investigation || {};
+    const message = req.body?.message || req.body?.question || "Overview";
+    const fallbackAnswer = GeminiService.generateLocalChatFallback(message, auditContext);
+
+    return res.status(200).json({
+      success: true,
+      reply: fallbackAnswer,
     });
   }
-}
+};

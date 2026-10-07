@@ -14,13 +14,22 @@ export class OverpassService {
     "https://overpass-api.de/api/interpreter",
   ];
 
+  private static readonly memoryCache = new Map<string, { timestamp: number; elements: OverpassElement[] }>();
+  private static readonly CACHE_TTL_MS = 15 * 60 * 1000; // 15 mins
+
   public static async queryInfrastructure(
     lat: number,
     lon: number
   ): Promise<OverpassElement[]> {
+    const cacheKey = `${lat.toFixed(3)},${lon.toFixed(3)}`;
+    const cached = this.memoryCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL_MS) {
+      return cached.elements;
+    }
+
     const query = buildPanIndiaOverpassQuery(lat, lon);
 
-    // Race fast mirrors concurrently with a 9000ms timeout
+    // Race fast mirrors concurrently with an aggressive 3500ms network timeout
     const fetchFromEndpoint = async (endpoint: string): Promise<OverpassElement[]> => {
       const response = await axios.post<OverpassResponse>(
         endpoint,
@@ -33,7 +42,7 @@ export class OverpassService {
               "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
             Accept: "application/json",
           },
-          timeout: 9000,
+          timeout: 3500,
         }
       );
 
@@ -43,13 +52,32 @@ export class OverpassService {
       throw new Error("No elements in response");
     };
 
+    // Speculative race: if Overpass mirrors do not resolve within 300ms, start fast fallback
+    const overpassPromise = Promise.any(this.ENDPOINTS.map((ep) => fetchFromEndpoint(ep)))
+      .then((elements) => {
+        this.memoryCache.set(cacheKey, { timestamp: Date.now(), elements });
+        return elements;
+      });
+
+    const fallbackPromise = new Promise<OverpassElement[]>((resolve) => {
+      setTimeout(async () => {
+        try {
+          const fallbackElements = await this.fallbackWithNominatim(lat, lon);
+          this.memoryCache.set(cacheKey, { timestamp: Date.now(), elements: fallbackElements });
+          resolve(fallbackElements);
+        } catch {
+          // let overpass continue
+        }
+      }, 300);
+    });
+
     try {
-      // Whichever mirror responds first wins
-      const elements = await Promise.any(this.ENDPOINTS.map((ep) => fetchFromEndpoint(ep)));
-      return elements;
+      return await Promise.race([overpassPromise, fallbackPromise]);
     } catch {
-      console.warn("⚠️ Overpass mirrors busy/timed out within 9s, activating fast Nominatim fallback...");
-      return await this.fallbackWithNominatim(lat, lon);
+      console.warn("⚠️ Overpass mirrors busy/timed out, activating fast Nominatim fallback...");
+      const fallbackElements = await this.fallbackWithNominatim(lat, lon);
+      this.memoryCache.set(cacheKey, { timestamp: Date.now(), elements: fallbackElements });
+      return fallbackElements;
     }
   }
 
@@ -70,7 +98,7 @@ export class OverpassService {
           "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
       };
 
-      const [hospRes, clinicRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes] = await Promise.allSettled([
+      const [hospRes, clinicRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes, shopRes] = await Promise.allSettled([
         axios.get(`https://nominatim.openstreetmap.org/search?q=hospital&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=clinic&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=15&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
@@ -78,6 +106,7 @@ export class OverpassService {
         axios.get(`https://nominatim.openstreetmap.org/search?q=hotel&format=json&limit=12&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=guest+house&format=json&limit=6&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=supermarket+store+grocery&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
       ]);
 
       const elements: OverpassElement[] = [];
@@ -178,6 +207,26 @@ export class OverpassService {
             lat: parseFloat(item.lat),
             lon: parseFloat(item.lon),
             tags: { leisure: "park", name: item.display_name?.split(",")[0] || "Park" },
+          });
+        }
+      }
+
+      if (shopRes.status === "fulfilled" && Array.isArray(shopRes.value.data)) {
+        for (const item of shopRes.value.data) {
+          const rawName = (item.name || item.display_name?.split(",")[0] || "").trim();
+          const osmId = Number(item.osm_id) || Math.floor(Math.random() * 100000);
+          if (seenOsmIds.has(osmId)) continue;
+          seenOsmIds.add(osmId);
+
+          elements.push({
+            type: "node",
+            id: osmId,
+            lat: parseFloat(item.lat),
+            lon: parseFloat(item.lon),
+            tags: {
+              shop: "supermarket",
+              name: rawName || "Local Grocery & Store",
+            },
           });
         }
       }

@@ -170,7 +170,9 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
                 <div className="text-base font-bold text-white font-mono">
                   {detailed.essentials.hospitals.count}
                 </div>
-                <div className="text-[10px] text-slate-400">Hospitals / Clinics</div>
+                <div className="text-[10px] text-slate-400">
+                  {detailed.essentials.hospitals.count > 0 ? "Hospitals / Clinics" : "No clinics in 1.2km"}
+                </div>
               </div>
               <div className="mt-1">
                 <div className="text-[10px] text-rose-400 font-mono font-semibold">

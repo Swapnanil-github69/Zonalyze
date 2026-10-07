@@ -116,6 +116,8 @@ export interface FacilitiesEntity {
   distanceMeters: number;
   coordinates: [number, number]; // [lon, lat]
   routesCount?: number;
+  type?: string;
+  count?: number;
 }
 
 export interface FacilitiesData {
@@ -123,6 +125,11 @@ export interface FacilitiesData {
   railway: FacilitiesEntity | null;
   busStop: FacilitiesEntity | null;
   hospital: FacilitiesEntity | null;
+  health?: {
+    count: number;
+    nearest: FacilitiesEntity | null;
+    facilities: FacilitiesEntity[];
+  };
   store: FacilitiesEntity | null;
   park: FacilitiesEntity | null;
   airport: FacilitiesEntity | null;
