@@ -20,14 +20,14 @@
 
 Zonalyze is intentionally engineered to require **only ONE external API key** and **ONE database connection string**. All geospatial, transit, and weather APIs are 100% keyless.
 
-| Service | Key / Credential | Required For | Cost / Tier | Where to Retrieve |
-| :--- | :--- | :--- | :--- | :--- |
-| **Google Gemma 4 API** | `GEMINI_API_KEY` | Backend AI forensic debrief synthesis (`Gemma 4` / Google AI backend) | **Free Tier** | [Google AI Studio](https://aistudio.google.com/app/apikey) |
-| **MongoDB Atlas** | `MONGODB_URI` | Database persistence, 2dsphere caching, 7-day TTL | **Free (M0 Sandbox)** | [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) |
-| **Open-Meteo API** | *None (Keyless)* | Real-time & 72h historical PM2.5, PM10, AQI | **Free Public API** | Direct endpoint: `https://air-quality-api.open-meteo.com/v1/air-quality` |
-| **OSM Nominatim** | *None (Keyless)* | Reverse geocoding lat/lon to human address | **Free Public API** | Requires custom `User-Agent` header (`Zonalyze-Location-Auditor/1.0`) |
-| **OSM Overpass API** | *None (Keyless)* | 3000m batch infrastructure queries | **Free Public API** | Public interpreter: `https://overpass-api.de/api/interpreter` |
-| **MapLibre Basemaps** | *None (Keyless)* | Carto Voyager vector style tiles | **Free Open Style** | Style URL: `https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json` |
+| Service                | Key / Credential | Required For                                                          | Cost / Tier           | Where to Retrieve                                                         |
+| :--------------------- | :--------------- | :-------------------------------------------------------------------- | :-------------------- | :------------------------------------------------------------------------ |
+| **Google Gemma 4 API** | `GEMINI_API_KEY` | Backend AI forensic debrief synthesis (`Gemma 4` / Google AI backend) | **Free Tier**         | [Google AI Studio](https://aistudio.google.com/app/apikey)                |
+| **MongoDB Atlas**      | `MONGODB_URI`    | Database persistence, 2dsphere caching, 7-day TTL                     | **Free (M0 Sandbox)** | [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)                      |
+| **Open-Meteo API**     | _None (Keyless)_ | Real-time & 72h historical PM2.5, PM10, AQI                           | **Free Public API**   | Direct endpoint: `https://air-quality-api.open-meteo.com/v1/air-quality`  |
+| **OSM Nominatim**      | _None (Keyless)_ | Reverse geocoding lat/lon to human address                            | **Free Public API**   | Requires custom `User-Agent` header (`Zonalyze-Location-Auditor/1.0`)     |
+| **OSM Overpass API**   | _None (Keyless)_ | 3000m batch infrastructure queries                                    | **Free Public API**   | Public interpreter: `https://overpass-api.de/api/interpreter`             |
+| **MapLibre Basemaps**  | _None (Keyless)_ | Carto Voyager vector style tiles                                      | **Free Open Style**   | Style URL: `https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json` |
 
 ---
 
@@ -80,7 +80,7 @@ sequenceDiagram
     User->>Web: Drops pin or clicks on MapLibre GL
     Web->>API: POST /api/investigate { latitude, longitude }
     API->>DB: Geospatial query: $near <= 150m & createdAt >= now - 7 days
-    
+
     alt Cache Hit (Found within 150m)
         DB-->>API: Return existing Investigation document
         API-->>Web: 200 OK { ...data, cached: true }
@@ -102,7 +102,7 @@ sequenceDiagram
 
         API->>AI: Send verified JSON to Gemma with strict schema prompt
         AI-->>API: Returns forensic report: summary, empirical observations, inspection targets
-        
+
         API->>DB: Insert new Investigation document (2dsphere + 7d TTL)
         API-->>Web: 200 OK { ...data, cached: false }
         Web->>User: Render full investigation dossier & sparklines
@@ -114,25 +114,28 @@ sequenceDiagram
 ## 5. Interface Contracts & Schemas
 
 ### 5.1. Client-Server API Contract
+
 **Endpoint:** `POST /api/investigate`  
 **Headers:** `Content-Type: application/json`
 
 #### Request Payload:
+
 ```json
 {
   "latitude": 28.6139,
-  "longitude": 77.2090
+  "longitude": 77.209
 }
 ```
 
 #### Response Payload (`200 OK`):
+
 ```json
 {
   "_id": "6701a5b8e9b1a40012345678",
   "cached": false,
   "location": {
     "type": "Point",
-    "coordinates": [77.2090, 28.6139]
+    "coordinates": [77.209, 28.6139]
   },
   "address": "Rajpath, Central Secretariat, New Delhi, Delhi, 110001, India",
   "environment": {
@@ -174,7 +177,9 @@ sequenceDiagram
 ---
 
 ### 5.2. Database Schema (`Investigation`)
+
 Implemented in `apps/api/src/models/Investigation.ts`:
+
 - **Geospatial Index:** `InvestigationSchema.index({ location: "2dsphere" })`
 - **TTL Index:** `createdAt: { type: Date, default: Date.now, expires: "7d" }`
 - **Coordinate Order:** `[longitude, latitude]` (Standard GeoJSON format)
@@ -182,6 +187,7 @@ Implemented in `apps/api/src/models/Investigation.ts`:
 ---
 
 ### 5.3. Noise Model Formulation
+
 The estimated acoustic proxy uses the distance attenuation law:
 $$L = L_0 - 20 \log_{10}\left(\frac{d}{d_0}\right)$$
 
@@ -251,11 +257,14 @@ Zonalyze/
 ## 7. Local Development Setup
 
 ### 7.1. Prerequisites
+
 - **Node.js** v18+ and **npm** v9+ (or pnpm/yarn)
 - **MongoDB Atlas** free account or local MongoDB instance
 
 ### 7.2. Environment Configuration
+
 Create `apps/api/.env`:
+
 ```env
 PORT=5000
 MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.mongodb.net/zonalyze?retryWrites=true&w=majority
@@ -264,6 +273,7 @@ CLIENT_URL=http://localhost:5173
 ```
 
 Create `apps/web/.env`:
+
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
