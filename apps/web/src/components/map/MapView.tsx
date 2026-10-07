@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { Compass, Globe, Moon, Sun, Crosshair, Radio } from "lucide-react";
 import { RouteResult } from "../../services/routeService";
 import { SelectedFacility } from "../dossier/InfrastructureCard";
@@ -171,29 +172,36 @@ export const MapView: React.FC<MapViewProps> = ({
     if (selectedFacility && selectedFacility.coordinates) {
       const [dLon, dLat] = selectedFacility.coordinates;
 
-      if (!destinationMarkerRef.current) {
-        const destEl = document.createElement("div");
-        destEl.className = "relative flex items-center justify-center cursor-pointer pointer-events-none";
-        destEl.innerHTML = `
-          <div class="relative flex flex-col items-center">
-            <div class="px-2.5 py-0.5 mb-1.5 rounded-full bg-slate-950/90 border border-emerald-400/90 text-[10px] font-mono font-bold text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.5)] whitespace-nowrap backdrop-blur-md flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>${selectedFacility.name}</span>
-            </div>
-            <div class="relative flex items-center justify-center w-10 h-10">
-              <div class="absolute h-9 w-9 rounded-full border border-emerald-400/60 bg-emerald-400/20 shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-ping"></div>
-              <div class="relative h-5 w-5 rounded-full border-2 border-white bg-gradient-to-tr from-emerald-500 to-teal-300 shadow-[0_0_15px_rgba(16,185,129,0.8)] flex items-center justify-center">
-                <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
-              </div>
-              <div class="absolute left-1/2 top-[calc(100%-0.3rem)] -translate-x-1/2 h-3.5 w-1.5 rounded-b-full bg-gradient-to-b from-teal-400 to-emerald-700 shadow-md"></div>
-            </div>
+      // Always remove prior destination marker so the label text and pin DOM are freshly re-rendered
+      if (destinationMarkerRef.current) {
+        destinationMarkerRef.current.remove();
+        destinationMarkerRef.current = null;
+      }
+
+      const destEl = document.createElement("div");
+      destEl.className = "cursor-pointer pointer-events-none";
+      destEl.innerHTML = `
+        <div class="relative flex flex-col items-center">
+          <div class="px-2.5 py-0.5 mb-1.5 rounded-full bg-slate-950/90 border border-emerald-400/90 text-[10px] font-mono font-bold text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.5)] whitespace-nowrap backdrop-blur-md flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>${selectedFacility.name}</span>
           </div>
-        `;
-        destinationMarkerRef.current = new maplibregl.Marker({ element: destEl, anchor: "bottom" })
-          .setLngLat([dLon, dLat])
-          .addTo(map);
-      } else {
-        destinationMarkerRef.current.setLngLat([dLon, dLat]);
+          <div class="relative flex items-center justify-center w-10 h-10">
+            <div class="absolute h-9 w-9 rounded-full border border-emerald-400/60 bg-emerald-400/20 shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-ping"></div>
+            <div class="relative h-5 w-5 rounded-full border-2 border-white bg-gradient-to-tr from-emerald-500 to-teal-300 shadow-[0_0_15px_rgba(16,185,129,0.8)] flex items-center justify-center">
+              <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+            </div>
+            <div class="absolute left-1/2 top-[calc(100%-0.3rem)] -translate-x-1/2 h-3.5 w-1.5 rounded-b-full bg-gradient-to-b from-teal-400 to-emerald-700 shadow-md"></div>
+          </div>
+        </div>
+      `;
+      destinationMarkerRef.current = new maplibregl.Marker({ element: destEl, anchor: "bottom" })
+        .setLngLat([dLon, dLat])
+        .addTo(map);
+    } else {
+      if (destinationMarkerRef.current) {
+        destinationMarkerRef.current.remove();
+        destinationMarkerRef.current = null;
       }
     }
 
@@ -399,9 +407,10 @@ export const MapView: React.FC<MapViewProps> = ({
     // Create or position the high-tech tactical animated marker
     if (!markerRef.current) {
       const el = document.createElement("div");
-      el.className = "relative flex flex-col items-center pointer-events-none select-none -translate-y-4";
+      el.className = "pointer-events-none select-none";
       el.innerHTML = `
-        <div class="px-2.5 py-1 mb-1 rounded-full bg-slate-950/90 border border-cyan-400/80 shadow-[0_0_20px_rgba(6,182,212,0.5)] backdrop-blur-md flex items-center gap-1.5 text-[10px] font-mono font-bold text-cyan-300">
+        <div class="relative flex flex-col items-center">
+          <div class="px-2.5 py-1 mb-1 rounded-full bg-slate-950/90 border border-cyan-400/80 shadow-[0_0_20px_rgba(6,182,212,0.5)] backdrop-blur-md flex items-center gap-1.5 text-[10px] font-mono font-bold text-cyan-300">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"></span>
           <span class="tracking-wider">AUDIT TARGET</span>
           <span class="text-slate-500">|</span>
@@ -416,7 +425,8 @@ export const MapView: React.FC<MapViewProps> = ({
           </div>
           <div class="absolute left-1/2 top-[calc(100%-0.55rem)] -translate-x-1/2 h-3.5 w-1.5 rounded-b-full bg-gradient-to-b from-cyan-400 to-blue-600 shadow-md"></div>
         </div>
-      `;
+      </div>
+    `;
 
       markerRef.current = new maplibregl.Marker({ element: el, anchor: "bottom" })
         .setLngLat([lng, lat])

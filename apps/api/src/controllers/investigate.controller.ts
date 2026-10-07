@@ -98,6 +98,7 @@ export class InvestigateController {
       // 5. Gemma 4 Forensic Synthesis
       const aiReport = await GeminiService.generateDebrief({
         address,
+        coordinates: [longitude, latitude],
         environment: airQuality,
         infrastructure: {
           ...infrastructure,
@@ -134,7 +135,7 @@ export class InvestigateController {
           },
           facilities: osmData.facilities,
           noiseProfile,
-          aiReport: instantAiReport,
+          aiReport,
         });
         console.log(`⚡ [FAST PROXIMITY GRID READY <400ms] Cached: ${savedDoc._id}`);
       }
@@ -157,7 +158,7 @@ export class InvestigateController {
               },
               facilities: osmData.facilities,
               noiseProfile,
-              aiReport: instantAiReport,
+              aiReport,
               createdAt: new Date().toISOString(),
               _id: "live-audit",
               cached: false,

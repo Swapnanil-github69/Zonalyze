@@ -35,8 +35,11 @@ async function runModelDiagnostic() {
       }
     }
 
+    console.log(`✅ FOUND ${allModels.length} TOTAL MODEL(S) ON THIS KEY:`);
+    allModels.forEach((name) => console.log(`   • ${name}`));
+    
     if (gemmaModels.length > 0) {
-      console.log(`✅ FOUND ${gemmaModels.length} GEMMA MODEL(S) ON THIS KEY:`);
+      console.log(`\n✅ FOUND ${gemmaModels.length} GEMMA MODEL(S) ON THIS KEY:`);
       gemmaModels.forEach((name) => console.log(`   • ${name}`));
 
       let testedSuccess = false;
@@ -55,14 +58,31 @@ async function runModelDiagnostic() {
           console.error(`⚠️ Generation test failed on ${target}:`, genErr.message);
         }
       }
+    }
 
-      if (!testedSuccess) {
-        console.log("\n⚠️ Could not get a response from the detected Gemma models.");
+    const candidatesToTest = [
+      "gemini-3.5-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+      "gemini-3.1-flash-lite-preview",
+      "gemini-flash-lite-latest",
+      "gemini-3.8-flash",
+      "gemini-3.7-flash",
+      "gemma-4-26b-a4b-it",
+    ];
+
+    console.log("\n🧪 TESTING CANDIDATE GENERATION:");
+    for (const cand of candidatesToTest) {
+      const t0 = Date.now();
+      try {
+        const res = await ai.models.generateContent({
+          model: cand,
+          contents: "Hello, answer in 3 words.",
+        });
+        console.log(`✅ [${cand}] SUCCESS in ${Date.now() - t0}ms: ${res.text?.trim()}`);
+      } catch (err: any) {
+        console.log(`❌ [${cand}] FAILED (${err.status || err.code || "ERR"}): ${err.message?.substring(0, 80)}`);
       }
-    } else {
-      console.log("⚠️ No Gemma-branded endpoints were returned for this API key.");
-      console.log("\nAvailable generation models on this key:");
-      allModels.slice(0, 15).forEach((name) => console.log(`   • ${name}`));
     }
   } catch (err: any) {
     console.error("❌ API request failed:", err.message || err);

@@ -1,7 +1,21 @@
-import { useState, useEffect, useCallback } from "react";
-import { LandingPage } from "./pages/LandingPage";
-import { InvestigationMapPage } from "./pages/InvestigationMapPage";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { LandingThemeProvider } from "./context/LandingThemeContext";
+
+const LandingPage = lazy(() =>
+  import("./pages/LandingPage").then((m) => ({ default: m.LandingPage }))
+);
+const InvestigationMapPage = lazy(() =>
+  import("./pages/InvestigationMapPage").then((m) => ({ default: m.InvestigationMapPage }))
+);
+
+const PageFallback = () => (
+  <div className="min-h-screen w-full bg-[#161b13] flex items-center justify-center text-[#e2ffcc]">
+    <div className="flex items-center gap-3 font-mono text-xs tracking-widest uppercase">
+      <div className="w-2.5 h-2.5 rounded-full bg-[#e2ffcc] animate-ping" />
+      <span>INITIALIZING ZONALYZE...</span>
+    </div>
+  </div>
+);
 
 export function App() {
   const getInitialView = (): "landing" | "investigate" => {
@@ -16,6 +30,14 @@ export function App() {
   };
 
   const [currentView, setCurrentView] = useState<"landing" | "investigate">(getInitialView);
+
+  // Background preload of the heavy map chunk after initial mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      import("./pages/InvestigationMapPage");
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Synchronize browser history and hash navigation
   useEffect(() => {
@@ -54,12 +76,18 @@ export function App() {
   }, []);
 
   if (currentView === "investigate") {
-    return <InvestigationMapPage onBackToHome={navigateToLanding} />;
+    return (
+      <Suspense fallback={<PageFallback />}>
+        <InvestigationMapPage onBackToHome={navigateToLanding} />
+      </Suspense>
+    );
   }
 
   return (
     <LandingThemeProvider>
-      <LandingPage onNavigateToInvestigation={navigateToInvestigation} />
+      <Suspense fallback={<PageFallback />}>
+        <LandingPage onNavigateToInvestigation={navigateToInvestigation} />
+      </Suspense>
     </LandingThemeProvider>
   );
 }

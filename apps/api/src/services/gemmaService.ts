@@ -4,13 +4,21 @@
  */
 
 // Active valid model candidates on Google AI Studio
-export const CANDIDATE_MODELS = [
+export const ACTIVE_MODELS = [
+  "gemini-flash-lite-latest",
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-3.5-flash",
+  "gemini-3.8-flash",
+  "gemini-flash-latest",
+  "gemini-3.7-flash",
+  "gemini-3.1-pro-preview",
+  "gemini-pro-latest",
   "gemma-4-26b-a4b-it",
   "gemma-4-31b-it",
-  "gemini-flash-latest",
-  "gemini-3.8-flash",
-  "gemini-pro-latest",
 ];
+
+export const CANDIDATE_MODELS = ACTIVE_MODELS;
 
 /**
  * Escapes literal raw control characters (newlines, carriage returns, tabs)

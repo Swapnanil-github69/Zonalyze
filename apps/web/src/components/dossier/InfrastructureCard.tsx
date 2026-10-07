@@ -11,14 +11,9 @@ import {
 } from "lucide-react";
 import { InfrastructureData, FacilitiesData } from "../../types/investigation";
 import { buildDetailedFacilities } from "../../utils/livabilityMetrics";
-import { FacilitiesGrid } from "../FacilitiesGrid";
+import { FacilitiesGrid, RouteTarget } from "../FacilitiesGrid";
 
-export interface SelectedFacility {
-  name: string;
-  coordinates: [number, number]; // [lon, lat]
-  distance_m?: number | null;
-  type?: string;
-}
+export type SelectedFacility = RouteTarget;
 
 interface InfrastructureCardProps {
   infrastructure: InfrastructureData;
@@ -53,17 +48,33 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
   };
 
   const handleCardClick = (
-    name: string | null | undefined,
-    coords: [number, number] | undefined,
-    dist: number | null,
-    type: string
+    targetOrName: RouteTarget | string | null | undefined,
+    coords?: [number, number] | undefined,
+    dist?: number | null,
+    type?: string
   ) => {
-    if (!coords || !onSelectFacility) return;
+    if (!onSelectFacility) return;
+
+    if (typeof targetOrName === "object" && targetOrName !== null) {
+      const target = targetOrName as RouteTarget;
+      if (!target.coordinates) return;
+      onSelectFacility({
+        name: target.name || "Selected Facility",
+        type: target.type || "facility",
+        coordinates: target.coordinates,
+        distanceMeters: target.distanceMeters ?? target.distance_m ?? null,
+        distance_m: target.distanceMeters ?? target.distance_m ?? null,
+      });
+      return;
+    }
+
+    if (!coords) return;
     onSelectFacility({
-      name: name || "Selected Facility",
+      name: (targetOrName as string) || "Selected Facility",
+      type: type || "facility",
       coordinates: coords,
-      distance_m: dist,
-      type,
+      distanceMeters: dist ?? null,
+      distance_m: dist ?? null,
     });
   };
 
@@ -136,6 +147,7 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
             detailed={detailed}
             selectedFacilityName={selectedFacility?.name}
             onSelectFacility={handleCardClick}
+            setSelectedRouteTarget={onSelectFacility}
           />
         </div>
       )}

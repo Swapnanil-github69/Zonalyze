@@ -84,11 +84,17 @@ INSTRUCTIONS:
 }
 
 export const CANDIDATE_MODELS = [
+  "gemini-flash-lite-latest",
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-3.5-flash",
+  "gemini-3.8-flash",
+  "gemini-flash-latest",
+  "gemini-3.7-flash",
+  "gemini-3.1-pro-preview",
+  "gemini-pro-latest",
   process.env.GEMMA_MODEL || "gemma-4-26b-a4b-it",
   "gemma-4-31b-it",
-  "gemini-flash-latest",
-  "gemini-3.8-flash",
-  "gemini-pro-latest",
 ];
 
 const ACTIVE_MODELS = CANDIDATE_MODELS;
@@ -546,7 +552,7 @@ LANGUAGE & MULTILINGUAL OUTPUT:
       }
     }
 
-    return this.generateLocalChatFallback(question, investigation, targetPlace, distInfo);
+    throw new Error("All conversational AI models failed to respond.");
   }
 
   public static generateLocalChatFallback(
