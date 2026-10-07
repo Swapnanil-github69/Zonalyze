@@ -62,11 +62,11 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
                   {/* Card 1: Warm landscape frame */}
                   <div className="absolute top-2 left-0 w-64 p-3 bg-[#ffffff] rounded-[16px] border border-[#dee2de] shadow-[rgba(0,0,0,0.08)_0px_2px_8px] -rotate-3 transition-transform hover:rotate-0 hover:scale-105 duration-300 z-10">
                     <div className="aspect-[4/3] w-full rounded-[10px] overflow-hidden bg-[#f9faf7] mb-2 border border-[#dee2de]/50">
-                      <img src="/zonalyze_liquid_glass_crop.jpg" alt="Atmospheric Field View" className="w-full h-full object-cover" />
+                      <img src="/zonalyze_literary_map_crop.jpg" alt="Atmospheric Field View" className="w-full h-full object-cover" />
                     </div>
                     <div className="font-editorial-sans text-[13px] text-[#2c2c2c] font-medium flex justify-between">
-                      <span>Survey Log · San Rita</span>
-                      <span className="text-[#646464]">22.60°N // 88.41°E</span>
+                      <span>Survey Log · Tiretta</span>
+                      <span className="text-[#646464]">22.58°N // 88.36°E</span>
                     </div>
                   </div>
 
@@ -77,7 +77,7 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
                     </div>
                     <div className="font-editorial-sans text-[13px] text-[#2c2c2c] font-medium flex justify-between">
                       <span>Sensor Telemetry</span>
-                      <span className="text-[#41a1cf]">AQI 83 · Poor</span>
+                      <span className="text-[#41a1cf]">AQI 101 · Poor</span>
                     </div>
                   </div>
 
@@ -142,11 +142,11 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
               <div className="relative w-full max-w-md h-72">
                 <div className="absolute top-2 left-0 w-64 p-3 glass-card-light -rotate-3 shadow-2xl transition-transform hover:rotate-0 hover:scale-105 duration-300 z-10 border border-[#2d3329]/30">
                   <div className="aspect-[4/3] w-full overflow-hidden bg-black mb-2 shadow-inner">
-                    <img src="/zonalyze_liquid_glass_crop.jpg" alt="Field Crop 1" className="w-full h-full object-cover" />
+                    <img src="/zonalyze_tactical_map_crop.jpg" alt="Field Crop 1" className="w-full h-full object-cover" />
                   </div>
                   <div className="font-editorial-sans text-[10px] text-[#2d3329] font-medium flex justify-between uppercase">
                     <span>SURVEY LOG #01</span>
-                    <span>22.60°N // 88.41°E</span>
+                    <span>22.58°N // 88.36°E</span>
                   </div>
                 </div>
 

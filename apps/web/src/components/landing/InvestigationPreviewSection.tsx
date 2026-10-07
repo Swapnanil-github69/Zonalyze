@@ -148,10 +148,9 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                     }`}
                   >
                     <img
-                      src="/zonalyze_liquid_glass_crop.jpg"
+                      src={isLiterary ? "/zonalyze_literary_map_crop.jpg" : "/zonalyze_tactical_map_crop.jpg"}
                       alt="Real interactive map view with dropped pin at Tiretta Bazaar, Kolkata"
-                      className="w-full h-full object-cover"
-                      style={{ imageRendering: "-webkit-optimize-contrast" }}
+                      className="w-full h-full object-cover transition-opacity duration-300"
                     />
                     
                     <div
