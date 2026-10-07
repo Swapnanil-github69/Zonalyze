@@ -7,15 +7,24 @@ import {
   resolveClientNearestAirport,
 } from "../data/indianAirports";
 
+export interface RouteTarget {
+  name: string;
+  type: "metro" | "railway" | "bus" | "airport" | "hospital" | "store" | "park" | string;
+  coordinates: [number, number]; // [lon, lat]
+  distanceMeters?: number | null;
+  distance_m?: number | null;
+}
+
 export interface FacilitiesGridProps {
   detailed: DetailedFacilities;
   selectedFacilityName?: string | null;
   onSelectFacility?: (
-    name: string | null | undefined,
-    coords: [number, number] | undefined,
-    dist: number | null,
-    type: string
+    facilityOrTarget: RouteTarget | string | null | undefined,
+    coords?: [number, number] | undefined,
+    dist?: number | null,
+    type?: string
   ) => void;
+  setSelectedRouteTarget?: (target: RouteTarget) => void;
   showHospital?: boolean;
 }
 
@@ -23,23 +32,28 @@ export interface HospitalCardProps {
   hospital: DetailedFacilities["essentials"]["hospitals"];
   selectedFacilityName?: string | null;
   onSelectFacility?: (
-    name: string | null | undefined,
-    coords: [number, number] | undefined,
-    dist: number | null,
-    type: string
+    facilityOrTarget: RouteTarget | string | null | undefined,
+    coords?: [number, number] | undefined,
+    dist?: number | null,
+    type?: string
   ) => void;
+  setSelectedRouteTarget?: (target: RouteTarget) => void;
 }
 
 export const HospitalCard: React.FC<HospitalCardProps> = ({
   hospital,
   selectedFacilityName,
   onSelectFacility,
+  setSelectedRouteTarget,
 }) => {
   const formatDistance = (meters: number | null | undefined): string => {
     if (meters === null || meters === undefined) return "None detected";
     if (meters >= 1000) return `${(meters / 1000).toFixed(1)} km`;
     return `${Math.round(meters)}m`;
   };
+
+  const displayName = hospital?.name || "";
+  const hasLocal = (hospital?.count || 0) > 0;
 
   const isSelected = (name?: string | null) => {
     return (
@@ -50,21 +64,23 @@ export const HospitalCard: React.FC<HospitalCardProps> = ({
   };
 
   const handleCardClick = () => {
-    if (!hospital?.coordinates || !onSelectFacility || hospital.nearest_dist_m === null) return;
-    onSelectFacility(
-      hospital.name || "Hospital",
-      hospital.coordinates,
-      hospital.nearest_dist_m,
-      "hospital"
-    );
-  };
+    if (!hospital?.coordinates) return;
 
-  const displayName =
-    hospital?.name ||
-    (hospital?.count && hospital.count > 0
-      ? "Local Medical Facility"
-      : "Closest Regional Hospital");
-  const hasLocal = (hospital?.count || 0) > 0;
+    const target: RouteTarget = {
+      name: displayName || "Medical Facility",
+      type: "hospital",
+      coordinates: hospital.coordinates,
+      distanceMeters: hospital.nearest_dist_m ?? null,
+      distance_m: hospital.nearest_dist_m ?? null,
+    };
+
+    if (setSelectedRouteTarget) {
+      setSelectedRouteTarget(target);
+    }
+    if (onSelectFacility) {
+      onSelectFacility(target, hospital.coordinates, hospital.nearest_dist_m ?? null, "hospital");
+    }
+  };
 
   return (
     <div
@@ -109,6 +125,7 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
   detailed,
   selectedFacilityName,
   onSelectFacility,
+  setSelectedRouteTarget,
   showHospital = false,
 }) => {
   const formatDistance = (meters: number | null | undefined): string => {
@@ -125,14 +142,29 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
     );
   };
 
-  const handleCardClick = (
-    name: string | null | undefined,
-    coords: [number, number] | undefined,
-    dist: number | null,
-    type: string
+  const handleSelectFacility = (
+    type: RouteTarget["type"],
+    facility: any,
+    fallbackName?: string
   ) => {
-    if (!coords || !onSelectFacility || dist === null) return;
-    onSelectFacility(name, coords, dist, type);
+    if (!facility || !facility.coordinates) return;
+
+    const dist = facility.nearest_dist_m ?? facility.distanceMeters ?? null;
+    const target: RouteTarget = {
+      name: facility.name || fallbackName || `${type.toUpperCase()} Station`,
+      type,
+      coordinates: facility.coordinates,
+      distanceMeters: dist,
+      distance_m: dist,
+    };
+
+    // Pass complete, fresh target to map and state handlers
+    if (setSelectedRouteTarget) {
+      setSelectedRouteTarget(target);
+    }
+    if (onSelectFacility) {
+      onSelectFacility(target, facility.coordinates, dist, type);
+    }
   };
 
   const { metro, rail, bus } = detailed.transit;
@@ -166,11 +198,10 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
       {/* Metro Card */}
       <div
         onClick={() =>
-          handleCardClick(
-            metro.name || "Metro Station",
-            metro.coordinates,
-            metro.nearest_dist_m,
-            "metro"
+          handleSelectFacility(
+            "metro",
+            metro,
+            "Metro Station"
           )
         }
         className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
@@ -208,11 +239,10 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
       {/* Heavy Railway Card */}
       <div
         onClick={() =>
-          handleCardClick(
-            rail.name || "Railway Station",
-            rail.coordinates,
-            rail.nearest_dist_m,
-            "rail"
+          handleSelectFacility(
+            "railway",
+            rail,
+            "Railway Station"
           )
         }
         className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
@@ -250,11 +280,10 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
       {/* Bus Stop Card */}
       <div
         onClick={() =>
-          handleCardClick(
-            bus.name || "Bus Stop",
-            bus.coordinates,
-            bus.nearest_dist_m,
-            "bus"
+          handleSelectFacility(
+            "bus",
+            bus,
+            "Bus Stop"
           )
         }
         className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
@@ -294,11 +323,10 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
       {/* Airport Card */}
       <div
         onClick={() =>
-          handleCardClick(
-            airport.name || "Airport",
-            airport.coordinates,
-            airport.nearest_dist_m,
-            "airport"
+          handleSelectFacility(
+            "airport",
+            airport,
+            "Airport"
           )
         }
         className={`p-2.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${
@@ -339,6 +367,7 @@ export const FacilitiesGrid: React.FC<FacilitiesGridProps> = ({
           hospital={detailed.essentials.hospitals}
           selectedFacilityName={selectedFacilityName}
           onSelectFacility={onSelectFacility}
+          setSelectedRouteTarget={setSelectedRouteTarget}
         />
       )}
     </div>

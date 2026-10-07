@@ -8,6 +8,8 @@ export interface RouteResult {
   formattedDistance: string;
   mode: TravelMode;
   modeLabel: string;
+  targetName?: string;
+  targetCoordinates?: [number, number];
 }
 
 export function getModeLabel(mode: TravelMode): string {
@@ -57,7 +59,8 @@ function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number)
 export async function fetchFacilityRoute(
   start: [number, number], // [lon, lat]
   end: [number, number],   // [lon, lat]
-  mode: TravelMode = 'walk'
+  mode: TravelMode = 'walk',
+  targetName?: string
 ): Promise<RouteResult | null> {
   try {
     // Map Zonalyze modes to OSRM profiles
@@ -129,6 +132,8 @@ export async function fetchFacilityRoute(
       formattedDistance: formatDistance(totalDistanceMeters),
       mode,
       modeLabel: getModeLabel(mode),
+      targetName,
+      targetCoordinates: end,
     };
   } catch (err) {
     console.warn("OSRM routing unavailable or offline, generating direct spatial transit line:", err);
@@ -150,6 +155,8 @@ export async function fetchFacilityRoute(
       formattedDistance: formatDistance(directMeters),
       mode,
       modeLabel: getModeLabel(mode),
+      targetName,
+      targetCoordinates: end,
     };
   }
 }

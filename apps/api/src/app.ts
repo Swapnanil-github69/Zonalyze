@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import cors from "cors";
 import healthRoutes from "./routes/health.routes.js";
 import investigateRoutes from "./routes/investigateRoutes.js";
+import auditRoutes from "./routes/auditRoutes.js";
 
 export function createApp(): Application {
   const app = express();
@@ -18,6 +19,7 @@ export function createApp(): Application {
   // Routes
   app.use("/api", healthRoutes);
   app.use("/api", investigateRoutes);
+  app.use("/api", auditRoutes);
 
   return app;
 }

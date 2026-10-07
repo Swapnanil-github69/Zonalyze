@@ -116,8 +116,8 @@ export class HeuristicService {
 
     // Sort detected healthcare facilities by proximity
     detectedHospitals.sort((a, b) => a.distance - b.distance);
-    // Count verified medical facilities within the 1.2 km neighborhood corridor
-    hospitals = detectedHospitals.filter((h) => h.distance <= 1200).length;
+    // Count verified medical facilities within the 1.5 km neighborhood corridor
+    hospitals = detectedHospitals.filter((h) => h.distance <= 1500).length;
     if (detectedHospitals.length > 0) {
       nearestHospitalDist = detectedHospitals[0].distance;
       nearestHospitalName = detectedHospitals[0].name;

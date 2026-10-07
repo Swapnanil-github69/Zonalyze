@@ -5,10 +5,120 @@
 
 export type SupportedSpeechLang = "en" | "hi" | "bn";
 
+/**
+ * Strips prepended language tags like [English], [Bangla], [Hindi], [Bengali], (English), etc.
+ */
+export function sanitizeChatText(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/^\*{0,2}\[(English|Bangla|Bengali|Hindi)\]\*{0,2}:?\s*/i, "")
+    .replace(/^\*{0,2}\((English|Bangla|Bengali|Hindi)\)\*{0,2}:?\s*/i, "")
+    .replace(/^\[(English|Bangla|Bengali|Hindi)\]:?\s*/i, "")
+    .replace(/^\((English|Bangla|Bengali|Hindi)\):?\s*/i, "")
+    .trim();
+}
+
+// Cached voices list from Web Speech API
+let cachedVoices: SpeechSynthesisVoice[] = [];
+if (typeof window !== "undefined" && "speechSynthesis" in window) {
+  cachedVoices = window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => {
+    cachedVoices = window.speechSynthesis.getVoices();
+  };
+}
+
+/**
+ * Discovers and prioritizes the most natural, human-sounding voice available in the client browser.
+ * Prioritizes neural, natural, Google, and online voices over legacy robotic synthesizers.
+ */
+export function getBestConversationalVoice(
+  lang: SupportedSpeechLang
+): SpeechSynthesisVoice | null {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+
+  let voices = window.speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) {
+    voices = cachedVoices;
+  }
+  if (!voices || voices.length === 0) return null;
+
+  const langTag = lang.toLowerCase();
+
+  // Find all voices matching the target language
+  const matchingVoices = voices.filter((v) => {
+    const vLang = v.lang.toLowerCase();
+    if (langTag === "hi") return vLang.startsWith("hi");
+    if (langTag === "bn") return vLang.startsWith("bn") || vLang.includes("bengali");
+    return vLang.startsWith("en");
+  });
+
+  const pool = matchingVoices.length > 0 ? matchingVoices : voices;
+
+  // Priority order for natural human conversational timbre:
+  // 1. Natural / Neural / Online voices (Edge & Windows Natural voices like 'Aria', 'Guy', 'Swara', 'Bashkar')
+  const naturalVoice = pool.find((v) =>
+    /natural|neural|online|multilingual/i.test(v.name)
+  );
+  if (naturalVoice) return naturalVoice;
+
+  // 2. Google voices (Google US English, Google हिन्दी, Google বাংলা)
+  const googleVoice = pool.find((v) => /google/i.test(v.name));
+  if (googleVoice) return googleVoice;
+
+  // 3. Apple Siri or Enhanced voices
+  const enhancedVoice = pool.find((v) => /enhanced|premium|siri/i.test(v.name));
+  if (enhancedVoice) return enhancedVoice;
+
+  // 4. Remote / cloud-backed voices
+  const remoteVoice = pool.find((v) => !v.localService);
+  if (remoteVoice) return remoteVoice;
+
+  // 5. Targeted regional locale voices
+  const localeVoice = pool.find((v) => {
+    if (langTag === "en") return v.lang === "en-IN" || v.lang === "en-US" || v.lang === "en-GB";
+    if (langTag === "hi") return v.lang === "hi-IN";
+    if (langTag === "bn") return v.lang === "bn-IN" || v.lang === "bn-BD";
+    return true;
+  });
+  if (localeVoice) return localeVoice;
+
+  return pool[0] || null;
+}
+
+/**
+ * Tunes Web Speech utterance parameters for human, conversational delivery.
+ */
+export function configureConversationalUtterance(
+  utterance: SpeechSynthesisUtterance,
+  lang: SupportedSpeechLang
+): void {
+  const langMap: Record<SupportedSpeechLang, string> = {
+    en: "en-US",
+    hi: "hi-IN",
+    bn: "bn-IN",
+  };
+  utterance.lang = langMap[lang] || "en-US";
+
+  const voice = getBestConversationalVoice(lang);
+  if (voice) {
+    utterance.voice = voice;
+  }
+
+  // Conversational pacing:
+  // Rate: 0.98 prevents rushed, synthetic pacing and ensures clarity for Indian names and distances
+  // Pitch: 1.02 gives warm, pleasant vocal inflection without robotic monotone
+  utterance.rate = 0.98;
+  utterance.pitch = 1.02;
+  utterance.volume = 1.0;
+}
+
 export function cleanTextForSpeech(raw: string): string {
   if (!raw) return "";
 
-  return raw
+  // Strip prepended language tags first
+  const sanitized = sanitizeChatText(raw);
+
+  return sanitized
     // Strip markdown formatting
     .replace(/\*\*([^*]+)\*\*/g, "$1")
     .replace(/\*([^*]+)\*/g, "$1")
@@ -229,36 +339,75 @@ export class NaturalAudioPlayer {
       return;
     }
 
-    const remainingText = this.chunks.slice(fromIndex).join(" ");
-    const utterance = new SpeechSynthesisUtterance(remainingText);
-
-    const langMap: Record<SupportedSpeechLang, string> = {
-      en: "en-US",
-      hi: "hi-IN",
-      bn: "bn-IN",
-    };
-    utterance.lang = langMap[this.lang] || "en-US";
-
-    const voices = window.speechSynthesis.getVoices();
-    const matchedVoice =
-      voices.find((v) => v.lang.toLowerCase().startsWith(this.lang)) ||
-      voices.find((v) => v.lang.startsWith("en"));
-    if (matchedVoice) {
-      utterance.voice = matchedVoice;
+    const remainingChunks = this.chunks.slice(fromIndex);
+    if (remainingChunks.length === 0) {
+      this.currentMessageId = null;
+      this.callbacks.onEnd?.();
+      return;
     }
 
-    utterance.onend = () => {
-      this.currentMessageId = null;
-      this.callbacks.onEnd?.();
+    // Cancel any previous utterances
+    window.speechSynthesis.cancel();
+
+    const speakChunk = (idx: number) => {
+      if (this.isStopped || idx >= remainingChunks.length) {
+        this.currentMessageId = null;
+        this.callbacks.onEnd?.();
+        return;
+      }
+
+      this.currentChunkIndex = fromIndex + idx;
+      this.callbacks.onChunkChange?.(this.currentChunkIndex, this.chunks.length);
+
+      const chunkText = remainingChunks[idx];
+      const utterance = new SpeechSynthesisUtterance(chunkText);
+      configureConversationalUtterance(utterance, this.lang);
+
+      utterance.onend = () => {
+        if (this.isStopped) return;
+        // Natural micro-pause (80ms) between sentences mimics human breath cadence
+        setTimeout(() => speakChunk(idx + 1), 80);
+      };
+
+      utterance.onerror = (e) => {
+        console.warn("SpeechSynthesis error:", e);
+        if (this.isStopped) return;
+        setTimeout(() => speakChunk(idx + 1), 60);
+      };
+
+      window.speechSynthesis.speak(utterance);
     };
 
-    utterance.onerror = (e) => {
-      console.warn("SpeechSynthesis fallback error:", e);
-      this.currentMessageId = null;
-      this.callbacks.onEnd?.();
-    };
+    speakChunk(0);
+  }
 
-    window.speechSynthesis.speak(utterance);
+  /**
+   * Directly synthesizes speech using the client browser's Web Speech API with
+   * natural voice selection and conversational cadence.
+   */
+  public speakWithWebSpeech(
+    text: string,
+    lang: SupportedSpeechLang,
+    messageId: string,
+    callbacks: SpeechPlayCallbacks = {}
+  ): void {
+    this.stop();
+    this.lang = lang;
+    this.currentMessageId = messageId;
+    this.callbacks = callbacks;
+    this.isStopped = false;
+    this.isPausedState = false;
+
+    this.chunks = chunkTextForSpeech(text);
+    this.currentChunkIndex = 0;
+
+    if (this.chunks.length === 0) {
+      callbacks.onEnd?.();
+      return;
+    }
+
+    callbacks.onStart?.();
+    this.fallbackToSpeechSynthesis(0);
   }
 
   public pause(): void {
