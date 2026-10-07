@@ -69,8 +69,18 @@ export function createFallbackResult(confidence: string): OSMResult {
   };
 }
 
-import { MAJOR_INDIAN_AIRPORTS, CommercialAirport } from "../data/indianAirports.js";
-export { MAJOR_INDIAN_AIRPORTS, CommercialAirport };
+import {
+  getNearestCommercialAirport,
+  INDIAN_COMMERCIAL_AIRPORTS,
+  MAJOR_INDIAN_AIRPORTS,
+  CommercialAirport
+} from "../data/indianAirports.js";
+export {
+  getNearestCommercialAirport,
+  INDIAN_COMMERCIAL_AIRPORTS,
+  MAJOR_INDIAN_AIRPORTS,
+  CommercialAirport
+};
 
 export const NON_COMMERCIAL_AIRPORT_BLACKLIST = [
   "behala",
@@ -122,27 +132,17 @@ export function isTrueCommercialAirport(tags: Record<string, string> = {}): bool
 
 export const isCommercialPassengerAirport = isTrueCommercialAirport;
 
+/**
+ * Determines the nearest commercial passenger airport exclusively from the verified registry
+ */
 export function resolveNearestAirport(lat: number, lon: number): Facility | null {
-  let closest: Facility | null = null;
-  let minDistance = Infinity;
-
-  for (const ap of MAJOR_INDIAN_AIRPORTS) {
-    const apNameLower = ap.name.toLowerCase();
-    if (NON_COMMERCIAL_AIRPORT_BLACKLIST.some((term) => apNameLower.includes(term))) {
-      continue;
-    }
-
-    const d = calculateHaversineMeters(lat, lon, ap.lat, ap.lon);
-    if (d < minDistance && d <= 100000) { // within 100km
-      minDistance = d;
-      closest = {
-        name: ap.name,
-        distanceMeters: Math.round(d),
-        coordinates: [ap.lon, ap.lat],
-      };
-    }
-  }
-  return closest;
+  const airport = getNearestCommercialAirport(lat, lon, 150);
+  if (!airport) return null;
+  return {
+    name: airport.name,
+    distanceMeters: airport.distanceMeters,
+    coordinates: airport.coordinates,
+  };
 }
 
 export function buildPanIndiaOverpassQuery(lat: number, lon: number): string {
@@ -440,20 +440,17 @@ async function fallbackWithNominatimFacilities(
   try {
     const delta = 0.027; // ~3km
     const viewbox = `${(lon - delta).toFixed(4)},${(lat + delta).toFixed(4)},${(lon + delta).toFixed(4)},${(lat - delta).toFixed(4)}`;
-    const airportDelta = 0.65; // ~70km
-    const airportViewbox = `${(lon - airportDelta).toFixed(4)},${(lat + airportDelta).toFixed(4)},${(lon + airportDelta).toFixed(4)},${(lat - airportDelta).toFixed(4)}`;
     const headers = {
       "User-Agent": "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
     };
 
-    const [hospRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes, airportRes] = await Promise.allSettled([
+    const [hospRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes] = await Promise.allSettled([
       axios.get(`https://nominatim.openstreetmap.org/search?q=hospital+clinic&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=15&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=bus+stop&format=json&limit=8&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=hotel&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=guest+house&format=json&limit=5&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
-      axios.get(`https://nominatim.openstreetmap.org/search?q=airport&format=json&limit=5&viewbox=${airportViewbox}&bounded=1`, { headers, timeout: 4000 }),
     ]);
 
     const elements: OverpassElement[] = [];
@@ -532,21 +529,6 @@ async function fallbackWithNominatimFacilities(
         });
       }
     }
-
-    if (airportRes.status === "fulfilled" && Array.isArray(airportRes.value.data)) {
-      for (const item of airportRes.value.data) {
-        const name = (item.name || item.display_name?.split(",")[0] || "Airport").trim();
-        elements.push({
-          lat: parseFloat(item.lat),
-          lon: parseFloat(item.lon),
-          tags: {
-            aeroway: "aerodrome",
-            name,
-          },
-        });
-      }
-    }
-
     if (elements.length > 0) {
       return parseElements(lat, lon, elements);
     }
@@ -757,31 +739,6 @@ export function parseElements(
         result.facilities.park,
         getFacility(tags, d, "Park", elLon, elLat)
       );
-    }
-    if (tags.aeroway === "aerodrome" || tags.amenity === "airport") {
-      const isDisused =
-        tags["disused:aeroway"] ||
-        tags["abandoned:aeroway"] ||
-        tags.abandoned === "yes" ||
-        tags.aeroway === "disused" ||
-        tags.aeroway === "abandoned";
-
-      if (!isDisused && isTrueCommercialAirport(tags)) {
-        const rawName = tags.name || tags["name:en"] || "Airport";
-        const iata = (tags.iata || tags["iata:code"] || tags["ref:iata"] || "").toUpperCase().trim();
-
-        const formattedName = rawName.toUpperCase().includes(iata)
-          ? rawName
-          : `${rawName} (${iata})`;
-
-        const candidateAirport: Facility = {
-          name: formattedName,
-          distanceMeters: Math.round(d),
-          coordinates: [elLon, elLat],
-        };
-
-        result.facilities.airport = updateNearest(result.facilities.airport, candidateAirport);
-      }
     }
     if (tags.tourism && /^(hotel|guest_house|hostel|motel|chalet)$/.test(tags.tourism)) {
       const parsedStars = tags.stars !== undefined ? Number(tags.stars) : undefined;

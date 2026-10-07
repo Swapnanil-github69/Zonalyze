@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import axios from "axios";
 import { Investigation } from "../models/Investigation.js";
-import { CacheService } from "../services/cache.service.js";
+import { CacheService, isInvestigationCorrupted } from "../services/cache.service.js";
 import { NominatimService } from "../services/nominatim.service.js";
 import { fetchAtmosphere } from "../services/openMeteoService.js";
 import { OverpassService } from "../services/overpass.service.js";
-import { parseElements } from "../services/overpassService.js";
+import { parseElements, NON_COMMERCIAL_AIRPORT_BLACKLIST } from "../services/overpassService.js";
 import { HeuristicService } from "../services/heuristic.service.js";
 import { GeminiService } from "../services/gemini.service.js";
 
@@ -44,20 +44,10 @@ export class InvestigateController {
       // 2. Geospatial Cache Check (<=150m, within past 7 days)
       const cached = await CacheService.findNearbyInvestigation(latitude, longitude, forceRefresh);
       if (cached) {
-        const railName = (cached.facilities?.railway?.name || "").toLowerCase();
-        const metroName = (cached.facilities?.metro?.name || "").toLowerCase();
-        const hasAirport = Boolean(cached.facilities?.airport?.name);
-
-        // Stale detection: if rail station has "metro" or "line 1" or "line 2" or "esplanade" or "central",
-        // or if airport is completely missing in an urban area, PURGE AND RE-RUN:
+        const airportName = (cached.facilities?.airport?.name || "").toLowerCase();
         const isCorrupted =
-          railName.includes("line 1") ||
-          railName.includes("line 2") ||
-          railName.includes("esplanade") ||
-          railName.includes("central") ||
-          railName.includes("chandni chowk") ||
-          metroName.includes("kamarkundu") ||
-          !hasAirport;
+          isInvestigationCorrupted(cached) ||
+          NON_COMMERCIAL_AIRPORT_BLACKLIST.some((term) => airportName.includes(term));
 
         if (isCorrupted || forceRefresh) {
           console.log("[api] Purging corrupted/stale cache entry for coordinate:", cached._id);
