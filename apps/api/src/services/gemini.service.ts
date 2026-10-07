@@ -110,7 +110,7 @@ export class GeminiService {
 
   public static async generateDebrief(verifiedTelemetry: {
     address: string;
-    coordinates: [number, number];
+    coordinates?: [number, number];
     environment: {
       pm2_5: number;
       pm10: number;
@@ -148,7 +148,7 @@ Analyze the following VERIFIED telemetry data for an urban location audit:
 
 LOCATION AUDITED:
 Address: ${verifiedTelemetry.address}
-Coordinates: [${verifiedTelemetry.coordinates.join(", ")}]
+Coordinates: [${Array.isArray(verifiedTelemetry.coordinates) ? verifiedTelemetry.coordinates.join(", ") : "N/A"}]
 
 VERIFIED TELEMETRY INPUT:
 ${JSON.stringify(verifiedTelemetry, null, 2)}
