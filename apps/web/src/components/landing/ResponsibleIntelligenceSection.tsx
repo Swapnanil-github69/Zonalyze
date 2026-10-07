@@ -50,7 +50,7 @@ export const ResponsibleIntelligenceSection: React.FC = () => {
         </>
       )}
 
-      <div className="relative w-full px-6 sm:px-12 space-y-12">
+      <div className="relative w-full max-w-7xl mx-auto px-6 sm:px-12 space-y-12">
         
         {/* Section Header */}
         <div

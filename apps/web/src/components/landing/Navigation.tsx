@@ -148,7 +148,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onStartInvestigation }) 
   // Dark Telemetry Console Mode
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#161b13]/65 backdrop-blur-xl border-b border-[#e2ffcc]/15 shadow-[0_4px_30px_rgba(0,0,0,0.5)] px-6 sm:px-12 py-4">
-      <div className="w-full flex items-center justify-between">
+      <div className="w-full max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Brand Wordmark Stamp with Crosshair Symbol */}
         <div

@@ -32,7 +32,7 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
         </>
       )}
 
-      <div className="relative w-full px-6 sm:px-12 space-y-12">
+      <div className="relative w-full max-w-7xl mx-auto px-6 sm:px-12 space-y-12">
         
         {/* Top Header Row */}
         <div
@@ -161,6 +161,80 @@ export const InvestigationPreviewSection: React.FC<InvestigationPreviewSectionPr
                       }`}
                     >
                       [PIN: 22.57617°N, 88.35801°E]
+                    </div>
+                  </div>
+                  {/* In-Situ Physical & Civic Catchment Telemetry */}
+                  <div className="grid grid-cols-2 gap-3 text-xs font-editorial-sans pt-1">
+                    <div
+                      className={`p-3 ${
+                        isLiterary
+                          ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-xl"
+                          : "border border-[#2d3329]/20 bg-white/45 backdrop-blur-md"
+                      }`}
+                    >
+                      <div className={`text-[10px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
+                        {isLiterary ? "Elevation Datum" : "ELEVATION DATUM"}
+                      </div>
+                      <div className={`font-bold text-lg font-editorial-serif ${isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"}`}>
+                        11 m a.s.l.
+                      </div>
+                      <div className={`text-[10px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
+                        SRTM DEM CONTOUR
+                      </div>
+                    </div>
+
+                    <div
+                      className={`p-3 ${
+                        isLiterary
+                          ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-xl"
+                          : "border border-[#2d3329]/20 bg-white/45 backdrop-blur-md"
+                      }`}
+                    >
+                      <div className={`text-[10px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
+                        {isLiterary ? "Civic Density" : "CIVIC DENSITY"}
+                      </div>
+                      <div className={`font-bold text-lg font-editorial-serif ${isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"}`}>
+                        66 Facilities
+                      </div>
+                      <div className={`text-[10px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
+                        3,000M CATCHMENT
+                      </div>
+                    </div>
+
+                    <div
+                      className={`p-3 ${
+                        isLiterary
+                          ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-xl"
+                          : "border border-[#2d3329]/20 bg-white/45 backdrop-blur-md"
+                      }`}
+                    >
+                      <div className={`text-[10px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
+                        {isLiterary ? "Transit Corridor" : "TRANSIT CORRIDOR"}
+                      </div>
+                      <div className={`font-bold text-lg font-editorial-serif ${isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"}`}>
+                        140 m Buffer
+                      </div>
+                      <div className={`text-[10px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
+                        HEAVY RAIL PROXIMITY
+                      </div>
+                    </div>
+
+                    <div
+                      className={`p-3 ${
+                        isLiterary
+                          ? "gic-card bg-[#ffffff] border border-[#dee2de] rounded-xl"
+                          : "border border-[#2d3329]/20 bg-white/45 backdrop-blur-md"
+                      }`}
+                    >
+                      <div className={`text-[10px] uppercase font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
+                        {isLiterary ? "Emergency Care" : "EMERGENCY CARE"}
+                      </div>
+                      <div className={`font-bold text-lg font-editorial-serif ${isLiterary ? "text-[#2c2c2c]" : "text-[#2d3329]"}`}>
+                        420 m Radial
+                      </div>
+                      <div className={`text-[10px] font-editorial-sans ${isLiterary ? "text-[#646464]" : "text-[#84907f]"}`}>
+                        TRAUMA FACILITY
+                      </div>
                     </div>
                   </div>
                 </div>
