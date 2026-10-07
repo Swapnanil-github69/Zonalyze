@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { MapView } from "../components/map/MapView";
 import { SearchBar } from "../components/map/SearchBar";
 import { RadarScanner } from "../components/common/RadarScanner";
@@ -16,6 +16,35 @@ import { RouteModal } from "../components/RouteModal";
 
 interface InvestigationMapPageProps {
   onBackToHome: () => void;
+}
+
+export function parseCoordinatesFromUrl(): { lat: number; lng: number } | null {
+  if (typeof window === "undefined") return null;
+
+  // 1. Check window.location.search (?lat=...&lon=...)
+  const searchParams = new URLSearchParams(window.location.search);
+  let latStr = searchParams.get("lat");
+  let lonStr = searchParams.get("lon") || searchParams.get("lng");
+
+  // 2. Check window.location.hash (#investigate?lat=...&lon=...)
+  if (!latStr || !lonStr) {
+    const hash = window.location.hash;
+    const queryIdx = hash.indexOf("?");
+    if (queryIdx !== -1) {
+      const hashParams = new URLSearchParams(hash.substring(queryIdx + 1));
+      latStr = latStr || hashParams.get("lat");
+      lonStr = lonStr || hashParams.get("lon") || hashParams.get("lng");
+    }
+  }
+
+  if (latStr && lonStr) {
+    const lat = parseFloat(latStr);
+    const lng = parseFloat(lonStr);
+    if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+      return { lat, lng };
+    }
+  }
+  return null;
 }
 
 export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBackToHome }) => {
@@ -36,6 +65,7 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
   const [isLoadingRoute, setIsLoadingRoute] = useState<boolean>(false);
   const [routeNotice, setRouteNotice] = useState<string | null>(null);
   const routeRequestIdRef = useRef<number>(0);
+  const lastAuditedCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
 
   const isLoading =
     stage === "checking_cache" ||
@@ -43,14 +73,41 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
     stage === "computing_heuristics" ||
     stage === "synthesizing_ai";
 
-  const handleCoordinateClick = (lat: number, lng: number) => {
+  const handleCoordinateClick = useCallback((lat: number, lng: number) => {
+    lastAuditedCoordsRef.current = { lat, lng };
     // Clear any active route when initiating a new pinpoint audit
     routeRequestIdRef.current++;
     setSelectedFacility(null);
     setActiveRoute(null);
     setRouteNotice(null);
     triggerInvestigation(lat, lng);
-  };
+
+    if (typeof window !== "undefined" && window.history && window.history.replaceState) {
+      window.history.replaceState(null, "", `#investigate?lat=${lat}&lon=${lng}`);
+    }
+  }, [triggerInvestigation]);
+
+  // Read lat and lon from URL parameters on mount and initiate audit telemetry immediately
+  useEffect(() => {
+    const syncFromUrl = () => {
+      const coords = parseCoordinatesFromUrl();
+      if (coords) {
+        const last = lastAuditedCoordsRef.current;
+        if (!last || Math.abs(last.lat - coords.lat) > 0.00001 || Math.abs(last.lng - coords.lng) > 0.00001) {
+          handleCoordinateClick(coords.lat, coords.lng);
+        }
+      }
+    };
+
+    syncFromUrl();
+
+    window.addEventListener("hashchange", syncFromUrl);
+    window.addEventListener("popstate", syncFromUrl);
+    return () => {
+      window.removeEventListener("hashchange", syncFromUrl);
+      window.removeEventListener("popstate", syncFromUrl);
+    };
+  }, [handleCoordinateClick]);
 
   const fetchRouteForFacility = async (facility: SelectedFacility, mode: TravelMode) => {
     const originLon = investigation?.location?.coordinates?.[0] ?? selectedCoords?.lng;

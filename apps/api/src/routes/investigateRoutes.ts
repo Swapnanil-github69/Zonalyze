@@ -16,6 +16,7 @@ router.get("/investigations/:id/debrief", InvestigateController.hydrateDebrief);
 router.post("/investigate/chat", InvestigateController.chatAboutLocation);
 router.get("/investigate/tts", InvestigateController.textToSpeech);
 router.get("/geocode", forwardGeocode);
+router.get("/geocode/search", forwardGeocode);
 router.get("/audit/geocode", forwardGeocode);
 
 export default router;

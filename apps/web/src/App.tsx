@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { LandingThemeProvider } from "./context/LandingThemeContext";
+import { ErrorBoundary } from "./components/common/ErrorBoundary";
 
 const LandingPage = lazy(() =>
   import("./pages/LandingPage").then((m) => ({ default: m.LandingPage }))
@@ -59,10 +60,19 @@ export function App() {
     };
   }, []);
 
-  const navigateToInvestigation = useCallback(() => {
+  const navigateToInvestigation = useCallback((lat?: number, lon?: number) => {
     setCurrentView("investigate");
+    let targetHash = "#investigate";
+    if (typeof lat === "number" && typeof lon === "number") {
+      targetHash = `#investigate?lat=${lat}&lon=${lon}`;
+    } else if (typeof window !== "undefined" && window.location.hash.includes("lat=")) {
+      targetHash = window.location.hash;
+    }
+
     if (window.history && window.history.pushState) {
-      window.history.pushState({ view: "investigate" }, "", "#investigate");
+      window.history.pushState({ view: "investigate" }, "", targetHash);
+    } else {
+      window.location.hash = targetHash;
     }
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
@@ -77,9 +87,11 @@ export function App() {
 
   if (currentView === "investigate") {
     return (
-      <Suspense fallback={<PageFallback />}>
-        <InvestigationMapPage onBackToHome={navigateToLanding} />
-      </Suspense>
+      <ErrorBoundary onReset={() => window.location.reload()}>
+        <Suspense fallback={<PageFallback />}>
+          <InvestigationMapPage onBackToHome={navigateToLanding} />
+        </Suspense>
+      </ErrorBoundary>
     );
   }
 
