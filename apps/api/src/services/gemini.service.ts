@@ -252,7 +252,7 @@ INSTRUCTIONS:
           error.message?.includes("quota") ||
           error.message?.includes("ResourceExhausted")
         ) {
-          console.warn("⚡ [GEMINI FAST-FAIL] Quota/rate-limit reached, switching instantly to deterministic synthesis engine.");
+          console.warn("⚡ [GEMMA FAST-FAIL] Quota/rate-limit reached, switching instantly to deterministic synthesis engine.");
           break;
         }
       }

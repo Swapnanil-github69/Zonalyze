@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Map: MapLibre GL](https://img.shields.io/badge/Map-MapLibre%20GL%20(Carto%20Voyager)-green)](https://maplibre.org/)
 [![Database: MongoDB](https://img.shields.io/badge/Database-MongoDB%20Atlas%20(2dsphere)-brightgreen)](https://www.mongodb.com/)
-[![AI: Google Gemini](https://img.shields.io/badge/AI-Google%20Gemini%20Flash-orange)](https://aistudio.google.com/)
+[![AI: Google Gemma](https://img.shields.io/badge/AI-Google%20Gemma%204-orange)](https://aistudio.google.com/)
 
 ---
 
@@ -26,7 +26,7 @@ This repository is split between 4 core team contributors:
 
 | Contributor | Area | Focus & Responsibilities |
 | :--- | :--- | :--- |
-| **Backend Lead** | `apps/api` | Parallel Ingestion (Nominatim, Open-Meteo, Overpass), Haversine & Acoustic Noise proxy engine, Gemini structured debrief synthesis. |
+| **Backend Lead** | `apps/api` | Parallel Ingestion (Nominatim, Open-Meteo, Overpass), Haversine & Acoustic Noise proxy engine, Gemma structured debrief synthesis. |
 | **Database Engineer** | `apps/api/src/models`, `db.ts` | MongoDB Atlas cluster, Mongoose `2dsphere` index, 7-day TTL index, `$near` geospatial caching service. |
 | **Frontend Map Lead** | `apps/web/src/components/map` | MapLibre GL map view, Carto Voyager vector style, click listener, pin dropping, coordinate/address search geocoder. |
 | **Frontend UI & Viz** | `apps/web/src/components/dossier` | Telemetry Radar Scanner loading animation, Slide-out Dossier Panel, 72h PM2.5 sparklines, Acoustic & Infrastructure cards. |

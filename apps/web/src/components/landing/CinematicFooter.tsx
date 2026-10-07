@@ -19,12 +19,12 @@ export const CinematicFooter: React.FC = () => {
       <footer className="relative w-full bg-[#ffffff] text-[#444141] py-20 border-t border-[#dee2de] text-left">
         <div className="max-w-[1200px] mx-auto px-6 sm:px-12 space-y-12">
           
-          {/* Top Colophon Statement */}
+          {/* Top Mission Statement */}
           <div className="max-w-2xl space-y-4">
             <div className="flex items-center space-x-2 text-[#41a1cf]">
               <Compass className="w-4 h-4" />
               <span className="font-editorial-sans text-[13px] font-medium tracking-tight">
-                Colophon · Zonalyze Geospatial Field Intelligence
+                Zonalyze Geospatial Field Intelligence
               </span>
             </div>
             <h3 className="font-editorial-serif font-normal text-3xl sm:text-4xl text-[#171717] tracking-[-0.03em] leading-[1.2]">
@@ -85,7 +85,7 @@ export const CinematicFooter: React.FC = () => {
             </nav>
           </div>
 
-          {/* Bottom Row: Colophon Metadata */}
+          {/* Bottom Row: Metadata & Lineage */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end text-[13px] font-editorial-sans text-[#646464] border-t border-[#dee2de]/60 pt-6">
             <div className="md:col-span-7 space-y-1.5 leading-relaxed">
               <div>Geodetic Datum: WGS 84 (EPSG:4326) · Direct coordinate resolution</div>
