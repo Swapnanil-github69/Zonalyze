@@ -127,7 +127,7 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
                   onClick={onStartInvestigation}
                   className="sr-btn-mint text-xs sm:text-sm py-3.5 px-7 font-editorial-sans font-medium shadow-[0_0_20px_rgba(226,255,204,0.2)] hover:shadow-[0_0_30px_rgba(226,255,204,0.4)]"
                 >
-                  <span>[ LAUNCH INVESTIGATION WORKSPACE ]</span>
+                  <span>LAUNCH INVESTIGATION WORKSPACE</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 
