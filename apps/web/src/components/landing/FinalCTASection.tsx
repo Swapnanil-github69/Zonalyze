@@ -73,7 +73,7 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
                   {/* Card 2: Field sensor frame */}
                   <div className="absolute top-10 right-4 w-60 p-3 bg-[#ffffff] rounded-[16px] border border-[#dee2de] shadow-[rgba(0,0,0,0.08)_0px_4px_12px] rotate-3 transition-transform hover:rotate-0 hover:scale-105 duration-300 z-20">
                     <div className="aspect-[4/3] w-full rounded-[10px] overflow-hidden bg-[#f9faf7] mb-2 border border-[#dee2de]/50">
-                      <img src="/zonalyze_liquid_glass_ui.jpg" alt="Atmospheric Sensor View" className="w-full h-full object-cover" />
+                      <img src="/zonalyze_literary_paper_console.jpg" alt="Atmospheric Sensor View" className="w-full h-full object-cover" />
                     </div>
                     <div className="font-editorial-sans text-[13px] text-[#2c2c2c] font-medium flex justify-between">
                       <span>Sensor Telemetry</span>
@@ -152,11 +152,11 @@ export const FinalCTASection: React.FC<FinalCTASectionProps> = ({
 
                 <div className="absolute top-10 right-4 w-60 p-3 glass-card-light rotate-3 shadow-2xl transition-transform hover:rotate-0 hover:scale-105 duration-300 z-20 border border-[#2d3329]/30">
                   <div className="aspect-[4/3] w-full overflow-hidden bg-black mb-2 shadow-inner">
-                    <img src="/zonalyze_liquid_glass_ui.jpg" alt="Field Crop 2" className="w-full h-full object-cover" />
+                    <img src="/zonalyze_tactical_dark_console.jpg" alt="Field Crop 2" className="w-full h-full object-cover" />
                   </div>
                   <div className="font-editorial-sans text-[10px] text-[#2d3329] font-medium flex justify-between uppercase">
                     <span>RADAR TELEMETRY</span>
-                    <span className="text-red-700">AQI: 83 POOR</span>
+                    <span className="text-red-700">AQI: 101 POOR</span>
                   </div>
                 </div>
               </div>

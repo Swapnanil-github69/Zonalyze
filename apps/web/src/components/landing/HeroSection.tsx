@@ -206,12 +206,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Field Image Canvas */}
-            <div className={`relative aspect-[16/9] w-full overflow-hidden ${isLiterary ? "bg-[#f9faf7]" : "bg-[#161b13]"}`}>
+            <div
+              className={`relative aspect-[16/9] w-full overflow-hidden transition-colors duration-500 ${
+                isLiterary ? "bg-[#fcfaf7]" : "bg-[#0b0f0c]"
+              }`}
+            >
               <img
-                src="/zonalyze_liquid_glass_ui.jpg"
+                src={isLiterary ? "/zonalyze_literary_paper_console.jpg" : "/zonalyze_tactical_dark_console.jpg"}
                 alt="ZONALYZE live audit console"
-                className="w-full h-full object-contain sm:object-cover"
-                style={{ imageRendering: "-webkit-optimize-contrast" }}
+                width={1376}
+                height={768}
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-contain block select-none pointer-events-none transition-opacity duration-300"
               />
             </div>
 
