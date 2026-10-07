@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import { InvestigationResult } from "../../types/investigation";
 import { askLocationAi } from "../../api/client";
-import { naturalVoicePlayer, SupportedSpeechLang } from "../../utils/naturalSpeech";
+import { naturalVoicePlayer, SupportedSpeechLang, sanitizeChatText } from "../../utils/naturalSpeech";
 
+export { sanitizeChatText };
 interface ChatMessage {
   id: string;
   role: "user" | "assistant";
@@ -160,7 +161,7 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
       {
         id: `welcome-${selectedLang.code}`,
         role: "assistant",
-        text: `[${selectedLang.label}] ${locationName}: ${selectedLang.welcome}`,
+        text: sanitizeChatText(`${locationName}: ${selectedLang.welcome}`),
         timestamp: new Date(),
       },
     ]);
@@ -187,6 +188,7 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
   }, [messages, isLoading]);
 
   const speakText = (text: string, messageId: string) => {
+    const cleanText = sanitizeChatText(text);
     if (speakingMessageId === messageId) {
       naturalVoicePlayer.stop();
       setSpeakingMessageId(null);
@@ -196,7 +198,7 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
     naturalVoicePlayer.stop();
     setSpeakingMessageId(messageId);
 
-    naturalVoicePlayer.play(text, selectedLang.speechLang, messageId, {
+    naturalVoicePlayer.play(cleanText, selectedLang.speechLang, messageId, {
       onStart: () => setSpeakingMessageId(messageId),
       onEnd: () => setSpeakingMessageId(null),
       onError: (err) => {
@@ -260,10 +262,12 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
         selectedLang.name
       );
 
+      const cleanReply = sanitizeChatText(reply);
+
       const assistantMsg: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: "assistant",
-        text: reply,
+        text: cleanReply,
         timestamp: new Date(),
       };
 
@@ -271,7 +275,7 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
 
       // If user spoke or autoSpeak is on, read reply aloud
       if (wasSpoken || autoSpeak) {
-        speakText(reply, assistantMsg.id);
+        speakText(cleanReply, assistantMsg.id);
       }
     } catch (err: any) {
       const errorMsg: ChatMessage = {
@@ -298,7 +302,7 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
       {
         id: `welcome-${selectedLang.code}-${Date.now()}`,
         role: "assistant",
-        text: `[${selectedLang.label}] ${locationName}: ${selectedLang.welcome}`,
+        text: sanitizeChatText(`${locationName}: ${selectedLang.welcome}`),
         timestamp: new Date(),
       },
     ]);
@@ -459,13 +463,13 @@ export const AiChatWidget: React.FC<AiChatWidgetProps> = ({ investigation }) => 
                         </>
                       )}
                     </div>
-                    <div className="whitespace-pre-wrap">{msg.text}</div>
+                    <div className="whitespace-pre-wrap">{sanitizeChatText(msg.text)}</div>
 
                     {/* Natural Voice Readout button for Assistant */}
                     {isAssistant && (
                       <div className="mt-2 pt-1.5 border-t border-slate-800/80 flex items-center justify-between">
                         <button
-                          onClick={() => speakText(msg.text, msg.id)}
+                          onClick={() => speakText(sanitizeChatText(msg.text), msg.id)}
                           className={`flex items-center space-x-1.5 text-[10px] px-2.5 py-1 rounded-lg transition font-medium ${isSpeaking
                               ? "bg-indigo-600/30 text-indigo-300 border border-indigo-500/50 shadow-sm shadow-indigo-500/20"
                               : "text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800/60"
