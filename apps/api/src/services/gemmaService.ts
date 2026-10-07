@@ -13,9 +13,119 @@ export const CANDIDATE_MODELS = [
 ];
 
 /**
+ * Escapes literal raw control characters (newlines, carriage returns, tabs)
+ * that occur inside unescaped JSON string literals.
+ */
+function escapeControlCharsInJsonStrings(jsonStr: string): string {
+  let inString = false;
+  let escaped = false;
+  let result = "";
+
+  for (let i = 0; i < jsonStr.length; i++) {
+    const ch = jsonStr[i];
+
+    if (escaped) {
+      result += ch;
+      escaped = false;
+      continue;
+    }
+
+    if (ch === "\\") {
+      result += ch;
+      escaped = true;
+      continue;
+    }
+
+    if (ch === '"') {
+      inString = !inString;
+      result += ch;
+      continue;
+    }
+
+    if (inString) {
+      if (ch === "\n") {
+        result += "\\n";
+      } else if (ch === "\r") {
+        result += "\\r";
+      } else if (ch === "\t") {
+        result += "\\t";
+      } else {
+        result += ch;
+      }
+    } else {
+      result += ch;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Recovers key debrief fields via resilient regular expressions if JSON syntax is fundamentally broken.
+ */
+function extractDebriefFieldsRegex<T>(rawText: string, fallback: T): T {
+  if (!rawText || typeof rawText !== "string" || !fallback || typeof fallback !== "object") {
+    return fallback;
+  }
+
+  const result: any = Array.isArray(fallback) ? [...(fallback as any)] : { ...(fallback as any) };
+  let recoveredAny = false;
+
+  // 1. Recover summary
+  const summaryMatch = rawText.match(/"summary"\s*:\s*"((?:\\.|[^"\\])*)"/);
+  if (summaryMatch && summaryMatch[1]) {
+    result.summary = summaryMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n").trim();
+    recoveredAny = true;
+  }
+
+  // 2. Recover insights_in_brief
+  const transitMatch = rawText.match(/"transit"\s*:\s*"((?:\\.|[^"\\])*)"/);
+  const healthMatch = rawText.match(/"healthcare"\s*:\s*"((?:\\.|[^"\\])*)"/);
+  const envMatch = rawText.match(/"environment"\s*:\s*"((?:\\.|[^"\\])*)"/);
+  const acousticMatch = rawText.match(/"acoustic"\s*:\s*"((?:\\.|[^"\\])*)"/);
+
+  if (transitMatch || healthMatch || envMatch || acousticMatch) {
+    result.insights_in_brief = {
+      transit: transitMatch?.[1]?.replace(/\\"/g, '"').trim() || result.insights_in_brief?.transit || "",
+      healthcare: healthMatch?.[1]?.replace(/\\"/g, '"').trim() || result.insights_in_brief?.healthcare || "",
+      environment: envMatch?.[1]?.replace(/\\"/g, '"').trim() || result.insights_in_brief?.environment || "",
+      acoustic: acousticMatch?.[1]?.replace(/\\"/g, '"').trim() || result.insights_in_brief?.acoustic || "",
+    };
+    recoveredAny = true;
+  }
+
+  // 3. Recover empirical_observations array
+  const obsBlockMatch = rawText.match(/"empirical_observations"\s*:\s*\[([\s\S]*?)(\]|$)/);
+  if (obsBlockMatch && obsBlockMatch[1]) {
+    const items = [...obsBlockMatch[1].matchAll(/"((?:\\.|[^"\\])*)"/g)].map((m) =>
+      m[1].replace(/\\"/g, '"').replace(/\\n/g, "\n").trim()
+    ).filter(Boolean);
+    if (items.length > 0) {
+      result.empirical_observations = items;
+      recoveredAny = true;
+    }
+  }
+
+  // 4. Recover site_inspection_targets array
+  const targetsBlockMatch = rawText.match(/"site_inspection_targets"\s*:\s*\[([\s\S]*?)(\]|$)/);
+  if (targetsBlockMatch && targetsBlockMatch[1]) {
+    const items = [...targetsBlockMatch[1].matchAll(/"((?:\\.|[^"\\])*)"/g)].map((m) =>
+      m[1].replace(/\\"/g, '"').replace(/\\n/g, "\n").trim()
+    ).filter(Boolean);
+    if (items.length > 0) {
+      result.site_inspection_targets = items;
+      recoveredAny = true;
+    }
+  }
+
+  return recoveredAny ? (result as T) : fallback;
+}
+
+/**
  * Resilient JSON Sanitization:
  * Cleans markdown fences, extracts outermost JSON object/array,
- * handles trailing commas/tokens, and returns fallback on parse failure.
+ * repairs unescaped control chars, missing commas, and trailing commas,
+ * and recovers fields via regular expressions before falling back.
  */
 export function cleanAndParseJSON<T>(rawText: string, fallback: T): T {
   try {
@@ -48,21 +158,34 @@ export function cleanAndParseJSON<T>(rawText: string, fallback: T): T {
     try {
       return JSON.parse(cleaned) as T;
     } catch {
-      // 4. Sanitize common LLM syntax irregularities:
-      // Remove trailing commas before closing braces/brackets
-      const fixedCommas = cleaned
-        .replace(/,\s*([}\]])/g, "$1")
-        // Remove unescaped control characters
-        .replace(/[\u0000-\u001F]+/g, (match) => {
-          if (match === "\n" || match === "\r" || match === "\t") return match;
-          return "";
-        });
+      // 4. Multi-pass sanitize common LLM syntax irregularities:
+      // Strip single-line comments // ...
+      let repaired = cleaned.replace(/(^|[^:])\/\/[^\n]*/g, "$1");
 
-      return JSON.parse(fixedCommas) as T;
+      // Properly escape raw unescaped newlines/tabs inside string literals
+      repaired = escapeControlCharsInJsonStrings(repaired);
+
+      // Fix missing commas between properties on new lines:
+      // e.g. "value"\n  "nextKey": -> "value",\n  "nextKey":
+      repaired = repaired.replace(/("|\btrue\b|\bfalse\b|\bnull\b|\d+|\]|\})\s*\n\s*("[\w_-]+"\s*:)/g, "$1,\n$2");
+
+      // Fix missing commas between array items on new lines:
+      repaired = repaired.replace(/("|\btrue\b|\bfalse\b|\bnull\b|\d+|\]|\})\s*\n\s*(")/g, "$1,\n$2");
+
+      // Remove trailing commas before closing braces/brackets
+      repaired = repaired.replace(/,\s*([}\]])/g, "$1");
+
+      try {
+        return JSON.parse(repaired) as T;
+      } catch {
+        // 5. If JSON.parse still fails, recover actual AI content using regex field extraction
+        const recovered = extractDebriefFieldsRegex(cleaned, fallback);
+        return recovered;
+      }
     }
   } catch (err: any) {
-    console.warn("[GemmaService] JSON parse failed, returning fallback schema:", err?.message);
-    return fallback;
+    console.warn("[GemmaService] JSON parse failed, extracting fields or using fallback:", err?.message);
+    return extractDebriefFieldsRegex(rawText, fallback);
   }
 }
 
