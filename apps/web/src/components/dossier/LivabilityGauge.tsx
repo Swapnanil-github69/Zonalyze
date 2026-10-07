@@ -51,8 +51,7 @@ export const LivabilityGauge: React.FC<LivabilityGaugeProps> = ({ livability }) 
     <div className="glass-panel p-4 rounded-2xl border border-slate-700/60 space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <ShieldCheck className="w-4 h-4 text-blue-400" />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+          <h3 className="text-[15px] font-semibold text-slate-200 tracking-[-0.01em]" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
             Objective Livability Index
           </h3>
         </div>

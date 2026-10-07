@@ -160,7 +160,7 @@ export const AudioDebriefPlayer: React.FC<AudioDebriefPlayerProps> = ({
         </div>
         <div className="min-w-0">
           <div className="flex items-center space-x-1.5">
-            <span className="text-xs font-bold text-white font-mono tracking-wide truncate">
+            <span className="text-[15px] font-semibold text-slate-200 tracking-[-0.01em] truncate" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
               Voice Audio Debrief
             </span>
             <span className="text-[9px] font-mono text-cyan-300 bg-cyan-500/20 px-1.5 py-0.2 rounded border border-cyan-500/30">
@@ -223,8 +223,8 @@ export const AudioDebriefPlayer: React.FC<AudioDebriefPlayerProps> = ({
               key={lang.code}
               onClick={() => changeLanguage(lang.code)}
               className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-medium transition ${selectedLang === lang.code
-                  ? "bg-indigo-600 text-white shadow-sm font-bold"
-                  : "text-slate-400 hover:text-slate-200"
+                ? "bg-indigo-600 text-white shadow-sm font-bold"
+                : "text-slate-400 hover:text-slate-200"
                 }`}
               title={`Switch audio to ${lang.name}`}
             >

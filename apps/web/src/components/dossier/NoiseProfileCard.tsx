@@ -48,9 +48,8 @@ export const NoiseProfileCard: React.FC<NoiseProfileCardProps> = ({ noiseProfile
     <div className="glass-panel p-4 rounded-2xl border border-slate-700/60 space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Volume2 className="w-4 h-4 text-indigo-400" />
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+        <div className="flex items-center">
+          <h3 className="text-[15px] font-semibold text-slate-200 tracking-[-0.01em]" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
             Acoustic & Noise Exposure Profile
           </h3>
         </div>
