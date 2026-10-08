@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Wind,
   Activity,
   Thermometer,
   TrendingUp,

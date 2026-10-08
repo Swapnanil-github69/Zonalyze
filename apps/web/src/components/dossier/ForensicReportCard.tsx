@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import {
   Sparkles,
-  CheckCircle2,
-  ClipboardList,
   Check,
   Bot,
   Train,

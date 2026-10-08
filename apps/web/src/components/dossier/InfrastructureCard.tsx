@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import {
-  Building2,
   HeartPulse,
   Trees,
   Pill,
   Star,
   ExternalLink,
-  Hotel,
   Navigation,
 } from "lucide-react";
 import { InfrastructureData, FacilitiesData } from "../../types/investigation";

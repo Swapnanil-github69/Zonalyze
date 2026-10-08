@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  MessageSquare,
   Send,
   Mic,
   MicOff,
   Volume2,
   VolumeX,
-  Sparkles,
   Bot,
   User,
   RotateCcw,
