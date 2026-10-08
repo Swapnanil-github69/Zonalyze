@@ -2,7 +2,6 @@ import { Router } from "express";
 import {
   getInvestigationById,
   getRecentInvestigations,
-  investigateLocation,
 } from "../controllers/investigateController.js";
 import { InvestigateController } from "../controllers/investigate.controller.js";
 import { forwardGeocode } from "../controllers/auditController.js";
