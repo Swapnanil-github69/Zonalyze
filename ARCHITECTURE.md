@@ -42,7 +42,7 @@ With 4 contributors on the team, work is divided across clear interface boundari
 | Role & Contributor                 | Primary Responsibilities & Target Files                     |
 +------------------------------------+-------------------------------------------------------------+
 | Contributor 1: Backend Lead        | • Orchestration Controller (`apps/api/src/controllers/`)     |
-| (You)                              | • Ingestion Services (Nominatim, Open-Meteo, Overpass)      |
+|                             | • Ingestion Services (Nominatim, Open-Meteo, Overpass)      |
 |                                    | • Heuristics Engine (Haversine & Noise proxy math)          |
 |                                    | • Gemma Structured Output Debrief Integration               |
 +------------------------------------+-------------------------------------------------------------+
