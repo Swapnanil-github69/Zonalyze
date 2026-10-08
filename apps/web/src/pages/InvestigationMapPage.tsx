@@ -9,6 +9,7 @@ import {
   ShieldAlert,
   Sparkles,
   ArrowLeft,
+  Crosshair,
 } from "lucide-react";
 import { fetchFacilityRoute, RouteResult, TravelMode } from "../services/routeService";
 import { SelectedFacility } from "../components/dossier/InfrastructureCard";
@@ -176,13 +177,18 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
       <div className="fixed top-5 left-5 z-30 flex items-center gap-2.5 max-w-[calc(100vw-2.5rem)]">
         <button
           onClick={onBackToHome}
-          className="group glass-panel-elevated hover:bg-[#081426] text-white px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center space-x-2 border border-slate-700/70 hover:border-cyan-500/50 hover:scale-[1.02] active:scale-95 transition-all duration-200 backdrop-blur-md shrink-0 bg-slate-950/75"
-          title="Back to ZONALYZE Landing Page"
+          className="group glass-panel-elevated hover:bg-[#161b13]/90 text-white px-3 py-2 rounded-2xl shadow-xl flex items-center space-x-2.5 border border-[#e2ffcc]/20 hover:border-[#e2ffcc]/50 hover:scale-[1.02] active:scale-95 transition-all duration-200 backdrop-blur-md shrink-0 bg-slate-950/80"
+          title="Back to Zonalyze Landing Page"
         >
-          <ArrowLeft className="w-4 h-4 text-slate-300 group-hover:-translate-x-1 transition duration-200" />
-          <span className="text-xs font-bold font-mono tracking-wider hidden sm:inline text-white">
-            ZONALYZE
-          </span>
+          <ArrowLeft className="w-4 h-4 text-[#e2ffcc]/80 group-hover:-translate-x-1 transition duration-200" />
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded-full border border-[#e2ffcc] flex items-center justify-center text-[#e2ffcc] group-hover:scale-105 transition-transform duration-200">
+              <Crosshair className="w-3.5 h-3.5 text-[#e2ffcc]" />
+            </div>
+            <span className="font-sans text-sm sm:text-base font-medium text-[#e2ffcc] tracking-wide leading-none hidden sm:inline">
+              Zonalyze
+            </span>
+          </div>
         </button>
 
         {/* Geocoding Search Bar */}

@@ -1,5 +1,5 @@
 import React from "react";
-import { ShieldCheck, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { LivabilityScoreData } from "../../types/investigation";
 
 interface LivabilityGaugeProps {
