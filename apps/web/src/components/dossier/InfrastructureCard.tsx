@@ -195,15 +195,18 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
 
             {/* Convenience Stores / Pharmacies */}
             <div
-              onClick={() =>
+              onClick={() => {
+                if (detailed.essentials.convenienceStores.nearest_dist_m === null || !detailed.essentials.convenienceStores.coordinates) return;
                 handleCardClick(
                   detailed.essentials.convenienceStores.name || "Pharmacy & Store",
                   detailed.essentials.convenienceStores.coordinates,
                   detailed.essentials.convenienceStores.nearest_dist_m,
                   "store"
-                )
-              }
-              className={`p-2.5 rounded-xl border text-center flex flex-col justify-between cursor-pointer transition-all duration-200 group active:scale-[0.98] ${isSelected(detailed.essentials.convenienceStores.name || "Pharmacy & Store")
+                );
+              }}
+              className={`p-2.5 rounded-xl border text-center flex flex-col justify-between transition-all duration-200 group active:scale-[0.98] ${
+                detailed.essentials.convenienceStores.nearest_dist_m === null ? "opacity-70 cursor-default" : "cursor-pointer"
+              } ${isSelected(detailed.essentials.convenienceStores.name || "Pharmacy & Store")
                   ? "bg-amber-950/40 border-amber-400 ring-1 ring-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.3)]"
                   : "bg-slate-900/80 border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/80"
                 }`}
@@ -216,9 +219,19 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
                 <div className="text-[10px] text-slate-400">Stores / Pharm</div>
               </div>
               <div className="mt-1">
-                <div className="text-[10px] text-amber-400 font-mono font-semibold">
-                  {formatDistance(detailed.essentials.convenienceStores.nearest_dist_m)}
+                <div className="text-[10px] text-amber-400 font-mono font-semibold truncate" title={detailed.essentials.convenienceStores.name || undefined}>
+                  {detailed.essentials.convenienceStores.nearest_dist_m !== null
+                    ? formatDistance(detailed.essentials.convenienceStores.nearest_dist_m)
+                    : "None within 1.5km"}
                 </div>
+                {detailed.essentials.convenienceStores.name && detailed.essentials.convenienceStores.nearest_dist_m !== null && (
+                  <div
+                    className="text-[9px] text-amber-300 font-medium truncate mt-0.5 px-1 py-0.5 bg-amber-500/10 rounded border border-amber-500/20"
+                    title={detailed.essentials.convenienceStores.name}
+                  >
+                    {detailed.essentials.convenienceStores.name}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -248,6 +261,14 @@ export const InfrastructureCard: React.FC<InfrastructureCardProps> = ({
                 <div className="text-[10px] text-emerald-400 font-mono font-semibold">
                   {formatDistance(detailed.essentials.parks.nearest_dist_m)}
                 </div>
+                {detailed.essentials.parks.name && detailed.essentials.parks.nearest_dist_m !== null && (
+                  <div
+                    className="text-[9px] text-emerald-300 font-medium truncate mt-0.5 px-1 py-0.5 bg-emerald-500/10 rounded border border-emerald-500/20"
+                    title={detailed.essentials.parks.name}
+                  >
+                    {detailed.essentials.parks.name}
+                  </div>
+                )}
               </div>
             </div>
           </div>

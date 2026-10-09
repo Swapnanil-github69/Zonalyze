@@ -29,6 +29,8 @@ export interface OSMResult {
       facilities: Facility[];
     };
     store: Facility | null;
+    pharmacy: Facility | null;
+    stores: Facility | null;
     park: Facility | null;
     airport: Facility | null;
     hotels: HotelFacility[];
@@ -68,6 +70,8 @@ export function createFallbackResult(confidence: string): OSMResult {
         facilities: [],
       },
       store: null,
+      pharmacy: null,
+      stores: null,
       park: null,
       airport: null,
       hotels: [],
@@ -180,13 +184,25 @@ export function buildPanIndiaOverpassQuery(lat: number, lon: number): string {
   nwr["tourism"~"hotel|guest_house|hostel|motel|chalet"](around:${HOTEL_RADIUS},${lat},${lon});
 
   // 4. Medical facilities (Hospitals, Nursing Homes, Clinics)
-  nwr["amenity"~"hospital|clinic"](around:1500, ${lat}, ${lon});
-  nwr["healthcare"~"hospital|clinic|centre"](around:1500, ${lat}, ${lon});
+  nwr["amenity"~"hospital|clinic"](around:2500, ${lat}, ${lon});
+  nwr["healthcare"~"hospital|clinic|centre"](around:2500, ${lat}, ${lon});
 
-  // 5. Urban Essentials
-  nwr["amenity"~"pharmacy|marketplace"](around:2000,${lat},${lon});
-  nwr["shop"~"supermarket|convenience|chemist|general|grocery|department_store|mall|bakery|dairy|variety_store"](around:2000,${lat},${lon});
-  nwr["leisure"~"park|garden|recreation_ground|square"](around:2000,${lat},${lon});
+  // 5. Urban Essentials & Green Spaces
+  nwr["leisure"~"park|garden|recreation_ground|square"](around:2000, ${lat}, ${lon});
+
+  // 6. PHARMACIES, CHEMISTS, AND ESSENTIAL RETAIL STORES
+  nwr["amenity"="pharmacy"](around:2000, ${lat}, ${lon});
+  nwr["amenity"="chemist"](around:2000, ${lat}, ${lon});
+  nwr["shop"="chemist"](around:2000, ${lat}, ${lon});
+  nwr["shop"="pharmacy"](around:2000, ${lat}, ${lon});
+  nwr["healthcare"="pharmacy"](around:2000, ${lat}, ${lon});
+  nwr["healthcare"="chemist"](around:2000, ${lat}, ${lon});
+  nwr["shop"="medical_supply"](around:2000, ${lat}, ${lon});
+  nwr["amenity"="dispensary"](around:2000, ${lat}, ${lon});
+  nwr["shop"="supermarket"](around:1500, ${lat}, ${lon});
+  nwr["shop"="convenience"](around:1500, ${lat}, ${lon});
+  nwr["amenity"="marketplace"](around:2000, ${lat}, ${lon});
+  nwr["shop"~"general|grocery|department_store|mall|bakery|dairy|variety_store"](around:2000, ${lat}, ${lon});
 );
 out center body;
 >;
@@ -399,8 +415,30 @@ export function resolveShopName(tags: Record<string, string> = {}): string {
     ""
   ).trim();
 
-  if (explicitName && explicitName.toLowerCase() !== "store" && explicitName.toLowerCase() !== "shop") {
+  const isStreetName =
+    /\b(road|rd|street|st|lane|avenue|ave|block|sector|sarani|cross)\b/i.test(explicitName) &&
+    !/\b(pharmacy|chemist|med|store|shop|bazaar|market|mart|drug|clinic|apollo|ross|plus)\b/i.test(explicitName);
+
+  if (
+    explicitName &&
+    !isStreetName &&
+    explicitName.toLowerCase() !== "store" &&
+    explicitName.toLowerCase() !== "shop"
+  ) {
     return explicitName;
+  }
+
+  if (
+    tags.amenity === "pharmacy" ||
+    tags.amenity === "chemist" ||
+    tags.shop === "chemist" ||
+    tags.shop === "pharmacy" ||
+    tags.healthcare === "pharmacy" ||
+    tags.healthcare === "chemist" ||
+    tags.shop === "medical_supply" ||
+    tags.amenity === "dispensary"
+  ) {
+    return "Local Pharmacy & Chemist";
   }
 
   if (tags.shop) {
@@ -408,10 +446,6 @@ export function resolveShopName(tags: Record<string, string> = {}): string {
       .replace(/_/g, " ")
       .replace(/\b\w/g, (char) => char.toUpperCase());
     return `${formattedType} Store`;
-  }
-
-  if (tags.amenity === "pharmacy") {
-    return "Pharmacy & Medical Store";
   }
 
   if (tags.amenity === "marketplace") {
@@ -497,7 +531,7 @@ async function fallbackWithNominatimFacilities(
       "User-Agent": "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
     };
 
-    const [hospRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes, shopRes] = await Promise.allSettled([
+    const [hospRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes, shopRes, pharmRes, chemistRes] = await Promise.allSettled([
       axios.get(`https://nominatim.openstreetmap.org/search?q=hospital+clinic&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=15&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=bus+stop&format=json&limit=8&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
@@ -505,6 +539,8 @@ async function fallbackWithNominatimFacilities(
       axios.get(`https://nominatim.openstreetmap.org/search?q=guest+house&format=json&limit=5&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
       axios.get(`https://nominatim.openstreetmap.org/search?q=supermarket+store+grocery&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
+      axios.get(`https://nominatim.openstreetmap.org/search?q=pharmacy&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
+      axios.get(`https://nominatim.openstreetmap.org/search?q=chemist&format=json&limit=6&viewbox=${viewbox}&bounded=1`, { headers, timeout: 4000 }),
     ]);
 
     const elements: OverpassElement[] = [];
@@ -598,6 +634,35 @@ async function fallbackWithNominatimFacilities(
       }
     }
 
+    if (pharmRes.status === "fulfilled" && Array.isArray(pharmRes.value.data)) {
+      for (const item of pharmRes.value.data) {
+        const rawName = (item.name || item.display_name?.split(",")[0] || "").trim();
+        elements.push({
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon),
+          tags: {
+            amenity: "pharmacy",
+            shop: "chemist",
+            name: rawName || "Pharmacy & Medical Store",
+          },
+        });
+      }
+    }
+
+    if (chemistRes.status === "fulfilled" && Array.isArray(chemistRes.value.data)) {
+      for (const item of chemistRes.value.data) {
+        const rawName = (item.name || item.display_name?.split(",")[0] || "").trim();
+        elements.push({
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon),
+          tags: {
+            shop: "chemist",
+            name: rawName || "Local Chemist & Medicine Shop",
+          },
+        });
+      }
+    }
+
     if (elements.length > 0) {
       return parseElements(lat, lon, elements);
     }
@@ -657,7 +722,57 @@ export async function fetchOSMData(lat: number, lon: number): Promise<OSMResult>
   // Hedged execution: try Overpass mirrors first; if slow (>2200ms), start Nominatim fallback speculatively
   let fallbackTimer: NodeJS.Timeout | null = null;
   const overpassPromise = Promise.any(OVERPASS_ENDPOINTS.map((ep) => fetchFromEndpoint(ep)))
-    .then((elements) => {
+    .then(async (elements) => {
+      console.log(`[OverpassService] Overpass API query returned ${elements.length} raw elements for (${lat.toFixed(5)}, ${lon.toFixed(5)}).`);
+      
+      const hasPharmacies = elements.some((el) => {
+        const t = el.tags || {};
+        return (
+          t.amenity === "pharmacy" ||
+          t.amenity === "chemist" ||
+          t.shop === "chemist" ||
+          t.shop === "pharmacy" ||
+          t.healthcare === "pharmacy" ||
+          t.healthcare === "chemist" ||
+          t.shop === "medical_supply" ||
+          t.amenity === "dispensary"
+        );
+      });
+
+      if (!hasPharmacies) {
+        console.log("[OverpassService] Overpass returned 0 pharmacies. Querying Nominatim fallback...");
+        try {
+          const delta = 0.035;
+          const viewbox = `${(lon - delta).toFixed(4)},${(lat + delta).toFixed(4)},${(lon + delta).toFixed(4)},${(lat - delta).toFixed(4)}`;
+          const nomPharmRes = await axios.get(
+            `https://nominatim.openstreetmap.org/search?q=pharmacy&format=json&limit=10&viewbox=${viewbox}&bounded=1`,
+            {
+              headers: {
+                "User-Agent": "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
+              },
+              timeout: 3500,
+            }
+          );
+          if (Array.isArray(nomPharmRes.data) && nomPharmRes.data.length > 0) {
+            for (const item of nomPharmRes.data) {
+              const rawName = (item.name || item.display_name?.split(",")[0] || "").trim();
+              elements.push({
+                lat: parseFloat(item.lat),
+                lon: parseFloat(item.lon),
+                tags: {
+                  amenity: "pharmacy",
+                  shop: "chemist",
+                  name: rawName || "Pharmacy & Medical Store",
+                },
+              });
+            }
+            console.log(`[OverpassService] Enriched with ${nomPharmRes.data.length} pharmacies from Nominatim.`);
+          }
+        } catch (e: any) {
+          console.warn("Nominatim pharmacy fallback error:", e?.message);
+        }
+      }
+
       const parsed = parseElements(lat, lon, elements);
       osmMemoryCache.set(cacheKey, { timestamp: Date.now(), data: parsed });
       return parsed;
@@ -694,6 +809,34 @@ export async function fetchOSMData(lat: number, lon: number): Promise<OSMResult>
 }
 
 /**
+ * High-level facility fetcher supporting both legacy and granular schemas
+ */
+export async function fetchNearbyFacilities(lat: number, lon: number) {
+  console.log(`[OverpassService] Fetching facilities for coords: ${lat}, ${lon}`);
+  const osmResult = await fetchOSMData(lat, lon);
+  const pharmacy = osmResult.facilities.pharmacy;
+  const store = osmResult.facilities.store || osmResult.facilities.stores;
+  const pharmList = pharmacy ? [pharmacy] : [];
+  const storeList = store ? [store] : [];
+
+  return {
+    pharmacy: pharmacy || null,
+    pharmacies: {
+      count: pharmacy?.count ?? (pharmacy ? 1 : 0),
+      nearest: pharmacy || null,
+      list: pharmList,
+    },
+    stores: {
+      count: store?.count ?? (store ? 1 : 0),
+      nearest: store || null,
+      list: storeList,
+    },
+    facilities: osmResult.facilities,
+    noise: osmResult.noise,
+  };
+}
+
+/**
  * Parses raw Overpass elements into structured facilities with exact coordinates [lon, lat]
  * and estimates noise exposure.
  */
@@ -716,6 +859,9 @@ export function parseElements(
   let highwayDistance: number | null = null;
   let busStopsCount = 0;
   let maxBusRoutes = 0;
+  let storeEnvelopeCount = 0;
+  let pharmacyEnvelopeCount = 0;
+  let commercialStoreEnvelopeCount = 0;
 
   for (const element of elements) {
     const elLat = element.lat ?? element.center?.lat;
@@ -822,19 +968,56 @@ export function parseElements(
         }
       }
     }
-    const isStoreOrRetail =
-      Boolean(tags.shop) ||
-      tags.amenity === "marketplace" ||
-      tags.amenity === "pharmacy";
+    const isPharmacy =
+      tags.amenity === "pharmacy" ||
+      tags.amenity === "chemist" ||
+      tags.shop === "chemist" ||
+      tags.shop === "pharmacy" ||
+      tags.healthcare === "pharmacy" ||
+      tags.healthcare === "chemist" ||
+      tags.shop === "medical_supply" ||
+      tags.amenity === "dispensary";
 
-    if (isStoreOrRetail) {
+    const isCommercialStore =
+      tags.shop === "supermarket" ||
+      tags.shop === "convenience" ||
+      tags.shop === "grocery" ||
+      tags.shop === "general" ||
+      tags.amenity === "marketplace" ||
+      (Boolean(tags.shop) && !isPharmacy);
+
+    if (isPharmacy) {
+      if (d <= 2000) {
+        pharmacyEnvelopeCount++;
+        storeEnvelopeCount++;
+      }
+      const shopName = resolveShopName(tags);
+      const pharmCandidate: Facility = {
+        name: shopName,
+        distanceMeters: d,
+        coordinates: [elLon, elLat],
+        type: "Pharmacy",
+      };
+      result.facilities.pharmacy = updateNearest(result.facilities.pharmacy, pharmCandidate);
+      result.facilities.store = updateNearest(result.facilities.store, pharmCandidate);
+    } else if (isCommercialStore) {
+      if (d <= 2000) {
+        commercialStoreEnvelopeCount++;
+        storeEnvelopeCount++;
+      }
       const shopName = resolveShopName(tags);
       const storeCandidate: Facility = {
         name: shopName,
         distanceMeters: d,
         coordinates: [elLon, elLat],
+        type: "Store",
       };
-      result.facilities.store = updateNearest(result.facilities.store, storeCandidate);
+      result.facilities.stores = updateNearest(result.facilities.stores, storeCandidate);
+      if (!result.facilities.store) {
+        result.facilities.store = storeCandidate;
+      } else if (result.facilities.store.type !== "Pharmacy" && d < result.facilities.store.distanceMeters) {
+        result.facilities.store = storeCandidate;
+      }
     }
     if (tags.leisure && /^(park|garden|recreation_ground|square)$/.test(tags.leisure)) {
       result.facilities.park = updateNearest(
@@ -888,6 +1071,17 @@ export function parseElements(
         count: medicalEnvelopeFacilities.length,
       }
     : null;
+
+  if (result.facilities.pharmacy) {
+    result.facilities.pharmacy.count = pharmacyEnvelopeCount;
+  }
+  if (result.facilities.stores) {
+    result.facilities.stores.count = commercialStoreEnvelopeCount;
+  }
+  if (result.facilities.store) {
+    result.facilities.store.count = storeEnvelopeCount;
+  }
+
   const uniqueHotels: HotelFacility[] = [];
   const seenHotelKeys = new Set<string>();
 

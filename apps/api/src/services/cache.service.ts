@@ -44,9 +44,16 @@ export function isInvestigationCorrupted(cached: any): boolean {
   ).toLowerCase();
   const airportName = (cached.facilities?.airport?.name || "").toLowerCase();
   const hasAirport = Boolean(cached.facilities?.airport?.name);
+  const hasStoreOrPharm = Boolean(
+    cached.facilities?.pharmacy?.name ||
+    cached.facilities?.store?.name ||
+    cached.facilities?.stores?.name ||
+    (cached.infrastructure?.pharmacies && cached.infrastructure.pharmacies > 0)
+  );
 
   // Stale detection: if rail station has "metro" or "line 1" or "line 2" or "esplanade" or "central",
-  // or if airport is completely missing in an urban area or matched non-commercial airfield, PURGE AND RE-RUN:
+  // or if airport is completely missing in an urban area or matched non-commercial airfield,
+  // or if pharmacies were completely missing (from previous 0-bug), PURGE AND RE-RUN:
   return (
     railName.includes("line 1") ||
     railName.includes("line 2") ||
@@ -56,7 +63,8 @@ export function isInvestigationCorrupted(cached: any): boolean {
     railName.includes("metro") ||
     metroName.includes("kamarkundu") ||
     NON_COMMERCIAL_AIRPORT_BLACKLIST.some((term) => airportName.includes(term)) ||
-    !hasAirport
+    !hasAirport ||
+    !hasStoreOrPharm
   );
 }
 
