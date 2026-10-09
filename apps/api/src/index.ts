@@ -43,11 +43,24 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-async function bootstrap() {
+// Lazy DB connection for serverless execution
+let isDbConnecting = false;
+app.use(async (_req, _res, next) => {
+  if (process.env.MONGODB_URI && !isDbConnecting) {
+    isDbConnecting = true;
+    connectDB().catch((err) => {
+      isDbConnecting = false;
+      console.error("Serverless database connection error:", err?.message || err);
+    });
+  }
+  next();
+});
+
+export async function bootstrap() {
   const port = Number(process.env.PORT) || 5000;
 
   // 1. Open HTTP listener immediately so API server is active in <100ms
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`⚡ Zonalyze API server running at http://localhost:${port}`);
   });
 
@@ -55,9 +68,17 @@ async function bootstrap() {
   connectDB().catch((err) => {
     console.error("Database connection failed:", err?.message || err);
   });
+
+  return server;
 }
 
-bootstrap().catch((err) => {
-  console.error("Fatal startup error:", err);
-  process.exit(1);
-});
+// Only listen on port in non-serverless local execution
+if (!process.env.VERCEL && process.env.NODE_ENV !== "test") {
+  bootstrap().catch((err) => {
+    console.error("Fatal startup error:", err);
+    process.exit(1);
+  });
+}
+
+export default app;
+export { app };
