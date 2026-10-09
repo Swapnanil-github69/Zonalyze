@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowDown, ArrowUpRight, Search, MapPin, Radio, ShieldCheck } from "lucide-react";
 import { useLandingTheme } from "../../context/LandingThemeContext";
+import { API_BASE_URL } from "../../utils/api";
 
 interface HeroSectionProps {
   onStartInvestigation?: (lat?: number, lon?: number) => void;
@@ -64,7 +65,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     setLoading(true);
     try {
       // First try backend forward geocode endpoint
-      const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`${API_BASE_URL}/api/geocode/search?q=${encodeURIComponent(query)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.results) && data.results.length > 0) {
@@ -75,7 +76,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       }
 
       // Try fallback backend /api/geocode endpoint
-      const res2 = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+      const res2 = await fetch(`${API_BASE_URL}/api/geocode?q=${encodeURIComponent(query)}`);
       if (res2.ok) {
         const data2 = await res2.json();
         if (data2.success && Array.isArray(data2.results) && data2.results.length > 0) {
@@ -141,7 +142,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(trimmed)}`);
+        const res = await fetch(`${API_BASE_URL}/api/geocode/search?q=${encodeURIComponent(trimmed)}`);
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.results)) {
@@ -517,7 +518,7 @@ export const LandingHeroSearch: React.FC<{
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(searchQuery)}`);
+      const res = await fetch(`${API_BASE_URL}/api/geocode/search?q=${encodeURIComponent(searchQuery)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.results) && data.results.length > 0) {

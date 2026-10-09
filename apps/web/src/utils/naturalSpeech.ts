@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "./api";
+
 /**
  * Natural Neural Speech Engine for Zonalyze
  * Provides human-sounding, native pronunciation in English, Hindi (हिन्दी), and Bangla (বাংলা).
@@ -213,7 +215,7 @@ export class NaturalAudioPlayer {
   private getAudioUrl(chunk: string, lang: SupportedSpeechLang): string {
     const safeChunk = chunk.slice(0, 150);
     // Primary: Zonalyze Backend TTS Proxy
-    return `/api/investigate/tts?text=${encodeURIComponent(safeChunk)}&lang=${lang}`;
+    return `${API_BASE_URL}/api/investigate/tts?text=${encodeURIComponent(safeChunk)}&lang=${lang}`;
   }
 
   private getDirectFallbackUrl(chunk: string, lang: SupportedSpeechLang): string {

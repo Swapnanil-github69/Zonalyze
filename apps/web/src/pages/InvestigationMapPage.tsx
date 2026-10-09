@@ -145,6 +145,7 @@ export const InvestigationMapPage: React.FC<InvestigationMapPageProps> = ({ onBa
 
   const handleSelectFacility = async (facility: SelectedFacility) => {
     setSelectedFacility(facility);
+    closeDossier(); // Auto-drop dossier panel down to expose the GPS tracking route and map viewport
     await fetchRouteForFacility(facility, travelMode);
   };
 

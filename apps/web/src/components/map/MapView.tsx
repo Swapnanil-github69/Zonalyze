@@ -347,8 +347,19 @@ export const MapView: React.FC<MapViewProps> = ({
       zoom: initialZoom,
       pitch: 42,
       bearing: -12,
+      antialias: false, // Performance boost: reduces WebGL draw overhead on integrated GPUs
+      fadeDuration: 0,   // Performance boost: disables tile fade transition lag
       attributionControl: false,
     });
+
+    // Smooth Canvas Resize Observer to handle window and parent container resizing
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined" && mapContainerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        mapInstance.resize();
+      });
+      resizeObserver.observe(mapContainerRef.current);
+    }
 
     // Custom attribution
     mapInstance.addControl(
@@ -394,12 +405,28 @@ export const MapView: React.FC<MapViewProps> = ({
     mapRef.current = mapInstance;
 
     return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       mapInstance.off("load", handleMapReady);
       mapInstance.off("styledata", handleMapReady);
       mapInstance.remove();
       mapRef.current = null;
     };
   }, []);
+
+  // Adjust camera offset and canvas viewport when side drawer opens/closes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Allow panel transition animation to settle before refreshing viewport boundaries
+    const timeout = setTimeout(() => {
+      map.resize();
+    }, 280);
+
+    return () => clearTimeout(timeout);
+  }, [isDossierOpen]);
 
   // Update route on map when activeRoute or selectedFacility changes
   useEffect(() => {
