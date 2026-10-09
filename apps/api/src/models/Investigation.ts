@@ -101,6 +101,8 @@ const FacilitySubSchema = new Schema(
     name: { type: String, required: true },
     distanceMeters: { type: Number, required: true },
     coordinates: { type: [Number], required: true }, // [longitude, latitude]
+    count: { type: Number, default: 1 },
+    type: { type: String },
   },
   { _id: false }
 );
@@ -125,6 +127,8 @@ const FacilitiesSchema = new Schema(
     autoStand: { type: FacilitySubSchema, default: null },
     hospital: { type: FacilitySubSchema, default: null },
     store: { type: FacilitySubSchema, default: null },
+    pharmacy: { type: FacilitySubSchema, default: null },
+    stores: { type: FacilitySubSchema, default: null },
     park: { type: FacilitySubSchema, default: null },
     airport: { type: FacilitySubSchema, default: null },
     hotels: { type: [HotelSubSchema], default: [] },

@@ -80,7 +80,16 @@ export class HeuristicService {
           type,
           coordinates: [lon, lat],
         });
-      } else if (tags.amenity === "pharmacy") {
+      } else if (
+        tags.amenity === "pharmacy" ||
+        tags.amenity === "chemist" ||
+        tags.shop === "chemist" ||
+        tags.shop === "pharmacy" ||
+        tags.healthcare === "pharmacy" ||
+        tags.healthcare === "chemist" ||
+        tags.shop === "medical_supply" ||
+        tags.amenity === "dispensary"
+      ) {
         pharmacies++;
       } else if (isRapidTransit && !cleanFacName.includes("kamarkundu")) {
         metro_stations++;

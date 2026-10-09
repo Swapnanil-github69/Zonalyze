@@ -131,6 +131,8 @@ export interface FacilitiesData {
     facilities: FacilitiesEntity[];
   };
   store: FacilitiesEntity | null;
+  pharmacy?: FacilitiesEntity | null;
+  stores?: FacilitiesEntity | null;
   park: FacilitiesEntity | null;
   airport: FacilitiesEntity | null;
   hotels: HotelEntity[];

@@ -54,7 +54,62 @@ export class OverpassService {
 
     // Speculative race: if Overpass mirrors do not resolve within 300ms, start fast fallback
     const overpassPromise = Promise.any(this.ENDPOINTS.map((ep) => fetchFromEndpoint(ep)))
-      .then((elements) => {
+      .then(async (elements) => {
+        console.log(`[OverpassService] Overpass query returned ${elements.length} raw elements.`);
+        
+        // Check if pharmacies exist in elements
+        const hasPharmacies = elements.some((el) => {
+          const t = el.tags || {};
+          return (
+            t.amenity === "pharmacy" ||
+            t.amenity === "chemist" ||
+            t.shop === "chemist" ||
+            t.shop === "pharmacy" ||
+            t.healthcare === "pharmacy" ||
+            t.healthcare === "chemist" ||
+            t.shop === "medical_supply" ||
+            t.amenity === "dispensary"
+          );
+        });
+
+        if (!hasPharmacies) {
+          console.log("[OverpassService] 0 pharmacies in Overpass result. Fetching targeted Nominatim pharmacy fallback...");
+          try {
+            const delta = 0.035;
+            const viewbox = `${(lon - delta).toFixed(4)},${(lat + delta).toFixed(4)},${(lon + delta).toFixed(4)},${(lat - delta).toFixed(4)}`;
+            const nomPharmRes = await axios.get(
+              `https://nominatim.openstreetmap.org/search?q=pharmacy&format=json&limit=10&viewbox=${viewbox}&bounded=1`,
+              {
+                headers: {
+                  "User-Agent":
+                    config.nominatimUserAgent ||
+                    "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
+                },
+                timeout: 3500,
+              }
+            );
+            if (Array.isArray(nomPharmRes.data) && nomPharmRes.data.length > 0) {
+              for (const item of nomPharmRes.data) {
+                const rawName = (item.name || item.display_name?.split(",")[0] || "").trim();
+                elements.push({
+                  type: "node",
+                  id: Number(item.osm_id) || Math.floor(Math.random() * 100000),
+                  lat: parseFloat(item.lat),
+                  lon: parseFloat(item.lon),
+                  tags: {
+                    amenity: "pharmacy",
+                    shop: "chemist",
+                    name: rawName || "Pharmacy & Medical Store",
+                  },
+                });
+              }
+              console.log(`[OverpassService] Enriched with ${nomPharmRes.data.length} pharmacies from Nominatim.`);
+            }
+          } catch (e: any) {
+            console.warn("[OverpassService] Targeted pharmacy fallback error:", e?.message);
+          }
+        }
+
         this.memoryCache.set(cacheKey, { timestamp: Date.now(), elements });
         return elements;
       });
@@ -82,7 +137,7 @@ export class OverpassService {
   }
 
   /**
-   * Resilient fallback using Nominatim search to detect hospitals, stations, bus stops, hotels, and parks
+   * Resilient fallback using Nominatim search to detect hospitals, stations, bus stops, hotels, parks, stores and pharmacies
    * if public Overpass servers are rate-limited or experiencing high latency.
    */
   private static async fallbackWithNominatim(
@@ -98,7 +153,7 @@ export class OverpassService {
           "Zonalyze-Urban-Auditor/1.0 (https://zonalyze.in; contact@zonalyze.in)",
       };
 
-      const [hospRes, clinicRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes, shopRes] = await Promise.allSettled([
+      const [hospRes, clinicRes, stationRes, busRes, hotelRes, guestHouseRes, parkRes, shopRes, pharmRes, chemistRes] = await Promise.allSettled([
         axios.get(`https://nominatim.openstreetmap.org/search?q=hospital&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=clinic&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=station&format=json&limit=15&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
@@ -107,6 +162,8 @@ export class OverpassService {
         axios.get(`https://nominatim.openstreetmap.org/search?q=guest+house&format=json&limit=6&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=park&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
         axios.get(`https://nominatim.openstreetmap.org/search?q=supermarket+store+grocery&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=pharmacy&format=json&limit=10&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
+        axios.get(`https://nominatim.openstreetmap.org/search?q=chemist&format=json&limit=6&viewbox=${viewbox}&bounded=1`, { headers, timeout: 3500 }),
       ]);
 
       const elements: OverpassElement[] = [];
@@ -226,6 +283,47 @@ export class OverpassService {
             tags: {
               shop: "supermarket",
               name: rawName || "Local Grocery & Store",
+            },
+          });
+        }
+      }
+
+      if (pharmRes.status === "fulfilled" && Array.isArray(pharmRes.value.data)) {
+        for (const item of pharmRes.value.data) {
+          const rawName = (item.name || item.display_name?.split(",")[0] || "").trim();
+          const osmId = Number(item.osm_id) || Math.floor(Math.random() * 100000);
+          if (seenOsmIds.has(osmId)) continue;
+          seenOsmIds.add(osmId);
+
+          elements.push({
+            type: "node",
+            id: osmId,
+            lat: parseFloat(item.lat),
+            lon: parseFloat(item.lon),
+            tags: {
+              amenity: "pharmacy",
+              shop: "chemist",
+              name: rawName || "Pharmacy & Medical Store",
+            },
+          });
+        }
+      }
+
+      if (chemistRes.status === "fulfilled" && Array.isArray(chemistRes.value.data)) {
+        for (const item of chemistRes.value.data) {
+          const rawName = (item.name || item.display_name?.split(",")[0] || "").trim();
+          const osmId = Number(item.osm_id) || Math.floor(Math.random() * 100000);
+          if (seenOsmIds.has(osmId)) continue;
+          seenOsmIds.add(osmId);
+
+          elements.push({
+            type: "node",
+            id: osmId,
+            lat: parseFloat(item.lat),
+            lon: parseFloat(item.lon),
+            tags: {
+              shop: "chemist",
+              name: rawName || "Local Chemist & Medicine Shop",
             },
           });
         }

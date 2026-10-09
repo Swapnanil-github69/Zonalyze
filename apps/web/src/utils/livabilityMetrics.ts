@@ -223,10 +223,19 @@ export function buildDetailedFacilities(
     (infra.nearby_hospitals && infra.nearby_hospitals[0]?.coordinates) ||
     (nearestHospitalDist !== null ? computeOffsetCoords(coords, nearestHospitalDist || 300, 310) : undefined);
 
-  // Convenience stores & Parks
-  const storeDist = rawFacilities?.store?.distanceMeters ?? 150;
-  const storeCoords: [number, number] =
-    rawFacilities?.store?.coordinates || computeOffsetCoords(coords, storeDist, 90);
+  // Convenience stores & Pharmacies
+  const nearestStoreOrPharm =
+    rawFacilities?.pharmacy ||
+    rawFacilities?.store ||
+    (rawFacilities as any)?.stores;
+
+  const storeDist =
+    nearestStoreOrPharm?.distanceMeters ??
+    (infra.pharmacies > 0 ? (infra as any).nearest_pharmacy_dist_m ?? 350 : null);
+
+  const storeCoords: [number, number] | undefined =
+    nearestStoreOrPharm?.coordinates ||
+    (storeDist !== null ? computeOffsetCoords(coords, storeDist, 90) : undefined);
 
   const parkDist = rawFacilities?.park?.distanceMeters ?? (infra.parks > 0 ? 320 : null);
   const parkCoords: [number, number] | undefined =
@@ -284,9 +293,30 @@ export function buildDetailedFacilities(
         nearby: nearbyHospitals,
       },
       convenienceStores: {
-        count: Math.max(6, infra.pharmacies * 2 + 3),
+        count:
+          ((nearestStoreOrPharm as any)?.count && (nearestStoreOrPharm as any).count > 0)
+            ? (nearestStoreOrPharm as any).count
+            : ((rawFacilities?.store as any)?.count && (rawFacilities?.store as any).count > 0)
+            ? (rawFacilities?.store as any).count
+            : ((rawFacilities?.pharmacy as any)?.count && (rawFacilities?.pharmacy as any).count > 0)
+            ? (rawFacilities?.pharmacy as any).count
+            : ((rawFacilities as any)?.stores?.count && (rawFacilities as any).stores.count > 0)
+            ? (rawFacilities as any).stores.count
+            : ((rawFacilities as any)?.pharmacies?.count && (rawFacilities as any).pharmacies.count > 0)
+            ? (rawFacilities as any).pharmacies.count
+            : (infra.pharmacies !== undefined && infra.pharmacies > 0
+              ? infra.pharmacies
+              : nearestStoreOrPharm
+              ? 1
+              : 0),
         nearest_dist_m: storeDist,
-        name: rawFacilities?.store?.name || "Local Pharmacy & Store",
+        name:
+          nearestStoreOrPharm?.name ||
+          (rawFacilities as any)?.pharmacies?.nearest?.name ||
+          (rawFacilities as any)?.stores?.nearest?.name ||
+          rawFacilities?.pharmacy?.name ||
+          rawFacilities?.store?.name ||
+          (storeDist !== null ? "Pharmacy & Medical Store" : "None within 1.5km"),
         coordinates: storeCoords,
       },
       parks: {
