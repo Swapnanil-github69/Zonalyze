@@ -5,7 +5,9 @@ import {
 } from "../types/investigation";
 import { calculateLivabilityScore } from "../utils/livabilityMetrics";
 
-const apiBase = import.meta.env.VITE_API_URL || "/api";
+import { API_BASE_URL } from "../utils/api";
+
+const apiBase = API_BASE_URL ? `${API_BASE_URL}/api` : "/api";
 
 export const apiClient = axios.create({
   baseURL: apiBase,
@@ -199,9 +201,135 @@ async function fallbackClientInvestigation(
     reviewUrl: string;
   }> = [];
 
+  let pharmaciesCount = 0;
+  let nearestPharmacyName: string | null = null;
+  let nearestPharmacyDistM: number | null = null;
+  let nearestPharmacyCoords: [number, number] | null = null;
+  let parksCount = 0;
+
   const viewbox = `${(longitude - 0.025).toFixed(4)},${(latitude + 0.025).toFixed(4)},${(longitude + 0.025).toFixed(4)},${(latitude - 0.025).toFixed(4)}`;
 
-  await Promise.all([
+  // 1. Live Overpass QL Query for direct OpenStreetMap telemetry
+  const overpassQl = `
+    [out:json][timeout:15];
+    (
+      nwr["amenity"="hospital"](around:3000, ${latitude}, ${longitude});
+      nwr["amenity"="clinic"](around:3000, ${latitude}, ${longitude});
+      nwr["healthcare"](around:3000, ${latitude}, ${longitude});
+      nwr["amenity"="pharmacy"](around:2500, ${latitude}, ${longitude});
+      nwr["shop"="chemist"](around:2500, ${latitude}, ${longitude});
+      nwr["station"="subway"](around:3500, ${latitude}, ${longitude});
+      nwr["railway"="station"](around:4000, ${latitude}, ${longitude});
+      nwr["highway"="bus_stop"](around:1500, ${latitude}, ${longitude});
+      nwr["leisure"="park"](around:2500, ${latitude}, ${longitude});
+    );
+    out center body;
+  `;
+
+  const fetchOverpassData = async () => {
+    const endpoints = [
+      "https://overpass-api.de/api/interpreter",
+      "https://overpass.kumi.systems/api/interpreter",
+    ];
+
+    for (const ep of endpoints) {
+      try {
+        const res = await axios.post(ep, `data=${encodeURIComponent(overpassQl)}`, {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          timeout: 8000,
+        });
+        if (res.data && Array.isArray(res.data.elements) && res.data.elements.length > 0) {
+          const elements = res.data.elements;
+          const hospList: Array<{ name: string; distance: number; type: string; coordinates?: [number, number] }> = [];
+          const pharmList: Array<{ name: string; distance: number; coordinates: [number, number] }> = [];
+
+          for (const el of elements) {
+            const tags = el.tags || {};
+            const eLat = el.lat ?? el.center?.lat;
+            const eLon = el.lon ?? el.center?.lon;
+            if (!eLat || !eLon) continue;
+
+            const dLat = (eLat - latitude) * 111000;
+            const dLon = (eLon - longitude) * 111000 * Math.cos((latitude * Math.PI) / 180);
+            const dist = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+            const name = (tags.name || tags["name:en"] || "").trim();
+
+            // Hospitals & Clinics
+            if (tags.amenity === "hospital" || tags.amenity === "clinic" || tags.healthcare || tags["healthcare:speciality"]) {
+              hospList.push({
+                name: name || (tags.amenity === "hospital" ? "Hospital" : "Medical Clinic"),
+                distance: dist,
+                type: "healthcare",
+                coordinates: [eLon, eLat],
+              });
+            }
+
+            // Pharmacies & Chemists
+            if (tags.amenity === "pharmacy" || tags.shop === "chemist" || tags.healthcare === "pharmacy") {
+              pharmList.push({
+                name: name || "Pharmacy / Medical Store",
+                distance: dist,
+                coordinates: [eLon, eLat],
+              });
+            }
+
+            // Metro
+            if (tags.station === "subway" || (tags.railway === "station" && isClientMetroName(name))) {
+              if (nearestMetroDistM === null || dist < nearestMetroDistM) {
+                nearestMetroDistM = dist;
+                nearestMetroName = name || "Metro Station";
+                nearestMetroCoords = [eLon, eLat];
+              }
+            } else if (tags.railway === "station") {
+              if (nearestRailwayDistM === null || dist < nearestRailwayDistM) {
+                nearestRailwayDistM = dist;
+                nearestRailwayName = name || "Railway Station";
+                nearestRailwayCoords = [eLon, eLat];
+              }
+            }
+
+            // Bus Stop
+            if (tags.highway === "bus_stop") {
+              if (nearestBusDistM === null || dist < nearestBusDistM) {
+                nearestBusDistM = dist;
+                nearestBusName = name || "Bus Stop";
+                nearestBusCoords = [eLon, eLat];
+              }
+            }
+
+            // Parks
+            if (tags.leisure === "park") {
+              parksCount++;
+            }
+          }
+
+          if (hospList.length > 0) {
+            hospList.sort((a, b) => a.distance - b.distance);
+            nearbyHospitals = hospList;
+            hospitalsCount = hospList.length;
+            nearestHospitalName = hospList[0].name;
+            nearestHospitalDistM = hospList[0].distance;
+          }
+
+          if (pharmList.length > 0) {
+            pharmList.sort((a, b) => a.distance - b.distance);
+            pharmaciesCount = pharmList.length;
+            nearestPharmacyName = pharmList[0].name;
+            nearestPharmacyDistM = pharmList[0].distance;
+            nearestPharmacyCoords = pharmList[0].coordinates;
+          }
+
+          return true;
+        }
+      } catch (err: any) {
+        console.warn(`[Fallback Overpass] ${ep} failed:`, err?.message || err);
+      }
+    }
+    return false;
+  };
+
+  const [overpassSuccess] = await Promise.all([
+    fetchOverpassData(),
     axios
       .get(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
@@ -243,69 +371,6 @@ async function fallbackClientInvestigation(
       }),
     axios
       .get(
-        `https://nominatim.openstreetmap.org/search?q=hospital+clinic&format=json&limit=5&viewbox=${viewbox}&bounded=1`,
-        { timeout: 5000 }
-      )
-      .then((hospRes) => {
-        if (Array.isArray(hospRes.data) && hospRes.data.length > 0) {
-          nearbyHospitals = hospRes.data
-            .map((item: any) => {
-              const iLat = parseFloat(item.lat);
-              const iLon = parseFloat(item.lon);
-              const dLat = (iLat - latitude) * 111000;
-              const dLon = (iLon - longitude) * 111000 * Math.cos((latitude * Math.PI) / 180);
-              const dist = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
-              return {
-                name: item.name || item.display_name?.split(",")[0] || "Medical Center",
-                distance: dist,
-                type: "healthcare",
-                coordinates: [iLon, iLat] as [number, number],
-              };
-            })
-            .sort((a: any, b: any) => a.distance - b.distance);
-
-          if (nearbyHospitals.length > 0) {
-            nearestHospitalName = nearbyHospitals[0].name;
-            nearestHospitalDistM = nearbyHospitals[0].distance;
-            hospitalsCount = nearbyHospitals.length;
-          }
-        }
-      })
-      .catch(() => {}),
-    axios
-      .get(
-        `https://nominatim.openstreetmap.org/search?q=station&format=json&limit=10&viewbox=${viewbox}&bounded=1`,
-        { timeout: 5000 }
-      )
-      .then((stnRes) => {
-        if (Array.isArray(stnRes.data) && stnRes.data.length > 0) {
-          for (const item of stnRes.data) {
-            const stnName = (item.name || item.display_name?.split(",")[0] || "").trim();
-            const iLat = parseFloat(item.lat);
-            const iLon = parseFloat(item.lon);
-            const dLat = (iLat - latitude) * 111000;
-            const dLon = (iLon - longitude) * 111000 * Math.cos((latitude * Math.PI) / 180);
-            const dist = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
-
-            if (isClientMetroName(stnName)) {
-              if (nearestMetroDistM === null || dist < nearestMetroDistM) {
-                nearestMetroDistM = dist;
-                nearestMetroName = stnName;
-                nearestMetroCoords = [iLon, iLat];
-              }
-            } else {
-              if (nearestRailwayDistM === null || dist < nearestRailwayDistM) {
-                nearestRailwayDistM = dist;
-                nearestRailwayName = stnName;
-                nearestRailwayCoords = [iLon, iLat];
-              }
-            }
-          }
-        }
-      })
-      .catch(() => {}),
-    axios
-      .get(
         `https://nominatim.openstreetmap.org/search?q=hotel&format=json&limit=8&viewbox=${viewbox}&bounded=1`,
         { timeout: 5000 }
       )
@@ -331,26 +396,41 @@ async function fallbackClientInvestigation(
         }
       })
       .catch(() => {}),
-    axios
-      .get(
-        `https://nominatim.openstreetmap.org/search?q=bus+stop&format=json&limit=5&viewbox=${viewbox}&bounded=1`,
-        { timeout: 5000 }
-      )
-      .then((busRes) => {
-        if (Array.isArray(busRes.data) && busRes.data.length > 0) {
-          const item = busRes.data[0];
-          const bLat = parseFloat(item.lat);
-          const bLon = parseFloat(item.lon);
-          const dLat = (bLat - latitude) * 111000;
-          const dLon = (bLon - longitude) * 111000 * Math.cos((latitude * Math.PI) / 180);
-          nearestBusDistM = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
-          nearestBusName = (item.name || item.display_name?.split(",")[0] || "Bus Stop").trim();
-          nearestBusCoords = [bLon, bLat];
-        }
-      })
-      .catch(() => {}),
   ]);
- 
+
+  // If Overpass timed out or was blocked, run targeted Nominatim queries as secondary fallback
+  if (!overpassSuccess || nearbyHospitals.length === 0) {
+    try {
+      const hospRes = await axios.get(
+        `https://nominatim.openstreetmap.org/search?q=hospital+clinic&format=json&limit=8&viewbox=${viewbox}`,
+        { timeout: 5000 }
+      );
+      if (Array.isArray(hospRes.data) && hospRes.data.length > 0) {
+        nearbyHospitals = hospRes.data
+          .map((item: any) => {
+            const iLat = parseFloat(item.lat);
+            const iLon = parseFloat(item.lon);
+            const dLat = (iLat - latitude) * 111000;
+            const dLon = (iLon - longitude) * 111000 * Math.cos((latitude * Math.PI) / 180);
+            const dist = Math.round(Math.sqrt(dLat * dLat + dLon * dLon));
+            return {
+              name: item.name || item.display_name?.split(",")[0] || "Medical Center",
+              distance: dist,
+              type: "healthcare",
+              coordinates: [iLon, iLat] as [number, number],
+            };
+          })
+          .sort((a: any, b: any) => a.distance - b.distance);
+
+        if (nearbyHospitals.length > 0) {
+          nearestHospitalName = nearbyHospitals[0].name;
+          nearestHospitalDistM = nearbyHospitals[0].distance;
+          hospitalsCount = nearbyHospitals.length;
+        }
+      }
+    } catch {}
+  }
+
   // Determine airport exclusively from verified commercial passenger registry (0ms, 0 external network requests)
   const localAp = resolveClientNearestAirport(latitude, longitude);
   if (localAp) {
@@ -381,10 +461,10 @@ async function fallbackClientInvestigation(
     },
     infrastructure: {
       hospitals: hospitalsCount,
-      pharmacies: 3,
+      pharmacies: pharmaciesCount,
       railway_stations: nearestRailwayDistM !== null ? 1 : 0,
       metro_stations: nearestMetroDistM !== null ? 1 : 0,
-      parks: 2,
+      parks: parksCount > 0 ? parksCount : 2,
       nearest_hospital_dist_m: nearestHospitalDistM,
       nearest_hospital_name: nearestHospitalName,
       nearby_hospitals: nearbyHospitals,
@@ -415,6 +495,11 @@ async function fallbackClientInvestigation(
         distanceMeters: nearestBusDistM,
         coordinates: nearestBusCoords || [longitude, latitude],
         routesCount: 2,
+      } : null,
+      pharmacy: nearestPharmacyDistM !== null ? {
+        name: nearestPharmacyName || "Pharmacy / Medical Store",
+        distanceMeters: nearestPharmacyDistM,
+        coordinates: nearestPharmacyCoords || [longitude, latitude],
       } : null,
       store: null,
       park: null,

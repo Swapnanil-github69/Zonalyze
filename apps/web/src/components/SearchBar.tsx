@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { API_BASE_URL } from "../utils/api";
 
 export interface SearchResultItem {
   displayName: string;
@@ -53,7 +54,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(trimmed)}`);
+        const res = await fetch(`${API_BASE_URL}/api/geocode/search?q=${encodeURIComponent(trimmed)}`);
         const data = await res.json();
 
         if (data.success && Array.isArray(data.results)) {
@@ -61,7 +62,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           setIsOpen(data.results.length > 0);
         } else {
           // Fallback to /api/geocode or OSM if needed
-          const fallbackRes = await fetch(`/api/geocode?q=${encodeURIComponent(trimmed)}`);
+          const fallbackRes = await fetch(`${API_BASE_URL}/api/geocode?q=${encodeURIComponent(trimmed)}`);
           if (fallbackRes.ok) {
             const fbData = await fallbackRes.json();
             if (fbData.success && Array.isArray(fbData.results)) {
@@ -132,7 +133,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     // Fallback: immediate single fetch
     setLoading(true);
     try {
-      const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(clean)}`);
+      const res = await fetch(`${API_BASE_URL}/api/geocode/search?q=${encodeURIComponent(clean)}`);
       const data = await res.json();
       if (data.success && data.results && data.results.length > 0) {
         handleSelect(data.results[0]);

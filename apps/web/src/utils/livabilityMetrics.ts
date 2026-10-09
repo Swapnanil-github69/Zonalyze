@@ -279,9 +279,11 @@ export function buildDetailedFacilities(
     essentials: {
       hospitals: {
         count:
-          (rawFacilities as any)?.health?.count ??
-          rawFacilities?.hospital?.count ??
-          infra.hospitals,
+          (infra.nearby_hospitals && infra.nearby_hospitals.length > 0)
+            ? Math.max(infra.hospitals || 0, infra.nearby_hospitals.length)
+            : ((rawFacilities as any)?.health?.count ??
+               rawFacilities?.hospital?.count ??
+               infra.hospitals ?? 0),
         nearest_dist_m: nearestHospitalDist,
         name:
           rawFacilities?.hospital?.name ||

@@ -1,13 +1,20 @@
 import React, { useState } from "react";
-import { Zap, Radio, MapPin, X, Clock, Copy, Check } from "lucide-react";
+import { Zap, Radio, MapPin, X, Clock, Copy, Check, Maximize2, Minimize2 } from "lucide-react";
 import { InvestigationResult } from "../../types/investigation";
 
 interface DossierHeaderProps {
   investigation: InvestigationResult;
   onClose: () => void;
+  snapState?: "closed" | "partial" | "full";
+  onToggleSnap?: () => void;
 }
 
-export const DossierHeader: React.FC<DossierHeaderProps> = ({ investigation, onClose }) => {
+export const DossierHeader: React.FC<DossierHeaderProps> = ({
+  investigation,
+  onClose,
+  snapState,
+  onToggleSnap,
+}) => {
   const [lon, lat] = investigation.location.coordinates;
   const [copied, setCopied] = useState(false);
 
@@ -26,10 +33,10 @@ export const DossierHeader: React.FC<DossierHeaderProps> = ({ investigation, onC
   };
 
   return (
-    <div className="p-5 border-b border-slate-700/60 flex items-center justify-between bg-slate-900/80 sticky top-0 backdrop-blur-md z-20">
+    <div className="p-4 sm:p-5 border-b border-slate-700/60 flex items-center justify-between bg-slate-900/80 sticky top-0 backdrop-blur-md z-20">
       <div className="space-y-2 flex-1 pr-3">
         {/* Badges row */}
-        <div className="flex items-center space-x-0.5">
+        <div className="flex items-center space-x-1.5">
           {investigation.cached ? (
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-sm shadow-emerald-500/10">
               <Zap className="w-3.5 h-3.5 mr-1 text-emerald-400 fill-emerald-400 animate-pulse" />
@@ -49,7 +56,7 @@ export const DossierHeader: React.FC<DossierHeaderProps> = ({ investigation, onC
         </div>
 
         {/* Reverse-geocoded Location Address */}
-        <h2 className="text-base font-bold text-white leading-snug line-clamp-2">
+        <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">
           {investigation.address || "Reverse-Geocoded Coordinate Target"}
         </h2>
 
@@ -72,14 +79,31 @@ export const DossierHeader: React.FC<DossierHeaderProps> = ({ investigation, onC
         </div>
       </div>
 
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition shrink-0"
-        aria-label="Close dossier"
-      >
-        <X className="w-5 h-5" />
-      </button>
+      {/* Action buttons */}
+      <div className="flex items-center space-x-1 shrink-0">
+        {onToggleSnap && (
+          <button
+            onClick={onToggleSnap}
+            className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition md:hidden"
+            title={snapState === "full" ? "Shrink to 75% height" : "Expand to fullscreen"}
+            aria-label={snapState === "full" ? "Minimize sheet" : "Fullscreen sheet"}
+          >
+            {snapState === "full" ? (
+              <Minimize2 className="w-4 h-4 text-slate-300" />
+            ) : (
+              <Maximize2 className="w-4 h-4 text-slate-300" />
+            )}
+          </button>
+        )}
+
+        <button
+          onClick={onClose}
+          className="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition"
+          aria-label="Close dossier"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
     </div>
   );
 };
